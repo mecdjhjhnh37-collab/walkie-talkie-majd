@@ -39,12 +39,12 @@ document.addEventListener("DOMContentLoaded", () => {
 
             try {
 
-
+console.log("بدأ تسجيل الدخول");
                 const result = await signInWithPopup(
                     auth,
                     provider
                 );
-
+console.log("تم تسجيل الدخول", result.user);
 
                 console.log("User:", result.user);
 
