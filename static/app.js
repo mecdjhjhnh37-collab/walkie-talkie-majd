@@ -26,8 +26,37 @@ const provider = new GoogleAuthProvider();
 
 
 
-document.addEventListener("DOMContentLoaded", () => {
 
+function loadLanguage(){
+
+    let lang = localStorage.getItem("language") || "ar";
+
+    const friends = document.getElementById("friendsText");
+    const create = document.getElementById("createRoomText");
+    const join = document.getElementById("joinRoomText");
+    const publicRooms = document.getElementById("publicRoomsText");
+    const settings = document.getElementById("settingsText");
+
+
+    if(friends)
+        friends.textContent = translations[lang].friends.replace("👥 ","");
+
+    if(create)
+        create.textContent = translations[lang].createRoom.replace("🎙️ ","");
+
+    if(join)
+        join.textContent = translations[lang].joinRoom.replace("🚪 ","");
+
+    if(publicRooms)
+        publicRooms.textContent = translations[lang].publicRooms.replace("🌍 ","");
+
+    if(settings)
+        settings.textContent = translations[lang].settings.replace("⚙️ ","");
+
+}
+
+
+document.addEventListener("DOMContentLoaded", loadLanguage);
 
     const loginBtn = document.getElementById("loginBtn");
 
