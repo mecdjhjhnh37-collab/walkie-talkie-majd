@@ -1,5 +1,6 @@
 import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js";
-import { 
+
+import {
   getAuth,
   GoogleAuthProvider,
   signInWithPopup
@@ -23,32 +24,75 @@ const auth = getAuth(app);
 const provider = new GoogleAuthProvider();
 
 
-document.getElementById("googleLogin").innerHTML = `
-<button id="loginBtn">
-🔵 تسجيل الدخول بواسطة Google
-</button>
-`;
-
-document.getElementById("loginBtn").onclick = async () => {
-
-alert("تم الضغط على الزر");
-
-try {
+window.addEventListener("DOMContentLoaded", () => {
 
 
-    const result = await signInWithPopup(auth, provider);
+  const googleLogin = document.getElementById("googleLogin");
 
-    const user = result.user;
 
-    alert("مرحباً " + user.displayName);
+  if (!googleLogin) {
 
-    console.log(user);
+    console.log("لم يتم العثور على googleLogin");
 
-  } catch(error) {
-
-    console.log(error);
-    alert("حدث خطأ في تسجيل الدخول");
+    return;
 
   }
 
-};
+
+  googleLogin.innerHTML = `
+
+    <button id="loginBtn" type="button">
+      🔵 تسجيل الدخول بواسطة Google
+    </button>
+
+  `;
+
+
+
+  const loginBtn = document.getElementById("loginBtn");
+
+
+  loginBtn.addEventListener("click", async () => {
+
+
+    console.log("تم الضغط على الزر");
+
+
+    try {
+
+
+      const result = await signInWithPopup(
+        auth,
+        provider
+      );
+
+
+      const user = result.user;
+
+
+      alert(
+        "مرحباً " + user.displayName
+      );
+
+
+      console.log(user);
+
+
+    } catch(error) {
+
+
+      console.error(error);
+
+
+      alert(
+        "خطأ: " + error.message
+      );
+
+
+    }
+
+
+  });
+
+
+});
