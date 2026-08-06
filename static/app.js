@@ -49,3 +49,19 @@ window.addEventListener("DOMContentLoaded", () => {
     });
 
 });
+// نظام تغيير لغة صفحة Home
+
+const currentLanguage = localStorage.getItem("language") || "ar";
+
+
+document.querySelectorAll("[data-key]").forEach((element) => {
+
+    const key = element.getAttribute("data-key");
+
+    if (translations[currentLanguage][key]) {
+
+        element.innerHTML = translations[currentLanguage][key];
+
+    }
+
+});
