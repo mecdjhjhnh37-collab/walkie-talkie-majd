@@ -2,12 +2,14 @@
 <html lang="ar" dir="rtl">
 
 <head>
+
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
     <title>تسجيل الدخول - Mecd Voice</title>
 
     <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+
 </head>
 
 
@@ -15,35 +17,62 @@
 
 <div class="container">
 
+
     <div class="logo">
         🔐
     </div>
 
+
     <h1>Mecd Voice</h1>
 
+
     <h2>تسجيل الدخول</h2>
+
 
     <p>
         أهلاً بك في موقع المطور مجد
     </p>
 
 
-    <button class="lang-btn google-btn">
-        تسجيل الدخول بواسطة Google
+
+    <!-- زر تسجيل الدخول بجوجل -->
+    <button 
+        id="loginBtn"
+        class="lang-btn google-btn"
+        type="button">
+
+        🔵 تسجيل الدخول بواسطة Google
+
     </button>
+
 
 
     <br><br>
 
 
+
     <a href="/">
-        <button class="lang-btn">
+
+        <button class="lang-btn" type="button">
+
             رجوع
+
         </button>
+
     </a>
 
 
+
 </div>
-<script src="{{ url_for('static', filename='app.js') }}"></script>
+
+
+
+<script 
+type="module" 
+src="{{ url_for('static', filename='app.js') }}">
+</script>
+
+
 </body>
+
 </html>
