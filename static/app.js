@@ -18,16 +18,15 @@ const app = initializeApp(firebaseConfig);
 const auth = getAuth(app);
 const provider = new GoogleAuthProvider();
 
-window.onload = function () {
+window.addEventListener("DOMContentLoaded", () => {
 
     const loginBtn = document.getElementById("loginBtn");
 
     if (!loginBtn) {
-        alert("لم يتم العثور على زر تسجيل الدخول");
         return;
     }
 
-    loginBtn.onclick = async function () {
+    loginBtn.addEventListener("click", async () => {
 
         try {
 
@@ -41,11 +40,12 @@ window.onload = function () {
 
         } catch (error) {
 
-            alert(error.message);
-            console.log(error);
+            console.error(error);
+
+            alert("خطأ:\n" + error.message);
 
         }
 
-    };
+    });
 
-};
+});
