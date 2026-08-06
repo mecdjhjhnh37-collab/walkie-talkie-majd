@@ -1,72 +1,22 @@
-import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js";
+loginBtn.addEventListener("click", async () => {
 
-import {
-    getAuth,
-    GoogleAuthProvider,
-    signInWithPopup
-} from "https://www.gstatic.com/firebasejs/10.12.2/firebase-auth.js";
+    alert("وصل للزر");
 
+    try {
 
-const firebaseConfig = {
-    apiKey: "AIzaSyBrxgm0VQTfRv0ixXH9uQ81HBJ8SmD8c1E",
-    authDomain: "mecd-voice-ap.firebaseapp.com",
-    projectId: "mecd-voice-ap",
-    storageBucket: "mecd-voice-ap.firebasestorage.app",
-    messagingSenderId: "595103941809",
-    appId: "1:595103941809:web:e50577f156bcea3633ce90"
-};
+        const result = await signInWithPopup(
+            auth,
+            provider
+        );
 
+        alert("تم الدخول");
 
-const app = initializeApp(firebaseConfig);
+        window.location.href="/home";
 
-const auth = getAuth(app);
+    } catch(error){
 
-const provider = new GoogleAuthProvider();
-
-
-
-document.addEventListener("DOMContentLoaded", () => {
-
-
-    const loginBtn = document.getElementById("loginBtn");
-
-
-    if (loginBtn) {
-
-
-        loginBtn.addEventListener("click", async () => {
-
-
-            try {
-
-console.log("بدأ تسجيل الدخول");
-                const result = await signInWithPopup(
-                    auth,
-                    provider
-                );
-console.log("تم تسجيل الدخول", result.user);
-
-                console.log("User:", result.user);
-
-
-                window.location.href = "/home";
-
-
-            } catch (error) {
-
-
-                console.error(error);
-
-                authDomain: "mecd-voice-ap.firebaseapp.com",
-
-
-            }
-
-
-        });
-
+        alert(error.code + "\n" + error.message);
 
     }
-
 
 });
