@@ -1,4 +1,52 @@
-// Mecd Voice - Google Login
-// سنربطه مع Firebase في الخطوة القادمة
+import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js";
+import { 
+  getAuth,
+  GoogleAuthProvider,
+  signInWithPopup
+} from "https://www.gstatic.com/firebasejs/10.12.2/firebase-auth.js";
 
-console.log("Mecd Voice app.js يعمل ✅");
+
+const firebaseConfig = {
+  apiKey: "AIzaSyBrxgm0VQTfRv0ixXh9uQ81HBJ8SmD8c1E",
+  authDomain: "mecd-voice-ap.firebaseapp.com",
+  projectId: "mecd-voice-ap",
+  storageBucket: "mecd-voice-ap.firebasestorage.app",
+  messagingSenderId: "595103941809",
+  appId: "1:595103941809:web:08af004c43bc94ec33ce90"
+};
+
+
+const app = initializeApp(firebaseConfig);
+
+const auth = getAuth(app);
+
+const provider = new GoogleAuthProvider();
+
+
+document.getElementById("googleLogin").innerHTML = `
+<button id="loginBtn">
+🔵 تسجيل الدخول بواسطة Google
+</button>
+`;
+
+
+document.getElementById("loginBtn").onclick = async () => {
+
+  try {
+
+    const result = await signInWithPopup(auth, provider);
+
+    const user = result.user;
+
+    alert("مرحباً " + user.displayName);
+
+    console.log(user);
+
+  } catch(error) {
+
+    console.log(error);
+    alert("حدث خطأ في تسجيل الدخول");
+
+  }
+
+};
