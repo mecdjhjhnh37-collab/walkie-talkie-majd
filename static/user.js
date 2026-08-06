@@ -19,7 +19,7 @@ const db = getDatabase(app);
 
 
 async function createUserID(user){
-
+console.log("createUserID اشتغل", user.uid);
 
     const userRef = ref(db, "users/" + user.uid);
 
@@ -54,7 +54,7 @@ async function createUserID(user){
 
 
         await set(userRef, {
-
+console.log("تم حفظ ID");
             id: customID,
             name: user.displayName,
             photo: user.photoURL
