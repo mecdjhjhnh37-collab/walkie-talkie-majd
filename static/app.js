@@ -1,10 +1,3 @@
-import {
-    getDatabase,
-    ref,
-    get,
-    set,
-    child
-} from "https://www.gstatic.com/firebasejs/10.12.2/firebase-database.js";
 import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js";
 
 import {
@@ -13,6 +6,13 @@ import {
     signInWithPopup,
     onAuthStateChanged
 } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-auth.js";
+
+import {
+    getDatabase,
+    ref,
+    get,
+    set
+} from "https://www.gstatic.com/firebasejs/10.12.2/firebase-database.js";
 
 
 const firebaseConfig = {
@@ -28,8 +28,13 @@ const firebaseConfig = {
 const app = initializeApp(firebaseConfig);
 
 const auth = getAuth(app);
+
 const db = getDatabase(app);
+
 const provider = new GoogleAuthProvider();
+
+
+
 async function createUserID(user){
 
     const userRef = ref(db, "users/" + user.uid);
@@ -38,7 +43,6 @@ async function createUserID(user){
 
 
     if(!snapshot.exists()){
-
 
         const allUsers = await get(ref(db, "users"));
 
@@ -64,14 +68,13 @@ async function createUserID(user){
 
         });
 
-
     }
 
 }
 
 
 
-document.addEventListener("DOMContentLoaded", () => {
+document.addEventListener("DOMContentLoaded", ()=>{
 
 
     const loginBtn = document.getElementById("loginBtn");
@@ -79,54 +82,80 @@ document.addEventListener("DOMContentLoaded", () => {
 
     if(loginBtn){
 
-        loginBtn.onclick = async () => {
 
-            try {
+        loginBtn.onclick = async ()=>{
+
+
+            try{
+
 
                 await signInWithPopup(auth, provider);
 
                 window.location.href="/home";
 
-            } catch(error){
+
+            }catch(error){
+
 
                 alert(error.message);
 
+
             }
 
+
         };
+
 
     }
 
 
 
-    onAuthStateChanged(auth, (user)=>{
+    onAuthStateChanged(auth, async (user)=>{
 
 
         if(user){
-createUserID(user);
-onAuthStateChanged(auth, (user)=>{
+
+
+            await createUserID(user);
+
+
+
             const name = document.getElementById("userName");
             const photo = document.getElementById("userPhoto");
             const id = document.getElementById("userId");
 
 
-            if(name){
-
-                name.textContent = user.displayName;
-
-            }
+            const userData = await get(
+                ref(db, "users/" + user.uid)
+            );
 
 
-            if(photo){
-
-                photo.src = user.photoURL;
-
-            }
+            if(userData.exists()){
 
 
-            if(id){
+                const data = userData.val();
 
-                id.textContent = "ID : " + user.uid;
+
+                if(name){
+
+                    name.textContent = data.name;
+
+                }
+
+
+                if(photo){
+
+                    photo.src = data.photo;
+
+                }
+
+
+                if(id){
+
+                    id.textContent = "ID : " + data.id;
+
+                }
+
 
             }
 
