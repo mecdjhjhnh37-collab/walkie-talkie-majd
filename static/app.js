@@ -65,3 +65,18 @@ document.querySelectorAll("[data-key]").forEach((element) => {
     }
 
 });
+let lang = localStorage.getItem("language") || "ar";
+
+if (lang === "tr") {
+
+document.getElementById("friendsText").innerHTML = "👥 Arkadaşlar";
+
+document.getElementById("createRoomText").innerHTML = "🎙️ Oda Oluştur";
+
+document.getElementById("joinRoomText").innerHTML = "🚪 Odaya Katıl";
+
+document.getElementById("publicRoomsText").innerHTML = "🌍 Genel Odalar";
+
+document.getElementById("settingsText").innerHTML = "⚙️ Ayarlar";
+
+}
