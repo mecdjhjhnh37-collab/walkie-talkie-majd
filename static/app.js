@@ -3,11 +3,11 @@ import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.2/fireba
 import {
     getAuth,
     GoogleAuthProvider,
-    signInWithPopup
+    signInWithPopup,
+    onAuthStateChanged
 } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-auth.js";
 
 
-// Firebase Config
 const firebaseConfig = {
     apiKey: "AIzaSyBrxgm0VQTfRv0ixXh9uQ81HBJ8SmD8c1E",
     authDomain: "mecd-voice-ap.firebaseapp.com",
@@ -18,7 +18,6 @@ const firebaseConfig = {
 };
 
 
-// Initialize Firebase
 const app = initializeApp(firebaseConfig);
 
 const auth = getAuth(app);
@@ -27,60 +26,70 @@ const provider = new GoogleAuthProvider();
 
 
 
-// Google Login
 document.addEventListener("DOMContentLoaded", () => {
 
 
     const loginBtn = document.getElementById("loginBtn");
 
 
-    if (loginBtn) {
+    if(loginBtn){
 
-
-        loginBtn.addEventListener("click", async () => {
-
-
-        
-
+        loginBtn.onclick = async () => {
 
             try {
 
+                await signInWithPopup(auth, provider);
 
-                const result = await signInWithPopup(
-                    auth,
-                    provider
-                );
+                window.location.href="/home";
 
+            } catch(error){
 
-                
+                alert(error.message);
 
+            }
 
-                console.log(result.user);
+        };
 
-
-                window.location.href = "/home";
-
-
-            } catch(error) {
+    }
 
 
-                console.log(error);
+
+    onAuthStateChanged(auth, (user)=>{
 
 
-                alert(
-                    error.code +
-                    "\n\n" +
-                    error.message
-                );
+        if(user){
 
+
+            const name = document.getElementById("userName");
+            const photo = document.getElementById("userPhoto");
+            const id = document.getElementById("userId");
+
+
+            if(name){
+
+                name.textContent = user.displayName;
 
             }
 
 
-        });
+            if(photo){
+
+                photo.src = user.photoURL;
+
+            }
 
 
-    }
+            if(id){
+
+                id.textContent = "ID : " + user.uid;
+
+            }
+
+
+        }
+
+
+    });
 
 
 });
