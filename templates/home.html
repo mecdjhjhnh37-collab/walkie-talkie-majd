@@ -29,50 +29,71 @@ class="avatar">
 جارٍ التحميل...
 </h2>
 
+
 <p id="userId">
 ID : ------
 </p>
+
 
 <div class="status">
 🟢 Online
 </div>
 
+
 </div>
+
 
 <h1 class="title">
 🎙️ Mecd Voice
 </h1>
 
+
 <div class="menu">
+
 
 <button>
 👥 <span id="friendsText">الأصدقاء</span>
 </button>
 
+
 <button>
 🎙️ <span id="createRoomText">إنشاء غرفة</span>
 </button>
+
 
 <button>
 🚪 <span id="joinRoomText">دخول إلى غرفة</span>
 </button>
 
+
 <button>
 🌍 <span id="publicRoomsText">الغرف العامة</span>
 </button>
+
 
 <button>
 ⚙️ <span id="settingsText">الإعدادات</span>
 </button>
 
+
 </div>
 
 
 </div>
+
+
 <script src="{{ url_for('static', filename='language.js') }}"></script>
+
+
 <script type="module"
 src="{{ url_for('static', filename='app.js') }}">
 </script>
+
+
+<script type="module"
+src="{{ url_for('static', filename='user.js') }}">
+</script>
+
 
 </body>
 
