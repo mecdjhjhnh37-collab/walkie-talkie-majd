@@ -40,7 +40,7 @@ document.addEventListener("DOMContentLoaded", () => {
         loginBtn.addEventListener("click", async () => {
 
 
-            alert("وصل للزر");
+        
 
 
             try {
@@ -52,7 +52,7 @@ document.addEventListener("DOMContentLoaded", () => {
                 );
 
 
-                alert("تم الدخول");
+                
 
 
                 console.log(result.user);
