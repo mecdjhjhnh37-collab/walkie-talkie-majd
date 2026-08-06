@@ -3,13 +3,12 @@ import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.2/fireba
 import {
     getAuth,
     GoogleAuthProvider,
-    signInWithRedirect,
-    getRedirectResult
+    signInWithPopup
 } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-auth.js";
 
 
 const firebaseConfig = {
-    apiKey: "AIzaSyBrxgm0VQTfRv0ixXh9uQ81HBJ8SmD8c1E",
+    apiKey: "AIzaSyBrxgm0VQTfRv0ixXH9uQ81HBJ8SmD8c1E",
     authDomain: "mecd-voice-ap.firebaseapp.com",
     projectId: "mecd-voice-ap",
     storageBucket: "mecd-voice-ap.firebasestorage.app",
@@ -28,38 +27,46 @@ const provider = new GoogleAuthProvider();
 
 document.addEventListener("DOMContentLoaded", () => {
 
+
     const loginBtn = document.getElementById("loginBtn");
 
 
-    if(loginBtn){
+    if (loginBtn) {
 
-        loginBtn.addEventListener("click", () => {
 
-            signInWithRedirect(auth, provider);
+        loginBtn.addEventListener("click", async () => {
+
+
+            try {
+
+
+                const result = await signInWithPopup(
+                    auth,
+                    provider
+                );
+
+
+                console.log("User:", result.user);
+
+
+                window.location.href = "/home";
+
+
+            } catch (error) {
+
+
+                console.error(error);
+
+                alert(error.message);
+
+
+            }
+
 
         });
 
+
     }
-
-
-
-    getRedirectResult(auth)
-    .then((result)=>{
-
-        if(result){
-
-            window.location.href="/home";
-
-        }
-
-    })
-    .catch((error)=>{
-
-        console.log(error);
-
-        alert(error.message);
-
-    });
 
 
 });
