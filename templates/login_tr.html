@@ -2,14 +2,15 @@
 <html lang="tr" dir="ltr">
 
 <head>
+
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
     <title>Giriş Yap - Mecd Voice</title>
 
     <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
-</head>
 
+</head>
 
 <body>
 
@@ -27,24 +28,33 @@
         Geliştirici Mecd'in sitesine hoş geldiniz
     </p>
 
+    <button
+        id="loginBtn"
+        class="lang-btn google-btn"
+        type="button">
 
-    <button class="lang-btn google-btn">
-        Google ile giriş yap
+        🔵 Google ile giriş yap
+
     </button>
-
 
     <br><br>
 
-
     <a href="/">
-        <button class="lang-btn">
+
+        <button class="lang-btn" type="button">
+
             Geri
+
         </button>
+
     </a>
 
-
 </div>
-<script src="{{ url_for('static', filename='app.js') }}"></script>
-</body>
 
+<script
+type="module"
+src="{{ url_for('static', filename='app.js') }}">
+</script>
+
+</body>
 </html>
