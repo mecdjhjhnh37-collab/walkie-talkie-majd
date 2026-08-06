@@ -11,7 +11,7 @@ const firebaseConfig = {
   projectId: "mecd-voice-ap",
   storageBucket: "mecd-voice-ap.firebasestorage.app",
   messagingSenderId: "595103941809",
-  appId: "1:595103941809:web:08af004c43bc94ec33ce90"
+  appId: "1:595103941809:web:e50577f156bcea3633ce90"
 };
 
 const app = initializeApp(firebaseConfig);
