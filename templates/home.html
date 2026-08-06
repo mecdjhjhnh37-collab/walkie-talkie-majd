@@ -2,10 +2,11 @@
 <html lang="ar" dir="rtl">
 
 <head>
+
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
-<title>Mecd Voice Center</title>
+<title>Mecd Voice</title>
 
 <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
 
@@ -13,54 +14,63 @@
 
 <body>
 
-<div class="container">
+<div class="background"></div>
 
-    <div class="profile-card">
+<div class="home">
 
-        <img src="https://i.imgur.com/6VBx3io.png" class="avatar">
+<div class="profile">
 
-        <h2>مستخدم مجد</h2>
+<img id="userPhoto"
+src="https://i.imgur.com/6VBx3io.png"
+class="avatar">
 
-        <p>ID: MCD-000001</p>
+<h2 id="userName">
+جارٍ التحميل...
+</h2>
 
-        <span class="online">
-            🟢 Online
-        </span>
+<p id="userId">
+ID : ------
+</p>
 
-    </div>
-
-
-    <h1>
-        Mecd Voice Center 🎙️
-    </h1>
-
-
-    <div class="buttons">
-
-        <button>
-            👥 الأصدقاء
-        </button>
-
-
-        <button>
-            🎙️ إنشاء غرفة
-        </button>
-
-
-        <button>
-            🚪 دخول إلى غرفة
-        </button>
-
-
-        <button>
-            ⚙️ الإعدادات
-        </button>
-
-    </div>
-
+<div class="status">
+🟢 Online
+</div>
 
 </div>
 
+<h1 class="title">
+🎙️ Mecd Voice
+</h1>
+
+<div class="menu">
+
+<button id="friendsBtn">
+👥 الأصدقاء
+</button>
+
+<button id="createRoomBtn">
+🎙️ إنشاء غرفة
+</button>
+
+<button id="joinRoomBtn">
+🚪 دخول إلى غرفة
+</button>
+
+<button id="publicRoomsBtn">
+🌍 الغرف العامة
+</button>
+
+<button id="settingsBtn">
+⚙️ الإعدادات
+</button>
+
+</div>
+
+</div>
+
+<script type="module"
+src="{{ url_for('static', filename='app.js') }}">
+</script>
 
 </body>
 
