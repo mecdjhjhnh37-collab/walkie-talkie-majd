@@ -57,7 +57,7 @@ document.addEventListener("DOMContentLoaded", () => {
 
                 console.error(error);
 
-                alert(error.message);
+                authDomain: "mecd-voice-ap.firebaseapp.com",
 
 
             }
