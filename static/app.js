@@ -1,3 +1,10 @@
+import {
+    getDatabase,
+    ref,
+    get,
+    set,
+    child
+} from "https://www.gstatic.com/firebasejs/10.12.2/firebase-database.js";
 import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js";
 
 import {
@@ -21,8 +28,46 @@ const firebaseConfig = {
 const app = initializeApp(firebaseConfig);
 
 const auth = getAuth(app);
-
+const db = getDatabase(app);
 const provider = new GoogleAuthProvider();
+async function createUserID(user){
+
+    const userRef = ref(db, "users/" + user.uid);
+
+    const snapshot = await get(userRef);
+
+
+    if(!snapshot.exists()){
+
+
+        const allUsers = await get(ref(db, "users"));
+
+        let number = 1;
+
+
+        if(allUsers.exists()){
+
+            number = Object.keys(allUsers.val()).length + 1;
+
+        }
+
+
+        const customID =
+        "MC-" + String(number).padStart(6, "0");
+
+
+        await set(userRef, {
+
+            id: customID,
+            name: user.displayName,
+            photo: user.photoURL
+
+        });
+
+
+    }
+
+}
 
 
 
@@ -58,8 +103,8 @@ document.addEventListener("DOMContentLoaded", () => {
 
 
         if(user){
-
-
+createUserID(user);
+onAuthStateChanged(auth, (user)=>{
             const name = document.getElementById("userName");
             const photo = document.getElementById("userPhoto");
             const id = document.getElementById("userId");
