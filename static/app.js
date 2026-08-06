@@ -67,16 +67,26 @@ document.querySelectorAll("[data-key]").forEach((element) => {
 });
 let lang = localStorage.getItem("language") || "ar";
 
-if (lang === "tr") {
+<div class="menu">
 
-document.getElementById("friendsText").innerHTML = "👥 Arkadaşlar";
+<button>
+👥 <span id="friendsText">الأصدقاء</span>
+</button>
 
-document.getElementById("createRoomText").innerHTML = "🎙️ Oda Oluştur";
+<button>
+🎙️ <span id="createRoomText">إنشاء غرفة</span>
+</button>
 
-document.getElementById("joinRoomText").innerHTML = "🚪 Odaya Katıl";
+<button>
+🚪 <span id="joinRoomText">دخول إلى غرفة</span>
+</button>
 
-document.getElementById("publicRoomsText").innerHTML = "🌍 Genel Odalar";
+<button>
+🌍 <span id="publicRoomsText">الغرف العامة</span>
+</button>
 
-document.getElementById("settingsText").innerHTML = "⚙️ Ayarlar";
+<button>
+⚙️ <span id="settingsText">الإعدادات</span>
+</button>
 
-}
+</div>
