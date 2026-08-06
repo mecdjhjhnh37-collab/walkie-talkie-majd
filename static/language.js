@@ -1,46 +1,66 @@
 const translations = {
 
     ar: {
-        friends: "👥 الأصدقاء",
-        createRoom: "🎙️ إنشاء غرفة",
-        joinRoom: "🚪 دخول إلى غرفة",
-        publicRooms: "🌍 الغرف العامة",
-        settings: "⚙️ الإعدادات"
+        friends: "الأصدقاء",
+        createRoom: "إنشاء غرفة",
+        joinRoom: "دخول إلى غرفة",
+        publicRooms: "الغرف العامة",
+        settings: "الإعدادات"
     },
 
-
     tr: {
-        friends: "👥 Arkadaşlar",
-        createRoom: "🎙️ Oda Oluştur",
-        joinRoom: "🚪 Odaya Katıl",
-        publicRooms: "🌍 Genel Odalar",
-        settings: "⚙️ Ayarlar"
+        friends: "Arkadaşlar",
+        createRoom: "Oda Oluştur",
+        joinRoom: "Odaya Katıl",
+        publicRooms: "Genel Odalar",
+        settings: "Ayarlar"
     }
 
 };
+
+
+
+function setLanguage(lang){
+
+    localStorage.setItem("language", lang);
+
+}
+
+
+
 function loadLanguage(){
 
-    let lang = localStorage.getItem("language") || "ar";
+    const lang = localStorage.getItem("language") || "ar";
 
-    document.getElementById("friendsText").textContent =
-    translations[lang].friends.replace("👥 ","");
+    const elements = {
 
-    document.getElementById("createRoomText").textContent =
-    translations[lang].createRoom.replace("🎙️ ","");
+        friendsText: "friends",
+        createRoomText: "createRoom",
+        joinRoomText: "joinRoom",
+        publicRoomsText: "publicRooms",
+        settingsText: "settings"
 
-    document.getElementById("joinRoomText").textContent =
-    translations[lang].joinRoom.replace("🚪 ","");
+    };
 
-    document.getElementById("publicRoomsText").textContent =
-    translations[lang].publicRooms.replace("🌍 ","");
 
-    document.getElementById("settingsText").textContent =
-    translations[lang].settings.replace("⚙️ ","");
+    for (let id in elements){
+
+        const element = document.getElementById(id);
+
+        if(element){
+
+            element.textContent =
+            translations[lang][elements[id]];
+
+        }
+
+    }
 
 }
 
 
-document.addEventListener("DOMContentLoaded", loadLanguage);
-function setLanguage(lang){
-    localStorage.setItem("language", lang);
-}
+
+document.addEventListener(
+    "DOMContentLoaded",
+    loadLanguage
+);
