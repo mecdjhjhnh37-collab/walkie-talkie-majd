@@ -41,3 +41,6 @@ function loadLanguage(){
 
 
 document.addEventListener("DOMContentLoaded", loadLanguage);
+function setLanguage(lang){
+    localStorage.setItem("language", lang);
+}
