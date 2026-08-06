@@ -1,26 +1,46 @@
 <!DOCTYPE html>
-<html lang="ar">
+<html lang="ar" dir="rtl">
+
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Developer Mecd</title>
+
+    <title>Mecd Voice</title>
+
+    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
 </head>
 
-<body style="background:#0f172a;color:white;text-align:center;font-family:Arial;padding-top:80px;">
+<body>
 
-    <h1>Developer Mecd</h1>
+<div class="container">
 
-    <h2>🎙️ Mecd Voice</h2>
+    <div class="logo">
+        🎙️
+    </div>
 
-    <p>مرحبًا بك في موقع المطور مجد</p>
+    <h1>Mecd Voice</h1>
 
-    <p>Geliştirici Mecd'in sitesine hoş geldiniz</p>
+    <p>
+        مرحبًا بك في موقع المطور مجد
+    </p>
 
-    <button>🇸🇦 العربية</button>
+    <p>
+        Geliştirici Mecd'in sitesine hoş geldiniz
+    </p>
 
-    <br><br>
 
-    <button>🇹🇷 Türkçe</button>
+    <button class="lang-btn">
+        🇸🇦 العربية
+    </button>
+
+
+    <button class="lang-btn">
+        🇹🇷 Türkçe
+    </button>
+
+
+</div>
 
 </body>
+
 </html>
