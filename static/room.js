@@ -109,8 +109,12 @@ document.addEventListener("DOMContentLoaded", () => {
 
             } catch (e) {
 
-                console.error(e);
-                alert("حدث خطأ أثناء إنشاء الغرفة");
+                catch (e) {
+
+    console.error(e);
+    alert(e.message);
+
+            }
 
             }
 
