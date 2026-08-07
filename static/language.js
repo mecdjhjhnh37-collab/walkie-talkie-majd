@@ -79,7 +79,7 @@ function loadLanguage(){
 
         document.getElementById("roomPopupTitle").textContent = room.title;
 
-        document.getElementById("roomName").placeholder = room.roomName;
+        document.getElementById("newRoomName").placeholder = room.roomName;
 
         document.getElementById("roomPassword").placeholder = room.password;
 
