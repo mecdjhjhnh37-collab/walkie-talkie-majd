@@ -59,7 +59,10 @@ href="{{ url_for('static', filename='style.css') }}">
 
     <div class="menu">
 
-        <button id="friendsBtn" type="button">
+
+        <button
+        id="friendsBtn"
+        type="button">
 
             👥
 
@@ -70,7 +73,9 @@ href="{{ url_for('static', filename='style.css') }}">
         </button>
 
 
-        <button id="createRoomBtn" type="button">
+        <button
+        id="createRoomBtn"
+        type="button">
 
             🎙️
 
@@ -81,7 +86,9 @@ href="{{ url_for('static', filename='style.css') }}">
         </button>
 
 
-        <button id="joinRoomBtn" type="button">
+        <button
+        id="joinRoomBtn"
+        type="button">
 
             🚪
 
@@ -92,7 +99,9 @@ href="{{ url_for('static', filename='style.css') }}">
         </button>
 
 
-        <button id="publicRoomsBtn" type="button">
+        <button
+        id="publicRoomsBtn"
+        type="button">
 
             🌍
 
@@ -103,7 +112,9 @@ href="{{ url_for('static', filename='style.css') }}">
         </button>
 
 
-        <button id="settingsBtn" type="button">
+        <button
+        id="settingsBtn"
+        type="button">
 
             ⚙️
 
@@ -113,7 +124,9 @@ href="{{ url_for('static', filename='style.css') }}">
 
         </button>
 
+
     </div>
+
 
 </div>
 
@@ -123,9 +136,13 @@ href="{{ url_for('static', filename='style.css') }}">
      نافذة إنشاء الغرفة
 ================================================== -->
 
-<div id="roomPopup" class="popup">
+<div
+id="roomPopup"
+class="popup">
+
 
     <div class="popup-box">
+
 
         <h2 id="roomPopupTitle"></h2>
 
@@ -181,6 +198,7 @@ href="{{ url_for('static', filename='style.css') }}">
 
         <div class="popup-buttons">
 
+
             <button
             id="createRoomNow"
             type="button">
@@ -192,9 +210,12 @@ href="{{ url_for('static', filename='style.css') }}">
             type="button">
             </button>
 
+
         </div>
 
+
     </div>
+
 
 </div>
 
@@ -204,9 +225,13 @@ href="{{ url_for('static', filename='style.css') }}">
      نافذة دخول إلى غرفة
 ================================================== -->
 
-<div id="joinRoomPopup" class="popup">
+<div
+id="joinRoomPopup"
+class="popup">
+
 
     <div class="popup-box">
+
 
         <h2 id="joinRoomTitle">
             🚪 دخول إلى غرفة
@@ -222,32 +247,42 @@ href="{{ url_for('static', filename='style.css') }}">
 
         <div class="popup-buttons">
 
+
             <button
             id="joinRoomNow"
             type="button">
-            دخول
+
+                🚪 دخول
+
             </button>
 
 
             <button
             id="cancelJoinRoom"
             type="button">
-            إلغاء
+
+                ❌ إلغاء
+
             </button>
+
 
         </div>
 
+
     </div>
+
 
 </div>
 
 
 
 <!-- ==================================================
-     الملفات
+     JavaScript
 ================================================== -->
 
-<script src="{{ url_for('static', filename='language.js') }}"></script>
+<script
+src="{{ url_for('static', filename='language.js') }}">
+</script>
 
 
 <script
@@ -268,131 +303,11 @@ src="{{ url_for('static', filename='create-room.js') }}">
 </script>
 
 
-
-<!-- ==================================================
-     تشغيل زر دخول إلى غرفة
-================================================== -->
-
-<script>
-
-document.addEventListener("DOMContentLoaded", function () {
-
-    const joinBtn =
-        document.getElementById("joinRoomBtn");
-
-    const joinPopup =
-        document.getElementById("joinRoomPopup");
-
-    const joinNow =
-        document.getElementById("joinRoomNow");
-
-    const cancelJoin =
-        document.getElementById("cancelJoinRoom");
-
-    const roomIdInput =
-        document.getElementById("joinRoomId");
-
-
-    /* فتح نافذة الدخول */
-
-    if (joinBtn) {
-
-        joinBtn.addEventListener("click", function () {
-
-            joinPopup.style.display = "flex";
-
-            roomIdInput.value = "";
-
-            setTimeout(function () {
-                roomIdInput.focus();
-            }, 100);
-
-        });
-
-    }
-
-
-    /* إلغاء */
-
-    if (cancelJoin) {
-
-        cancelJoin.addEventListener("click", function () {
-
-            joinPopup.style.display = "none";
-
-        });
-
-    }
-
-
-    /* الدخول إلى الغرفة */
-
-    if (joinNow) {
-
-        joinNow.addEventListener("click", function () {
-
-            const roomId =
-                roomIdInput.value.trim();
-
-
-            if (!roomId) {
-
-                alert("أدخل ID الغرفة أولاً");
-
-                return;
-
-            }
-
-
-            /*
-             * ننتقل إلى صفحة الغرفة
-             * ونرسل معها ID الغرفة
-             */
-
-            window.location.href =
-                "/room?roomId=" +
-                encodeURIComponent(roomId);
-
-        });
-
-    }
-
-
-    /* الضغط خارج النافذة لإغلاقها */
-
-    if (joinPopup) {
-
-        joinPopup.addEventListener("click", function (event) {
-
-            if (event.target === joinPopup) {
-
-                joinPopup.style.display = "none";
-
-            }
-
-        });
-
-    }
-
-});
-
-<script src="{{ url_for('static', filename='language.js') }}"></script>
-
-<script type="module"
-src="{{ url_for('static', filename='main.js') }}">
-</script>
-
-<script type="module"
-src="{{ url_for('static', filename='user.js') }}">
-</script>
-
-<script type="module"
-src="{{ url_for('static', filename='create-room.js') }}">
-</script>
-
-<script type="module"
+<script
+type="module"
 src="{{ url_for('static', filename='join-room.js') }}">
 </script>
+
 
 </body>
 
