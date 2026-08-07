@@ -24,9 +24,7 @@ document.addEventListener("DOMContentLoaded", () => {
 
     if(roomTitle && roomName){
 
-        roomTitle.textContent = "🎙️ " + roomName;
-
-    }
+     roomTitle.textContent = roomName;
 
 
     if(roomIdText && roomId){
