@@ -1,172 +1,170 @@
-import { 
-    getAuth, 
-    onAuthStateChanged 
+import {
+    getAuth,
+    onAuthStateChanged
 } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-auth.js";
-
 
 import {
     getDatabase,
     ref,
     get,
-    set
+    set,
+    runTransaction
 } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-database.js";
-
 
 import { app } from "./app.js";
 
-
 const auth = getAuth(app);
 const database = getDatabase(app);
-localStorage.setItem("userUid", "");
 
 
-async function createUserID(user){
-
+async function createUserID(user) {
 
     const userRef = ref(database, "users/" + user.uid);
 
-
     const snapshot = await get(userRef);
 
-
-
-    if(!snapshot.exists()){
-
-
-        const usersSnap = await get(ref(database,"users"));
-
-
-        let number = 1;
-
-
-        if(usersSnap.exists()){
-
-            number = Object.keys(usersSnap.val()).length + 1;
-
-        }
-
-
-
-        const customID = 
-        "MC-" + String(number).padStart(6,"0");
-
-
-
-        await set(userRef,{
-
-            id: customID,
-
-            name: user.displayName || "مستخدم",
-
-            photo: user.photoURL || "default.png"
-
-        });
-
-
+    // إذا المستخدم عنده ID مسبقاً، لا نعمل واحد جديد
+    if (snapshot.exists()) {
+        return snapshot.val();
     }
 
 
+    // إنشاء رقم مستخدم جديد بشكل آمن
+    const counterRef = ref(database, "counters/users");
+
+    const result = await runTransaction(
+        counterRef,
+        (currentValue) => {
+
+            if (currentValue === null) {
+                return 1;
+            }
+
+            return currentValue + 1;
+        }
+    );
+
+
+    if (!result.committed) {
+        throw new Error("فشل إنشاء رقم المستخدم");
+    }
+
+
+    const number = result.snapshot.val();
+
+
+    const customID =
+        "MC-" + String(number).padStart(6, "0");
+
+
+    const userData = {
+
+        id: customID,
+
+        uid: user.uid,
+
+        name: user.displayName || "مستخدم",
+
+        photo: user.photoURL || "default.png"
+
+    };
+
+
+    await set(userRef, userData);
+
+
+    return userData;
 }
 
 
 
+onAuthStateChanged(auth, async (user) => {
 
-
-onAuthStateChanged(auth, async(user)=>{
-
-
-    if(!user) return;
-localStorage.setItem("userUid", user.uid);
-
-
-    await createUserID(user);
-
-
-
-    const snapshot = await get(
-        ref(database,"users/" + user.uid)
-    );
-
-
-
-    if(!snapshot.exists()) return;
-
-
-
-    const info = snapshot.val();
-
-
-
-    // حفظ بيانات المستخدم للغرفة والرسائل
-
-    localStorage.setItem(
-        "userName",
-        info.name
-    );
-
-
-    localStorage.setItem(
-        "userPhoto",
-        info.photo
-    );
-    localStorage.setItem(
-    "name",
-    info.name
-);
-
-
-localStorage.setItem(
-    "photo",
-    info.photo
-);
-
-
-    localStorage.setItem(
-        "userID",
-        info.id
-    );
-
-
-
-    // عرض البيانات في الصفحة
-
-
-    const name =
-    document.getElementById("userName");
-
-
-    const photo =
-    document.getElementById("userPhoto");
-
-
-    const id =
-    document.getElementById("userId");
-
-
-
-    if(name){
-
-        name.textContent = info.name;
-
+    if (!user) {
+        return;
     }
 
 
+    try {
 
-    if(photo){
+        const info = await createUserID(user);
 
-        photo.src = info.photo;
+
+        // حفظ UID أيضاً
+        localStorage.setItem(
+            "userUid",
+            user.uid
+        );
+
+
+        localStorage.setItem(
+            "userName",
+            info.name
+        );
+
+
+        localStorage.setItem(
+            "userPhoto",
+            info.photo
+        );
+
+
+        localStorage.setItem(
+            "name",
+            info.name
+        );
+
+
+        localStorage.setItem(
+            "photo",
+            info.photo
+        );
+
+
+        localStorage.setItem(
+            "userID",
+            info.id
+        );
+
+
+        // عرض الاسم
+        const nameElement =
+            document.getElementById("userName");
+
+
+        if (nameElement) {
+            nameElement.textContent = info.name;
+        }
+
+
+        // عرض الصورة
+        const photoElement =
+            document.getElementById("userPhoto");
+
+
+        if (photoElement) {
+            photoElement.src = info.photo;
+        }
+
+
+        // عرض ID
+        const idElement =
+            document.getElementById("userId");
+
+
+        if (idElement) {
+            idElement.textContent =
+                "ID : " + info.id;
+        }
+
+
+    } catch (error) {
+
+        console.error(
+            "خطأ في إنشاء بيانات المستخدم:",
+            error
+        );
 
     }
-
-
-
-    if(id){
-
-        id.textContent =
-        "ID : " + info.id;
-
-    }
-
-
 
 });
