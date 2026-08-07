@@ -9,22 +9,15 @@ import {
 
 document.addEventListener("DOMContentLoaded", () => {
 
-    const popup =
-        document.getElementById("roomPopup");
-
-    const openBtn =
-        document.getElementById("createRoomBtn");
-
-    const cancelBtn =
-        document.getElementById("cancelRoom");
-
-    const createBtn =
-        document.getElementById("createRoomNow");
+    const popup = document.getElementById("roomPopup");
+    const openBtn = document.getElementById("createRoomBtn");
+    const cancelBtn = document.getElementById("cancelRoom");
+    const createBtn = document.getElementById("createRoomNow");
 
 
-    // ========================================
+    // =========================
     // فتح نافذة إنشاء الغرفة
-    // ========================================
+    // =========================
 
     if (openBtn && popup) {
 
@@ -37,9 +30,9 @@ document.addEventListener("DOMContentLoaded", () => {
     }
 
 
-    // ========================================
-    // إلغاء
-    // ========================================
+    // =========================
+    // إغلاق النافذة
+    // =========================
 
     if (cancelBtn && popup) {
 
@@ -52,9 +45,9 @@ document.addEventListener("DOMContentLoaded", () => {
     }
 
 
-    // ========================================
+    // =========================
     // إنشاء الغرفة
-    // ========================================
+    // =========================
 
     if (createBtn) {
 
@@ -79,20 +72,22 @@ document.addEventListener("DOMContentLoaded", () => {
                     : "";
 
 
-            // التأكد من اسم الغرفة
-
             if (roomName === "") {
 
-                alert("اكتب اسم الغرفة");
+                alert(
+                    localStorage.getItem("language") === "tr"
+                        ? "Oda adını yazın"
+                        : "اكتب اسم الغرفة"
+                );
 
                 return;
 
             }
 
 
-            // ========================================
+            // =========================
             // معلومات المستخدم
-            // ========================================
+            // =========================
 
             const userName =
                 localStorage.getItem("userName") ||
@@ -104,52 +99,24 @@ document.addEventListener("DOMContentLoaded", () => {
                 "default.png";
 
 
+            // نستخدم UID الحقيقي إذا كان محفوظًا
             const userUid =
                 localStorage.getItem("userUid") ||
+                localStorage.getItem("uid") ||
                 "unknown";
-
-
-            // نوع الغرفة
-
-            const roomTypeElement =
-                document.querySelector(
-                    'input[name="roomType"]:checked'
-                );
-
-
-            const roomType =
-                roomTypeElement
-                    ? roomTypeElement.value
-                    : "public";
-
-
-            // عدد الأعضاء
-
-            const membersElement =
-                document.getElementById("roomMembers");
-
-
-            const maxMembers =
-                membersElement
-                    ? Number(membersElement.value)
-                    : 10;
 
 
             try {
 
-                // ========================================
+                // =========================
                 // عداد الغرف
-                // ========================================
+                // =========================
 
                 const counterRef =
-                    doc(
-                        db,
-                        "counters",
-                        "rooms"
-                    );
+                    doc(db, "counters", "rooms");
 
 
-                const roomId =
+                const roomNumber =
                     await runTransaction(
                         db,
                         async (transaction) => {
@@ -166,24 +133,18 @@ document.addEventListener("DOMContentLoaded", () => {
                             if (counterDoc.exists()) {
 
                                 lastNumber =
-                                    counterDoc.data()
-                                        .lastNumber || 0;
+                                    counterDoc.data().lastNumber || 0;
 
                             }
 
 
-                            // زيادة رقم الغرفة
-
                             lastNumber++;
 
-
-                            // حفظ العداد
 
                             transaction.set(
                                 counterRef,
                                 {
-                                    lastNumber:
-                                        lastNumber
+                                    lastNumber: lastNumber
                                 },
                                 {
                                     merge: true
@@ -191,55 +152,69 @@ document.addEventListener("DOMContentLoaded", () => {
                             );
 
 
-                            // ID الغرفة
-
-                            return (
-                                "MC-" +
-                                String(lastNumber)
-                                    .padStart(6, "0")
-                            );
+                            return lastNumber;
 
                         }
                     );
 
 
-                // ========================================
-                // حفظ الغرفة في Firestore
-                // ========================================
+                // =========================
+                // ID الغرفة
+                // =========================
+
+                const roomId =
+                    "MC-" +
+                    String(roomNumber)
+                        .padStart(6, "0");
+
+
+                // =========================
+                // نوع الغرفة
+                // =========================
+
+                const roomType =
+                    document.querySelector(
+                        'input[name="roomType"]:checked'
+                    )?.value || "public";
+
+
+                // =========================
+                // عدد الأعضاء
+                // =========================
+
+                const membersLimit =
+                    Number(
+                        document.getElementById(
+                            "roomMembers"
+                        )?.value || 10
+                    );
+
+
+                // =========================
+                // حفظ الغرفة
+                // =========================
 
                 await setDoc(
-                    doc(
-                        db,
-                        "rooms",
-                        roomId
-                    ),
+                    doc(db, "rooms", roomId),
                     {
 
                         id: roomId,
 
                         name: roomName,
 
+                        password: roomPassword,
+
                         type: roomType,
 
-                        password:
-                            roomType === "private"
-                                ? roomPassword
-                                : "",
+                        membersLimit: membersLimit,
 
-                        maxMembers:
-                            maxMembers,
+                        ownerUid: userUid,
 
-                        ownerUid:
-                            userUid,
+                        ownerName: userName,
 
-                        ownerName:
-                            userName,
+                        ownerPhoto: userPhoto,
 
-                        ownerPhoto:
-                            userPhoto,
-
-                        createdAt:
-                            new Date(),
+                        createdAt: new Date(),
 
                         members: {}
 
@@ -247,9 +222,9 @@ document.addEventListener("DOMContentLoaded", () => {
                 );
 
 
-                // ========================================
-                // حفظ معلومات الغرفة محليًا
-                // ========================================
+                // =========================
+                // حفظ بيانات الغرفة محليًا
+                // =========================
 
                 localStorage.setItem(
                     "roomName",
@@ -263,12 +238,22 @@ document.addEventListener("DOMContentLoaded", () => {
                 );
 
 
-                // ========================================
-                // الدخول إلى الغرفة
-                // ========================================
+                // =========================
+                // إغلاق النافذة
+                // =========================
 
-                window.location.href =
-                    "/room";
+                if (popup) {
+
+                    popup.style.display = "none";
+
+                }
+
+
+                // =========================
+                // الدخول للغرفة
+                // =========================
+
+                window.location.href = "/room";
 
 
             } catch (error) {
@@ -280,8 +265,9 @@ document.addEventListener("DOMContentLoaded", () => {
 
 
                 alert(
-                    "حدث خطأ أثناء إنشاء الغرفة:\n" +
-                    error.message
+                    localStorage.getItem("language") === "tr"
+                        ? "Oda oluşturulamadı: " + error.message
+                        : "لم يتم إنشاء الغرفة: " + error.message
                 );
 
             }
