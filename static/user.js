@@ -109,6 +109,16 @@ onAuthStateChanged(auth, async(user)=>{
         "userPhoto",
         info.photo
     );
+    localStorage.setItem(
+    "name",
+    info.name
+);
+
+
+localStorage.setItem(
+    "photo",
+    info.photo
+);
 
 
     localStorage.setItem(
