@@ -187,7 +187,11 @@ value="private">
 
 </div>
 
-
+<script>
+window.addEventListener("DOMContentLoaded", () => {
+    loadLanguage();
+});
+</script>
 
 <script type="module" src="{{ url_for('static', filename='create-room.js') }}"></script>
 
