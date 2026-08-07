@@ -1,88 +1,185 @@
+import { db } from "./app.js";
+
+import {
+    collection,
+    addDoc,
+    onSnapshot,
+    serverTimestamp,
+    orderBy,
+    query
+} from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
+
+
 document.addEventListener("DOMContentLoaded", () => {
 
-    // عرض بيانات الغرفة
+
+    // =========================
+    // معلومات الغرفة
+    // =========================
 
     const roomTitle = document.getElementById("roomName");
     const roomIdText = document.getElementById("roomId");
+
 
     const savedRoomName = localStorage.getItem("roomName");
     const savedRoomId = localStorage.getItem("roomId");
 
 
     if(roomTitle && savedRoomName){
+
         roomTitle.textContent = "🎙️ " + savedRoomName;
+
     }
 
 
     if(roomIdText && savedRoomId){
+
         roomIdText.textContent = "ID: " + savedRoomId;
-    }
-
-
-
-    // زر الاتصال الصوتي
-
-    const callBtn = document.getElementById("callBtn");
-
-    if(callBtn){
-
-        callBtn.onclick = () => {
-
-            alert("زر الاتصال الصوتي يعمل 📞");
-
-        };
 
     }
 
 
 
-    // زر الفيديو
-
-    const videoBtn = document.getElementById("videoBtn");
-
-    if(videoBtn){
-
-        videoBtn.onclick = () => {
-
-            alert("زر الفيديو يعمل 📹");
-
-        };
-
-    }
+    // =========================
+    // الشات Firebase
+    // =========================
 
 
-
-    // زر إرسال الرسالة
-
+    const messagesBox = document.getElementById("messages");
+    const input = document.getElementById("messageInput");
     const sendBtn = document.getElementById("sendMessage");
 
-    const input = document.getElementById("messageInput");
 
-    const messages = document.getElementById("messages");
+    const roomId = savedRoomId;
+
+
+
+    if(messagesBox && roomId){
+
+
+        const messagesRef = collection(
+            db,
+            "rooms",
+            roomId,
+            "messages"
+        );
+
+
+        const q = query(
+            messagesRef,
+            orderBy("time")
+        );
+
+
+
+        onSnapshot(q,(snapshot)=>{
+
+
+            messagesBox.innerHTML="";
+
+
+            snapshot.forEach((doc)=>{
+
+
+                const data = doc.data();
+
+
+                const p = document.createElement("p");
+
+
+                p.textContent =
+                "👤 " +
+                data.user +
+                ": " +
+                data.text;
+
+
+
+                messagesBox.appendChild(p);
+
+
+            });
+
+
+        });
+
+
+    }
+
+
+
+
+    // إرسال رسالة
 
 
     if(sendBtn){
 
-        sendBtn.onclick = () => {
 
-            let text = input.value.trim();
+        sendBtn.onclick = async()=>{
+
+
+            const text = input.value.trim();
+
 
 
             if(text === ""){
+
                 return;
+
             }
 
 
-            let p = document.createElement("p");
 
-            p.textContent = text;
+            await addDoc(
+
+                collection(
+                    db,
+                    "rooms",
+                    roomId,
+                    "messages"
+                ),
+
+                {
+
+                    text:text,
+
+                    user:"مستخدم",
+
+                    time:serverTimestamp()
+
+                }
+
+            );
 
 
-            messages.appendChild(p);
+
+            input.value="";
 
 
-            input.value = "";
 
+        };
+
+
+    }
+
+
+
+
+
+    // =========================
+    // أزرار الاتصال (تجربة)
+    // =========================
+
+
+    const callBtn =
+    document.getElementById("callBtn");
+
+
+    if(callBtn){
+
+        callBtn.onclick=()=>{
+
+            alert("📞 الاتصال الصوتي قيد التطوير");
 
         };
 
@@ -90,16 +187,31 @@ document.addEventListener("DOMContentLoaded", () => {
 
 
 
-    // زر الصوت
+    const videoBtn =
+    document.getElementById("videoBtn");
 
-    const voiceBtn = document.getElementById("voiceBtn");
+
+    if(videoBtn){
+
+        videoBtn.onclick=()=>{
+
+            alert("📹 الفيديو قيد التطوير");
+
+        };
+
+    }
+
+
+
+    const voiceBtn =
+    document.getElementById("voiceBtn");
 
 
     if(voiceBtn){
 
-        voiceBtn.onclick = () => {
+        voiceBtn.onclick=()=>{
 
-            alert("زر الصوت يعمل 🎤");
+            alert("🎤 تسجيل الصوت قيد التطوير");
 
         };
 
