@@ -1,109 +1,407 @@
 <!DOCTYPE html>
-<html lang="ar" dir="rtl">
+<html lang="ar">
 
 <head>
 
 <meta charset="UTF-8">
+
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
-<title>Mecd Voice Room</title>
+<title>Mecd Voice - Create Room</title>
 
-<link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+
+<style>
+
+
+*{
+
+margin:0;
+
+padding:0;
+
+box-sizing:border-box;
+
+font-family:"Cairo",Arial,sans-serif;
+
+}
+
+
+
+body{
+
+
+min-height:100vh;
+
+
+display:flex;
+
+
+justify-content:center;
+
+
+align-items:center;
+
+
+background:
+
+radial-gradient(
+circle at top,
+rgba(37,99,235,.35),
+transparent 40%
+),
+
+
+linear-gradient(
+160deg,
+#020617,
+#050510,
+#1e1b4b
+);
+
+
+padding:20px;
+
+
+color:white;
+
+
+}
+
+
+
+
+.room-box{
+
+
+width:100%;
+
+
+max-width:430px;
+
+
+background:
+
+
+rgba(255,255,255,.08);
+
+
+backdrop-filter:blur(25px);
+
+
+border:
+
+
+1px solid rgba(255,255,255,.15);
+
+
+border-radius:30px;
+
+
+padding:35px 25px;
+
+
+text-align:center;
+
+
+box-shadow:
+
+
+0 20px 60px rgba(0,0,0,.6);
+
+
+}
+
+
+
+
+
+.logo{
+
+
+font-size:75px;
+
+
+margin-bottom:15px;
+
+
+filter:
+
+drop-shadow(
+0 0 20px #5865f2
+);
+
+
+}
+
+
+
+
+h1{
+
+
+font-size:32px;
+
+
+margin-bottom:25px;
+
+
+}
+
+
+
+
+input,
+select{
+
+
+width:100%;
+
+
+height:55px;
+
+
+margin-top:15px;
+
+
+padding:0 18px;
+
+
+border-radius:18px;
+
+
+border:1px solid rgba(255,255,255,.15);
+
+
+outline:none;
+
+
+background:
+
+
+rgba(255,255,255,.12);
+
+
+color:white;
+
+
+font-size:16px;
+
+
+}
+
+
+
+input::placeholder{
+
+
+color:#cbd5e1;
+
+
+}
+
+
+
+select option{
+
+
+background:#111827;
+
+
+color:white;
+
+
+}
+
+
+
+
+button{
+
+
+width:100%;
+
+
+height:55px;
+
+
+margin-top:18px;
+
+
+border:none;
+
+
+border-radius:20px;
+
+
+font-size:18px;
+
+
+font-weight:bold;
+
+
+cursor:pointer;
+
+
+transition:.3s;
+
+
+}
+
+
+
+
+#create{
+
+
+background:
+
+
+linear-gradient(
+135deg,
+#2563eb,
+#7c3aed
+);
+
+
+color:white;
+
+
+box-shadow:
+
+
+0 0 30px rgba(88,101,242,.5);
+
+
+}
+
+
+
+#create:hover{
+
+
+transform:translateY(-3px);
+
+
+}
+
+
+
+
+
+#back{
+
+
+background:
+
+
+rgba(255,255,255,.12);
+
+
+color:white;
+
+
+}
+
+
+
+
+#back:hover{
+
+
+background:
+
+
+rgba(255,255,255,.22);
+
+
+}
+
+
+
+
+</style>
+
 
 </head>
+
 
 
 <body>
 
 
-<div class="room">
+
+<div class="room-box">
 
 
-<!-- الهيدر -->
 
-<div class="top">
+<div class="logo">
 
-
-<div class="room-info">
-
-<h1 id="roomName">
-🎙️ الغرفة
-</h1>
-
-
-<p id="roomId">
-ID: ------
-</p>
-
+🎙️
 
 </div>
 
 
 
-<div class="top-buttons">
+<h1 id="title"></h1>
 
 
-<button id="callBtn">
-📞
-</button>
-
-
-<button id="videoBtn">
-🎥
-</button>
-
-
-</div>
-
-
-</div>
-
-
-
-
-
-<!-- الرسائل -->
-
-<div class="chat">
-
-
-<div id="messages">
-
-</div>
-
-
-</div>
-
-
-
-
-
-
-<!-- الكتابة -->
-
-<div class="send">
-
-
-<button id="cameraBtn">
-📷
-</button>
 
 
 <input 
-id="messageInput"
-placeholder="اكتب رسالة...">
+
+id="roomName"
+
+type="text"
+
+>
 
 
 
-<button id="voiceBtn">
-🎤
-</button>
+
+<select id="type">
+
+
+<option id="public"></option>
+
+
+<option id="private"></option>
+
+
+</select>
 
 
 
-<button id="send">
-➤
-</button>
+
+<input
+
+id="password"
+
+type="password"
+
+>
+
+
+
+
+<input
+
+id="people"
+
+type="number"
+
+value="10"
+
+>
+
+
+
+
+<button id="create"></button>
+
+
+
+<button id="back"></button>
+
 
 
 
@@ -113,15 +411,115 @@ placeholder="اكتب رسالة...">
 
 
 
-
-
-</div>
-
+<script>
 
 
 
+const lang = localStorage.getItem("language") || "ar";
 
-<script type="module" src="{{ url_for('static', filename='room.js') }}"></script>
+
+
+const title = document.getElementById("title");
+
+const roomName = document.getElementById("roomName");
+
+const publicRoom = document.getElementById("public");
+
+const privateRoom = document.getElementById("private");
+
+const password = document.getElementById("password");
+
+const people = document.getElementById("people");
+
+const create = document.getElementById("create");
+
+const back = document.getElementById("back");
+
+
+
+
+
+if(lang === "ar"){
+
+
+
+title.textContent="🎙️ إنشاء غرفة";
+
+
+roomName.placeholder="🏠 اسم الغرفة";
+
+
+publicRoom.textContent="🌍 غرفة عامة";
+
+
+privateRoom.textContent="🔒 غرفة خاصة";
+
+
+password.placeholder="🔑 كلمة المرور (اختياري)";
+
+
+people.placeholder="👥 عدد الأشخاص";
+
+
+create.textContent="🚀 إنشاء الغرفة";
+
+
+back.textContent="⬅️ رجوع";
+
+
+
+}
+
+else{
+
+
+
+title.textContent="🎙️ Oda Oluştur";
+
+
+roomName.placeholder="🏠 Oda adı";
+
+
+publicRoom.textContent="🌍 Genel Oda";
+
+
+privateRoom.textContent="🔒 Özel Oda";
+
+
+password.placeholder="🔑 Şifre (isteğe bağlı)";
+
+
+people.placeholder="👥 Kişi sayısı";
+
+
+create.textContent="🚀 Odayı Oluştur";
+
+
+back.textContent="⬅️ Geri";
+
+
+
+}
+
+
+
+
+back.onclick = ()=>{
+
+
+window.location.href="/home";
+
+
+};
+
+
+
+</script>
+
+
+
+<script type="module" src="{{ url_for('static', filename='create-room.js') }}"></script>
+
 
 
 </body>
