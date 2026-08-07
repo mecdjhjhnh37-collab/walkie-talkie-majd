@@ -1,3 +1,4 @@
+alert("room.js شغال");
 document.addEventListener("DOMContentLoaded", () => {
 
     const popup = document.getElementById("roomPopup");
