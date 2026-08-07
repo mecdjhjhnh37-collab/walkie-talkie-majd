@@ -15,7 +15,7 @@ import {
 document.addEventListener("DOMContentLoaded", async () => {
 
     // =====================================
-    // عناصر صفحة الغرفة
+    // عناصر الغرفة
     // =====================================
 
     const roomTitle =
@@ -24,6 +24,24 @@ document.addEventListener("DOMContentLoaded", async () => {
     const roomIdText =
         document.getElementById("roomId");
 
+    const messagesBox =
+        document.getElementById("messages");
+
+    const input =
+        document.getElementById("messageInput");
+
+    const sendBtn =
+        document.getElementById("sendMessage");
+
+    const voiceBtn =
+        document.getElementById("voiceBtn");
+
+    const callBtn =
+        document.getElementById("callBtn");
+
+    const videoBtn =
+        document.getElementById("videoBtn");
+
 
     // =====================================
     // اللغة
@@ -31,6 +49,10 @@ document.addEventListener("DOMContentLoaded", async () => {
 
     const language =
         localStorage.getItem("language") || "ar";
+
+    const isTurkish =
+        language === "tr" ||
+        language === "turkish";
 
 
     // =====================================
@@ -41,28 +63,16 @@ document.addEventListener("DOMContentLoaded", async () => {
         new URLSearchParams(window.location.search);
 
     let roomId =
-        urlParams.get("roomId");
+        urlParams.get("roomId") ||
+        localStorage.getItem("roomId");
 
-
-    // إذا لم يوجد في الرابط، نأخذه من التخزين
-    if (!roomId) {
-
-        roomId =
-            localStorage.getItem("roomId");
-
-    }
-
-
-    // =====================================
-    // إذا ما في ID
-    // =====================================
 
     if (!roomId) {
 
         if (roomTitle) {
 
             roomTitle.textContent =
-                language === "tr"
+                isTurkish
                     ? "Oda bulunamadı"
                     : "لم يتم العثور على الغرفة";
 
@@ -76,20 +86,27 @@ document.addEventListener("DOMContentLoaded", async () => {
         }
 
         return;
+    }
+
+
+    roomId = roomId.trim();
+
+
+    // =====================================
+    // إصلاح ID القديم
+    // room-000001  →  MC-000001
+    // =====================================
+
+    if (roomId.toLowerCase().startsWith("room-")) {
+
+        roomId =
+            "MC-" + roomId.substring(5);
 
     }
 
 
     // =====================================
-    // تنظيف ID
-    // =====================================
-
-    roomId =
-        roomId.trim();
-
-
-    // =====================================
-    // جلب الغرفة من Firebase
+    // جلب بيانات الغرفة
     // =====================================
 
     try {
@@ -101,27 +118,16 @@ document.addEventListener("DOMContentLoaded", async () => {
             await getDoc(roomRef);
 
 
-        // =================================
-        // الغرفة غير موجودة
-        // =================================
-
         if (!roomDoc.exists()) {
-
-            console.error(
-                "Room not found:",
-                roomId
-            );
-
 
             if (roomTitle) {
 
                 roomTitle.textContent =
-                    language === "tr"
+                    isTurkish
                         ? "Oda bulunamadı"
                         : "الغرفة غير موجودة";
 
             }
-
 
             if (roomIdText) {
 
@@ -131,7 +137,6 @@ document.addEventListener("DOMContentLoaded", async () => {
             }
 
             return;
-
         }
 
 
@@ -152,14 +157,13 @@ document.addEventListener("DOMContentLoaded", async () => {
 
 
         // =================================
-        // حفظ البيانات محلياً
+        // حفظها
         // =================================
 
         localStorage.setItem(
             "roomName",
             realRoomName
         );
-
 
         localStorage.setItem(
             "roomId",
@@ -180,7 +184,7 @@ document.addEventListener("DOMContentLoaded", async () => {
 
 
         // =================================
-        // عرض ID الحقيقي
+        // عرض ID
         // =================================
 
         if (roomIdText) {
@@ -194,18 +198,6 @@ document.addEventListener("DOMContentLoaded", async () => {
         // =====================================
         // الرسائل
         // =====================================
-
-        const messagesBox =
-            document.getElementById("messages");
-
-
-        const input =
-            document.getElementById("messageInput");
-
-
-        const sendBtn =
-            document.getElementById("sendMessage");
-
 
         let messagesRef = null;
 
@@ -290,12 +282,13 @@ document.addEventListener("DOMContentLoaded", async () => {
 
 
         // =====================================
-        // إرسال الرسالة
+        // إرسال الرسائل
         // =====================================
 
         if (sendBtn && input && messagesRef) {
 
-            sendBtn.onclick =
+            sendBtn.addEventListener(
+                "click",
                 async () => {
 
                     const text =
@@ -310,16 +303,12 @@ document.addEventListener("DOMContentLoaded", async () => {
 
 
                     const userName =
-                        localStorage.getItem(
-                            "userName"
-                        ) ||
+                        localStorage.getItem("userName") ||
                         "مستخدم";
 
 
                     const userPhoto =
-                        localStorage.getItem(
-                            "userPhoto"
-                        ) ||
+                        localStorage.getItem("userPhoto") ||
                         "default.png";
 
 
@@ -335,8 +324,7 @@ document.addEventListener("DOMContentLoaded", async () => {
 
                                 photo: userPhoto,
 
-                                time:
-                                    serverTimestamp()
+                                time: serverTimestamp()
 
                             }
                         );
@@ -354,16 +342,15 @@ document.addEventListener("DOMContentLoaded", async () => {
 
                     }
 
-                };
+                }
+            );
 
 
             input.addEventListener(
                 "keydown",
                 (event) => {
 
-                    if (
-                        event.key === "Enter"
-                    ) {
+                    if (event.key === "Enter") {
 
                         sendBtn.click();
 
@@ -376,47 +363,114 @@ document.addEventListener("DOMContentLoaded", async () => {
 
 
         // =====================================
-        // زر الاتصال
+        // 🎤 الميكروفون
         // =====================================
 
-        const callBtn =
-            document.getElementById("callBtn");
+        if (voiceBtn) {
+
+            voiceBtn.addEventListener(
+                "click",
+                async () => {
+
+                    try {
+
+                        if (
+                            !navigator.mediaDevices ||
+                            !navigator.mediaDevices.getUserMedia
+                        ) {
+
+                            alert(
+                                isTurkish
+                                    ? "Mikrofon desteklenmiyor."
+                                    : "الميكروفون غير مدعوم."
+                            );
+
+                            return;
+                        }
 
 
-        if (callBtn) {
+                        const stream =
+                            await navigator.mediaDevices.getUserMedia({
+                                audio: true
+                            });
 
-            callBtn.onclick = () => {
 
-                alert(
-                    language === "tr"
-                        ? "📞 Arama yakında."
-                        : "📞 الاتصال قيد التطوير"
-                );
+                        alert(
+                            isTurkish
+                                ? "🎤 Mikrofon çalışıyor!"
+                                : "🎤 الميكروفون يعمل!"
+                        );
 
-            };
+
+                        stream
+                            .getTracks()
+                            .forEach(
+                                track => track.stop()
+                            );
+
+
+                    } catch (error) {
+
+                        console.error(
+                            "Microphone error:",
+                            error
+                        );
+
+
+                        alert(
+                            isTurkish
+                                ? "❌ Mikrofon açılamadı."
+                                : "❌ لم يتم تشغيل الميكروفون."
+                        );
+
+                    }
+
+                }
+            );
 
         }
 
 
         // =====================================
-        // زر الفيديو
+        // 📞 الاتصال
         // =====================================
 
-        const videoBtn =
-            document.getElementById("videoBtn");
+        if (callBtn) {
 
+            callBtn.addEventListener(
+                "click",
+                () => {
+
+                    alert(
+                        isTurkish
+                            ? "📞 Arama yakında."
+                            : "📞 الاتصال قيد التطوير"
+                    );
+
+                }
+            );
+
+        }
+
+
+        // =====================================
+        // 📹 الفيديو
+        // =====================================
 
         if (videoBtn) {
 
-            videoBtn.onclick = () => {
+            videoBtn.addEventListener(
+                "click",
+                () => {
 
-                alert(
-                    language === "tr"
-                        ? "📹 Görüntülü arama yakında."
-                        : "📹 الفيديو قيد التطوير"
-                );
+                    alert(
+                        isTurkish
+                            ? "📹 Görüntülü arama yakında."
+                            : "📹 الفيديو قيد التطوير"
+                    );
 
-            };
+                }
+            );
 
         }
 
@@ -432,53 +486,12 @@ document.addEventListener("DOMContentLoaded", async () => {
         if (roomTitle) {
 
             roomTitle.textContent =
-                language === "tr"
+                isTurkish
                     ? "Oda yüklenemedi"
                     : "تعذر تحميل الغرفة";
 
         }
 
     }
-// =====================================
-// اختبار الميكروفون فقط
-// =====================================
 
-const voiceBtn = document.getElementById("voiceBtn");
-
-if (voiceBtn) {
-
-    voiceBtn.addEventListener("click", async () => {
-
-        console.log("VOICE BUTTON CLICKED");
-
-        if (!navigator.mediaDevices || !navigator.mediaDevices.getUserMedia) {
-
-            alert("المتصفح لا يدعم تشغيل الميكروفون هنا.");
-
-            return;
-        }
-
-        try {
-
-            const stream =
-                await navigator.mediaDevices.getUserMedia({
-                    audio: true
-                });
-
-            alert("🎤 الميكروفون يعمل!");
-
-            stream.getTracks().forEach(track => track.stop());
-
-        } catch (error) {
-
-            console.error("MIC ERROR:", error);
-
-            alert(
-                "❌ لم يتم تشغيل الميكروفون\n\n" +
-                error.name + "\n" +
-                error.message
-            );
-
-        }
-
-    });
+});
