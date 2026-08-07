@@ -2,48 +2,75 @@
 <html lang="ar" dir="rtl">
 
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
-    <title>Mecd Voice</title>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
 
-    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+<title>Mecd Voice</title>
+
+<link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+
 </head>
+
 
 <body>
 
+
 <div class="container">
+
 
     <div class="logo">
         🎙️
     </div>
 
-    <h1>Mecd Voice</h1>
+
+    <h1>
+        Mecd Voice
+    </h1>
+
 
     <p>
         مرحبًا بك في موقع المطور مجد
     </p>
 
+
     <p>
         Geliştirici Mecd'in sitesine hoş geldiniz
     </p>
 
+
+
     <a href="/login/ar" onclick="setLanguage('ar')">
-    <button class="lang-btn">
-        🇸🇦 العربية
-    </button>
-</a>
+
+        <button class="lang-btn">
+
+            🇸🇦 العربية
+
+        </button>
+
+    </a>
 
 
-<a href="/login/tr" onclick="setLanguage('tr')">
-    <button class="lang-btn">
-        🇹🇷 Türkçe
-    </button>
-</a>
+
+    <a href="/login/tr" onclick="setLanguage('tr')">
+
+        <button class="lang-btn">
+
+            🇹🇷 Türkçe
+
+        </button>
+
+    </a>
+
+
 
 </div>
+
+
+
 <script src="{{ url_for('static', filename='language.js') }}"></script>
-<script type="module" src="{{ url_for('static', filename='user.js') }}"></script>
+
+
 </body>
 
 </html>
