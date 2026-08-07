@@ -429,7 +429,9 @@ a {
     color:white;
 
 }
-/* ================= ROOM ================= */
+.room-bottom button{
+...
+}
 
 .room-page{
     height:100vh;
