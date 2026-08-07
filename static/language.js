@@ -17,6 +17,7 @@ const translations = {
     }
 
 };
+
 translations.ar.room = {
     title: "إنشاء غرفة",
     roomName: "اسم الغرفة",
@@ -39,14 +40,11 @@ translations.tr.room = {
     cancel: "İptal"
 };
 
-
 function setLanguage(lang){
 
     localStorage.setItem("language", lang);
 
 }
-
-
 
 function loadLanguage(){
 
@@ -62,7 +60,6 @@ function loadLanguage(){
 
     };
 
-
     for (let id in elements){
 
         const element = document.getElementById(id);
@@ -76,34 +73,30 @@ function loadLanguage(){
 
     }
 
+    const room = translations[lang].room;
+
+    if(room){
+
+        document.getElementById("roomPopupTitle").textContent = room.title;
+
+        document.getElementById("roomName").placeholder = room.roomName;
+
+        document.getElementById("roomPassword").placeholder = room.password;
+
+        document.getElementById("publicRoomText").textContent = room.public;
+
+        document.getElementById("privateRoomText").textContent = room.private;
+
+        document.getElementById("membersText").textContent = room.members;
+
+        document.getElementById("createRoomNow").textContent = room.create;
+
+        document.getElementById("cancelRoom").textContent = room.cancel;
+
+    }
+
 }
 
-const room = translations[lang].room;
-
-if(room){
-
-    document.getElementById("roomPopupTitle").textContent = room.title;
-
-    document.getElementById("roomName").placeholder = room.roomName;
-
-    document.getElementById("roomPassword").placeholder = room.password;
-
-    document.getElementById("publicRoomText").textContent = room.public;
-
-    document.getElementById("privateRoomText").textContent = room.private;
-
-    document.getElementById("membersText").textContent = room.members;
-
-    document.getElementById("createRoomNow").textContent = room.create;
-
-    document.getElementById("cancelRoom").textContent = room.cancel;
-
-}
-
-document.addEventListener(
-    "DOMContentLoaded",
-    loadLanguage
-);
 document.addEventListener(
     "DOMContentLoaded",
     loadLanguage
