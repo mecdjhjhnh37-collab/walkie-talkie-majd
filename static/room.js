@@ -1,97 +1,56 @@
-import { app } from "./app.js";
-
-import {
-    getDatabase,
-    ref,
-    push,
-    set
-} from "https://www.gstatic.com/firebasejs/10.12.2/firebase-database.js";
-
-import {
-    getAuth
-} from "https://www.gstatic.com/firebasejs/10.12.2/firebase-auth.js";
-
-const db = getDatabase(app);
-const auth = getAuth(app);
-
-export async function createRoom(roomName, password) {
-
-    const user = auth.currentUser;
-
-    if (!user) {
-        alert("يجب تسجيل الدخول");
-        return;
-    }
-
-    const roomRef = push(ref(db, "rooms"));
-
-    await set(roomRef, {
-
-        name: roomName,
-        password: password || "",
-        owner: user.uid,
-
-        createdAt: Date.now(),
-
-        members: {
-            [user.uid]: true
-        }
-
-    });
-
-    return roomRef.key;
-
-}
 document.addEventListener("DOMContentLoaded", () => {
 
-    const createRoomBtn =
-    document.getElementById("createRoomBtn");
+    const popup = document.getElementById("roomPopup");
 
-    if (!createRoomBtn) return;
+    // زر إنشاء غرفة من الصفحة الرئيسية
+    const openBtn = document.getElementById("createRoomBtn");
 
-    createRoomBtn.onclick = async () => {
+    // زر إلغاء داخل النافذة
+    const cancelBtn = document.getElementById("cancelRoom");
 
-        const roomName = prompt("اسم الغرفة");
+    // زر إنشاء داخل النافذة
+    const createBtn = document.getElementById("createRoomNow");
 
-        if (!roomName) return;
+    // فتح النافذة
+    if(openBtn){
 
-        const password =
-        prompt("كلمة المرور (اختياري)") || "";
+        openBtn.onclick = () => {
 
-        const roomID =
-        await createRoom(roomName, password);
-
-        alert("تم إنشاء الغرفة");
-
-        window.location.href =
-        "/room?id=" + roomID;
-
-    };
-
-});
-document.addEventListener("DOMContentLoaded",()=>{
-
-    const popup=document.getElementById("roomPopup");
-
-    const open=document.getElementById("createRoomBtn");
-
-    const close=document.getElementById("cancelRoom");
-
-    if(open){
-
-        open.onclick=()=>{
-
-            popup.style.display="flex";
+            popup.style.display = "flex";
 
         };
 
     }
 
-    if(close){
+    // إغلاق النافذة
+    if(cancelBtn){
 
-        close.onclick=()=>{
+        cancelBtn.onclick = () => {
 
-            popup.style.display="none";
+            popup.style.display = "none";
+
+        };
+
+    }
+
+    // إنشاء الغرفة والانتقال
+    if(createBtn){
+
+        createBtn.onclick = () => {
+
+            const roomName =
+            document.getElementById("roomName").value.trim();
+
+            if(roomName === ""){
+
+                alert("اكتب اسم الغرفة");
+
+                return;
+
+            }
+
+            // انتقال مؤقت
+            window.location.href = "/room";
 
         };
 
