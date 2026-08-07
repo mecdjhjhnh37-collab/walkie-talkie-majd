@@ -17,7 +17,7 @@ import { app } from "./app.js";
 
 const auth = getAuth(app);
 const database = getDatabase(app);
-
+localStorage.setItem("userUid", "");
 
 
 async function createUserID(user){
@@ -76,7 +76,7 @@ onAuthStateChanged(auth, async(user)=>{
 
 
     if(!user) return;
-
+localStorage.setItem("userUid", user.uid);
 
 
     await createUserID(user);
