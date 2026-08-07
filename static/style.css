@@ -449,23 +449,11 @@ button:active{
 
 .room-header{
 
-    height:100px;
+    min-height:120px;
 
-    display:flex;
+    height:auto;
 
-    align-items:center;
-
-    justify-content:space-between;
-
-    padding:20px;
-
-    background:
-    rgba(255,255,255,.08);
-
-    backdrop-filter:blur(20px);
-
-    border-bottom:
-    1px solid rgba(255,255,255,.15);
+    padding:25px 20px;
 
 }
 
@@ -484,7 +472,9 @@ button:active{
 
     margin:0;
 
-    font-size:27px;
+    font-size:25px;
+
+    line-height:1.4;
 
 }
 
