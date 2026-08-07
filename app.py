@@ -19,6 +19,10 @@ def login_tr():
 def home():
     return render_template("home.html")
 
+@app.route("/room")
+def room():
+    return render_template("room.html")
+    
 if __name__ == "__main__":
     port = int(os.environ.get("PORT", 10000))
     app.run(host="0.0.0.0", port=port)
