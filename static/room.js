@@ -38,14 +38,41 @@ document.addEventListener("DOMContentLoaded", () => {
 
 
     // ======================
+    // اللغة داخل الغرفة
+    // ======================
+
+    const language =
+    localStorage.getItem("language") || "ar";
+
+
+    const input =
+    document.getElementById("messageInput");
+
+
+    if(input){
+
+        if(language === "tr"){
+
+            input.placeholder = "Mesaj yaz...";
+
+        }else{
+
+            input.placeholder = "اكتب رسالة...";
+
+        }
+
+    }
+
+
+
+
+    // ======================
     // الرسائل
     // ======================
 
 
     const messagesBox = document.getElementById("messages");
-    const input = document.getElementById("messageInput");
     const sendBtn = document.getElementById("sendMessage");
-
 
 
     let messagesRef = null;
@@ -113,7 +140,7 @@ document.addEventListener("DOMContentLoaded", () => {
 
                 <div class="message-text">
 
-                ${data.text}
+                ${data.text || ""}
 
                 </div>
 
@@ -137,7 +164,9 @@ document.addEventListener("DOMContentLoaded", () => {
 
 
 
+    // ======================
     // إرسال رسالة
+    // ======================
 
 
     if(sendBtn){
@@ -158,15 +187,14 @@ document.addEventListener("DOMContentLoaded", () => {
 
 
             const userName = 
-localStorage.getItem("userName") || 
-window.localStorage.getItem("name") ||
-"مستخدم";
+            localStorage.getItem("userName") ||
+            "مستخدم";
 
 
-const userPhoto =
-localStorage.getItem("userPhoto") ||
-window.localStorage.getItem("photo") ||
-"default.png";
+
+            const userPhoto =
+            localStorage.getItem("userPhoto") ||
+            "default.png";
 
 
 
@@ -199,10 +227,14 @@ window.localStorage.getItem("photo") ||
 
 
 
+    // ======================
     // أزرار الاتصال
+    // ======================
 
 
-    const callBtn=document.getElementById("callBtn");
+    const callBtn =
+    document.getElementById("callBtn");
+
 
     if(callBtn){
 
@@ -216,7 +248,10 @@ window.localStorage.getItem("photo") ||
 
 
 
-    const videoBtn=document.getElementById("videoBtn");
+
+    const videoBtn =
+    document.getElementById("videoBtn");
+
 
     if(videoBtn){
 
@@ -231,7 +266,9 @@ window.localStorage.getItem("photo") ||
 
 
 
-    const voiceBtn=document.getElementById("voiceBtn");
+    const voiceBtn =
+    document.getElementById("voiceBtn");
+
 
     if(voiceBtn){
 
