@@ -321,14 +321,20 @@ button:active{
     display:flex;
     flex-direction:column;
     overflow:hidden;
-}
+
+    background:
+    radial-gradient(
+        circle at top right,
+        rgba(37,99,235,.35),
+        transparent 35%
+    ),
     radial-gradient(
         circle at bottom left,
         rgba(124,58,237,.35),
         transparent 40%
     ),
-
     #050510;
+}
 
 }
 /* =========================
