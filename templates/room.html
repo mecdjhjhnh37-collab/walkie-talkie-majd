@@ -8,8 +8,7 @@
 
 <title>Mecd Voice Room</title>
 
-<link rel="stylesheet"
-href="{{ url_for('static', filename='style.css') }}">
+<link rel="stylesheet" href="style.css">
 
 </head>
 
@@ -17,134 +16,106 @@ href="{{ url_for('static', filename='style.css') }}">
 <body>
 
 
-<div class="room-page">
+<div class="room">
 
 
-<!-- الهيدر -->
+<div class="top">
 
-<div class="room-header">
-
-
-<div class="room-user">
-
-<img 
-class="room-avatar"
-src="https://i.imgur.com/6VBx3io.png">
-
-
-<div>
-
-<h1 id="roomTitle">
-🎙️ اسم الغرفة
+<h1 id="roomName">
+🎙️ الغرفة
 </h1>
 
-
-<p>
-🟢 Online
+<p id="roomId">
+ID: ------
 </p>
 
-
-</div>
-
-
 </div>
 
 
 
-<div class="room-actions">
+<div class="members">
 
+<h2>
+👥 الأعضاء
+</h2>
 
-<button id="callBtn">
-📞
-</button>
+<div id="membersList">
 
-
-<button id="videoBtn">
-📹
-</button>
-
+</div>
 
 </div>
 
 
 
-</div>
+<div class="voice">
 
 
+<button id="talk">
 
-
-
-<!-- الأعضاء -->
-
-<div class="room-members">
-
+🎙️
 
 <span>
-👥 1 / 10
+اضغط للكلام
 </span>
 
 
-<div class="members-list">
-
-<img src="https://i.imgur.com/6VBx3io.png">
-<img src="https://i.imgur.com/6VBx3io.png">
-<img src="https://i.imgur.com/6VBx3io.png">
-
-</div>
-
-
-</div>
-
-
-
-
-
-
-<!-- الرسائل -->
-
-
-<div class="room-chat" id="messages">
-
-
-</div>
-
-
-
-
-
-
-
-<!-- الكتابة -->
-
-
-<div class="room-input">
-
-
-<button>
-📷
 </button>
 
 
-<input
+</div>
+
+
+
+
+<div class="chat">
+
+
+<div id="messages">
+
+</div>
+
+
+
+<div class="send">
+
+
+<input 
 id="messageInput"
-type="text"
 placeholder="اكتب رسالة...">
 
 
 
-<button id="sendMessage">
+<button id="send">
+
 ➤
+
 </button>
 
+
+</div>
+
+
+</div>
+
+
+
+
+
+<div class="buttons">
 
 
 <button>
-🎤
+📞
 </button>
 
 
 <button>
-➕
+🎥
+</button>
+
+
+<button>
+😀
 </button>
 
 
@@ -152,40 +123,12 @@ placeholder="اكتب رسالة...">
 
 
 
-
-
-
-
-<!-- زر الضغط للتحدث -->
-
-
-<div class="push-talk">
-
-
-<button id="voiceBtn">
-🎙️
-</button>
-
-
 </div>
 
 
 
 
-
-
-</div>
-
-
-
-
-
-<script src="{{ url_for('static', filename='language.js') }}"></script>
-
-
-<script type="module"
-src="{{ url_for('static', filename='room.js') }}">
-</script>
+<script type="module" src="room.js"></script>
 
 
 </body>
