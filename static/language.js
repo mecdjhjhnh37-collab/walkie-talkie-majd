@@ -78,7 +78,27 @@ function loadLanguage(){
 
 }
 
+const room = translations[lang].room;
 
+if(room){
+
+    document.getElementById("roomPopupTitle").textContent = room.title;
+
+    document.getElementById("roomName").placeholder = room.roomName;
+
+    document.getElementById("roomPassword").placeholder = room.password;
+
+    document.getElementById("publicRoomText").textContent = room.public;
+
+    document.getElementById("privateRoomText").textContent = room.private;
+
+    document.getElementById("membersText").textContent = room.members;
+
+    document.getElementById("createRoomNow").textContent = room.create;
+
+    document.getElementById("cancelRoom").textContent = room.cancel;
+
+}
 
 document.addEventListener(
     "DOMContentLoaded",
