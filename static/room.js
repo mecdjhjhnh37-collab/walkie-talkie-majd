@@ -70,8 +70,18 @@ if(id && savedRoomId){
             }
 
             // إنشاء ID للغرفة
-let roomId = "room-" + 
-String(Date.now()).slice(-6);
+let lastRoomNumber = localStorage.getItem("lastRoomNumber") || 0;
+
+lastRoomNumber++;
+
+localStorage.setItem(
+    "lastRoomNumber",
+    lastRoomNumber
+);
+
+
+let roomId =
+"room-" + String(lastRoomNumber).padStart(6, "0");
 
 
 // حفظ بيانات الغرفة
