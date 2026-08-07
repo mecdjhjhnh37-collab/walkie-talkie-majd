@@ -69,3 +69,32 @@ document.addEventListener("DOMContentLoaded", () => {
     };
 
 });
+document.addEventListener("DOMContentLoaded",()=>{
+
+    const popup=document.getElementById("roomPopup");
+
+    const open=document.getElementById("createRoomBtn");
+
+    const close=document.getElementById("cancelRoom");
+
+    if(open){
+
+        open.onclick=()=>{
+
+            popup.style.display="flex";
+
+        };
+
+    }
+
+    if(close){
+
+        close.onclick=()=>{
+
+            popup.style.display="none";
+
+        };
+
+    }
+
+});
