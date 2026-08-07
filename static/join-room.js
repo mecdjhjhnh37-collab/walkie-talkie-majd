@@ -97,8 +97,7 @@ document.addEventListener("DOMContentLoaded", () => {
             }
 
             window.location.href =
-                "/room/" +
-                encodeURIComponent(roomId);
+    "/room?roomId=" + encodeURIComponent(roomId);
 
         });
 
