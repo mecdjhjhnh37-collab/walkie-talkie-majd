@@ -12,73 +12,94 @@ import {
 
 document.addEventListener("DOMContentLoaded", () => {
 
+    // =========================
+    // معلومات الغرفة
+    // =========================
 
     const roomTitle = document.getElementById("roomName");
     const roomIdText = document.getElementById("roomId");
 
+    const roomName =
+        localStorage.getItem("roomName");
 
-    const roomName = localStorage.getItem("roomName");
-    const roomId = localStorage.getItem("roomId");
-
-
-
-    if(roomTitle && roomName){
-
-     roomTitle.textContent = roomName;
+    const roomId =
+        localStorage.getItem("roomId");
 
 
-    if(roomIdText && roomId){
+    // اسم الغرفة
+    if (roomTitle && roomName) {
 
-        roomIdText.textContent = "ID: " + roomId;
+        roomTitle.textContent = "🎙️ " + roomName;
 
     }
 
 
+    // ID الغرفة
+    if (roomIdText && roomId) {
 
-    // ======================
-    // اللغة داخل الغرفة
-    // ======================
+        let displayRoomId = roomId;
+
+        // إذا كان الـ ID القديم يبدأ بـ room-
+        // نظهره للمستخدم بصيغة MC-
+        if (roomId.startsWith("room-")) {
+
+            const number =
+                roomId.replace("room-", "");
+
+            displayRoomId = "MC-" + number;
+
+        }
+
+        roomIdText.textContent =
+            "ID: " + displayRoomId;
+
+    }
+
+
+    // =========================
+    // اللغة
+    // =========================
 
     const language =
-    localStorage.getItem("language") || "ar";
+        localStorage.getItem("language") || "ar";
 
 
     const input =
-    document.getElementById("messageInput");
+        document.getElementById("messageInput");
 
 
-    if(input){
+    if (input) {
 
-        if(language === "tr"){
+        if (language === "tr") {
 
-            input.placeholder = "Mesaj yaz...";
+            input.placeholder =
+                "Mesaj yaz...";
 
-        }else{
+        } else {
 
-            input.placeholder = "اكتب رسالة...";
+            input.placeholder =
+                "اكتب رسالة...";
 
         }
 
     }
 
 
-
-
-    // ======================
+    // =========================
     // الرسائل
-    // ======================
+    // =========================
 
+    const messagesBox =
+        document.getElementById("messages");
 
-    const messagesBox = document.getElementById("messages");
-    const sendBtn = document.getElementById("sendMessage");
+    const sendBtn =
+        document.getElementById("sendMessage");
 
 
     let messagesRef = null;
 
 
-
-    if(roomId && messagesBox){
-
+    if (roomId && messagesBox) {
 
         messagesRef = collection(
             db,
@@ -88,196 +109,208 @@ document.addEventListener("DOMContentLoaded", () => {
         );
 
 
-
         const q = query(
             messagesRef,
             orderBy("time")
         );
 
 
+        onSnapshot(q, (snapshot) => {
 
-        onSnapshot(q,(snapshot)=>{
-
-
-            messagesBox.innerHTML="";
+            messagesBox.innerHTML = "";
 
 
+            snapshot.forEach((messageDoc) => {
 
-            snapshot.forEach((doc)=>{
-
-
-                const data = doc.data();
-
+                const data =
+                    messageDoc.data();
 
 
                 const messageDiv =
-                document.createElement("div");
+                    document.createElement("div");
 
-                messageDiv.className="message";
-
+                messageDiv.className =
+                    "message";
 
 
                 messageDiv.innerHTML = `
 
-                <div class="message-head">
+                    <div class="message-head">
 
-                <img 
-                src="${data.photo || 'https://i.imgur.com/6VBx3io.png'}"
-                class="message-photo">
+                        <img
+                            src="${data.photo || "https://i.imgur.com/6VBx3io.png"}"
+                            class="message-photo"
+                        >
 
+                        <span class="message-user">
+                            ${data.user || "مستخدم"}
+                        </span>
 
-                <span class="message-user">
+                    </div>
 
-                ${data.user || "مستخدم"}
-
-                </span>
-
-
-                </div>
-
-
-                <div class="message-text">
-
-                ${data.text || ""}
-
-                </div>
+                    <div class="message-text">
+                        ${data.text || ""}
+                    </div>
 
                 `;
 
 
-
-                messagesBox.appendChild(messageDiv);
-
+                messagesBox.appendChild(
+                    messageDiv
+                );
 
             });
 
 
+            // النزول لآخر رسالة
+            messagesBox.scrollTop =
+                messagesBox.scrollHeight;
 
         });
-
-
 
     }
 
 
-
-
-    // ======================
+    // =========================
     // إرسال رسالة
-    // ======================
+    // =========================
+
+    if (sendBtn && input) {
+
+        sendBtn.onclick = async () => {
+
+            const text =
+                input.value.trim();
 
 
-    if(sendBtn){
-
-
-        sendBtn.onclick = async()=>{
-
-
-            const text = input.value.trim();
-
-
-            if(text === "" || !messagesRef){
+            if (text === "" || !messagesRef) {
 
                 return;
 
             }
 
 
-
-            const userName = 
-            localStorage.getItem("userName") ||
-            "مستخدم";
-
+            const userName =
+                localStorage.getItem("userName") ||
+                "مستخدم";
 
 
             const userPhoto =
-            localStorage.getItem("userPhoto") ||
-            "default.png";
+                localStorage.getItem("userPhoto") ||
+                "default.png";
 
 
+            try {
+
+                await addDoc(
+                    messagesRef,
+                    {
+
+                        text: text,
+
+                        user: userName,
+
+                        photo: userPhoto,
+
+                        time: serverTimestamp()
+
+                    }
+                );
 
 
-            await addDoc(
-                messagesRef,
-                {
+                input.value = "";
 
-                    text:text,
 
-                    user:userName,
+            } catch (error) {
 
-                    photo:userPhoto,
+                console.error(error);
 
-                    time:serverTimestamp()
+                alert(
+                    "حدث خطأ أثناء إرسال الرسالة"
+                );
+
+            }
+
+        };
+
+
+        // إرسال بالضغط على Enter
+        input.addEventListener(
+            "keydown",
+            (event) => {
+
+                if (event.key === "Enter") {
+
+                    sendBtn.click();
 
                 }
-            );
 
-
-
-            input.value="";
-
-
-        };
-
+            }
+        );
 
     }
 
 
-
-
-    // ======================
-    // أزرار الاتصال
-    // ======================
-
+    // =========================
+    // زر الاتصال
+    // =========================
 
     const callBtn =
-    document.getElementById("callBtn");
+        document.getElementById("callBtn");
 
 
-    if(callBtn){
+    if (callBtn) {
 
-        callBtn.onclick=()=>{
+        callBtn.onclick = () => {
 
-            alert("📞 الاتصال قيد التطوير");
+            alert(
+                "📞 الاتصال قيد التطوير"
+            );
 
         };
 
     }
 
 
-
+    // =========================
+    // زر الفيديو
+    // =========================
 
     const videoBtn =
-    document.getElementById("videoBtn");
+        document.getElementById("videoBtn");
 
 
-    if(videoBtn){
+    if (videoBtn) {
 
-        videoBtn.onclick=()=>{
+        videoBtn.onclick = () => {
 
-            alert("📹 الفيديو قيد التطوير");
+            alert(
+                "📹 الفيديو قيد التطوير"
+            );
 
         };
 
     }
 
 
-
+    // =========================
+    // زر الميكروفون
+    // =========================
 
     const voiceBtn =
-    document.getElementById("voiceBtn");
+        document.getElementById("voiceBtn");
 
 
-    if(voiceBtn){
+    if (voiceBtn) {
 
-        voiceBtn.onclick=()=>{
+        voiceBtn.onclick = () => {
 
-            alert("🎤 الصوت قيد التطوير");
+            alert(
+                "🎤 الصوت قيد التطوير"
+            );
 
         };
 
     }
-
-
 
 });
