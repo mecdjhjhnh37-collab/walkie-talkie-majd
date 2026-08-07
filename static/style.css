@@ -599,9 +599,9 @@ button:active{
 
 #voiceBtn{
 
-    width:55px;
+    width:50px;
 
-    height:55px;
+    height:50px;
 
     border-radius:50%;
 
@@ -613,11 +613,17 @@ button:active{
 
     linear-gradient(
     135deg,
-    #2563eb,
-    #7c3aed
+    #6366f1,
+    #9333ea
     );
 
-    font-size:23px;
+    color:white;
+
+    font-size:22px;
+
+    box-shadow:
+
+    0 0 25px rgba(139,92,246,.6);
 
 }
 
@@ -641,11 +647,17 @@ button:active{
 
     linear-gradient(
     135deg,
-    #22c55e,
-    #16a34a
+    #2563eb,
+    #7c3aed
     );
 
+    color:white;
+
     font-size:23px;
+
+    box-shadow:
+
+    0 0 20px rgba(37,99,235,.5);
 
 }
 
