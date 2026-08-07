@@ -670,3 +670,43 @@ button:active{
     display:none;
 
 }
+.message{
+
+    background: #1f2937;
+    color:white;
+
+    padding:12px;
+
+    margin:10px;
+
+    border-radius:15px;
+
+    max-width:75%;
+
+    box-shadow:0 4px 10px #0005;
+
+}
+
+
+
+.message-user{
+
+    font-size:14px;
+
+    color:#60a5fa;
+
+    margin-bottom:5px;
+
+    font-weight:bold;
+
+}
+
+
+
+.message-text{
+
+    font-size:17px;
+
+    word-wrap:break-word;
+
+}
