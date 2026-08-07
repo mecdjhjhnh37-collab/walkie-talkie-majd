@@ -307,10 +307,161 @@ document.addEventListener("DOMContentLoaded", () => {
 
             alert(
                 "🎤 الصوت قيد التطوير"
-            );
+                // ===============================
+// دخول إلى غرفة
+// ===============================
 
-        };
+document.addEventListener("DOMContentLoaded", () => {
 
-    }
+    const joinRoomBtn = document.getElementById("joinRoomBtn");
+
+    if (!joinRoomBtn) return;
+
+
+    joinRoomBtn.addEventListener("click", () => {
+
+        const language =
+            localStorage.getItem("language") || "ar";
+
+
+        const title =
+            language === "tr"
+                ? "🚪 Odaya Katıl"
+                : "🚪 دخول إلى غرفة";
+
+
+        const placeholder =
+            language === "tr"
+                ? "Oda ID'sini gir"
+                : "أدخل ID الغرفة";
+
+
+        const joinText =
+            language === "tr"
+                ? "🚪 Katıl"
+                : "🚪 دخول";
+
+
+        const cancelText =
+            language === "tr"
+                ? "❌ İptal"
+                : "❌ إلغاء";
+
+
+        // إنشاء النافذة
+        const popup = document.createElement("div");
+
+        popup.className = "popup";
+
+        popup.style.display = "flex";
+
+        popup.innerHTML = `
+
+            <div class="popup-box">
+
+                <h2>
+                    ${title}
+                </h2>
+
+                <input
+                    id="joinRoomId"
+                    type="text"
+                    placeholder="${placeholder}"
+                    autocomplete="off"
+                >
+
+                <div class="popup-buttons">
+
+                    <button id="joinRoomConfirm">
+                        ${joinText}
+                    </button>
+
+                    <button id="joinRoomCancel">
+                        ${cancelText}
+                    </button>
+
+                </div>
+
+            </div>
+
+        `;
+
+
+        document.body.appendChild(popup);
+
+
+        // ===============================
+        // زر إلغاء
+        // ===============================
+
+        const cancel =
+            document.getElementById("joinRoomCancel");
+
+
+        cancel.addEventListener("click", () => {
+
+            popup.remove();
+
+        });
+
+
+        // ===============================
+        // زر دخول
+        // ===============================
+
+        const confirm =
+            document.getElementById("joinRoomConfirm");
+
+
+        const input =
+            document.getElementById("joinRoomId");
+
+
+        confirm.addEventListener("click", () => {
+
+            const roomId =
+                input.value.trim();
+
+
+            if (!roomId) {
+
+                alert(
+                    language === "tr"
+                        ? "Lütfen oda ID'sini gir."
+                        : "يرجى إدخال ID الغرفة."
+                );
+
+                return;
+
+            }
+
+
+            // الانتقال إلى الغرفة
+            window.location.href =
+                "/room/" + encodeURIComponent(roomId);
+
+        });
+
+
+        // Enter من الكيبورد = دخول
+        input.addEventListener("keydown", (event) => {
+
+            if (event.key === "Enter") {
+
+                confirm.click();
+
+            }
+
+        });
+
+
+        // التركيز على خانة ID
+        setTimeout(() => {
+
+            input.focus();
+
+        }, 100);
+
+    });
 
 });
