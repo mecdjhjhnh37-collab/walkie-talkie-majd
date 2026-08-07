@@ -1,12 +1,15 @@
 import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js";
+
 import {
     getFirestore
 } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
+
 import {
     getAuth,
     GoogleAuthProvider,
     signInWithPopup
 } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-auth.js";
+
 
 const firebaseConfig = {
     apiKey: "AIzaSyBrxgm0VQTfRv0ixXh9uQ81HBJ8SmD8c1E",
@@ -18,36 +21,69 @@ const firebaseConfig = {
     databaseURL: "https://mecd-voice-ap-default-rtdb.firebaseio.com"
 };
 
+
 export const app = initializeApp(firebaseConfig);
+
 export const db = getFirestore(app);
+
 const auth = getAuth(app);
+
 const provider = new GoogleAuthProvider();
+
 
 document.addEventListener("DOMContentLoaded", () => {
 
-    const loginBtn = document.getElementById("loginBtn");
+    const loginBtn =
+        document.getElementById("loginBtn");
 
-    if (loginBtn) {
 
-        loginBtn.addEventListener("click", async () => {
+    if (!loginBtn) return;
 
-            try {
 
-                const result = await signInWithPopup(auth, provider);
+    loginBtn.addEventListener("click", async () => {
 
-localStorage.setItem("userUid", result.user.uid);
+        try {
 
-window.location.href = "/home";
+            const result =
+                await signInWithPopup(auth, provider);
 
-            } catch (error) {
 
-                alert(error.message);
-                console.error(error);
+            // حفظ UID المستخدم
+            localStorage.setItem(
+                "userUid",
+                result.user.uid
+            );
 
-            }
 
-        });
+            // حفظ اسم المستخدم
+            localStorage.setItem(
+                "userName",
+                result.user.displayName || "مستخدم"
+            );
 
-    }
+
+            // حفظ صورة المستخدم
+            localStorage.setItem(
+                "userPhoto",
+                result.user.photoURL || "default.png"
+            );
+
+
+            // الذهاب للصفحة الرئيسية
+            window.location.href = "/home";
+
+
+        } catch (error) {
+
+            console.error(error);
+
+            alert(
+                "حدث خطأ أثناء تسجيل الدخول: " +
+                error.message
+            );
+
+        }
+
+    });
 
 });
