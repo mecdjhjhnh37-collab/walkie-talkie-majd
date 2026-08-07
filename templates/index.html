@@ -19,48 +19,51 @@
 <div class="container">
 
 
-    <div class="logo">
-        🎙️
-    </div>
+<div class="logo">
+🎙️
+</div>
 
 
-    <h1>
-        Mecd Voice
-    </h1>
+<h1>
+Mecd Voice
+</h1>
 
 
-    <p>
-        مرحبًا بك في موقع المطور مجد
-    </p>
-
-
-    <p>
-        Geliştirici Mecd'in sitesine hoş geldiniz
-    </p>
+<p id="welcomeText">
+مرحبًا بك في موقع المطور مجد
+</p>
 
 
 
-    <a href="/login/ar" onclick="setLanguage('ar')">
+<button 
+class="lang-btn"
+onclick="setLanguage('ar')">
 
-        <button class="lang-btn">
+🇸🇦 العربية
 
-            🇸🇦 العربية
-
-        </button>
-
-    </a>
+</button>
 
 
 
-    <a href="/login/tr" onclick="setLanguage('tr')">
+<button 
+class="lang-btn"
+onclick="setLanguage('tr')">
 
-        <button class="lang-btn">
+🇹🇷 Türkçe
 
-            🇹🇷 Türkçe
+</button>
 
-        </button>
 
-    </a>
+
+<a id="loginLink" href="/login/ar">
+
+<button class="google-btn">
+
+🔵 تسجيل الدخول
+
+</button>
+
+</a>
 
 
 
@@ -69,6 +72,47 @@
 
 
 <script src="{{ url_for('static', filename='language.js') }}"></script>
+
+
+<script>
+
+function setLanguage(lang){
+
+localStorage.setItem("language",lang);
+
+
+if(lang==="tr"){
+
+document.documentElement.lang="tr";
+document.documentElement.dir="ltr";
+
+document.getElementById("welcomeText").textContent=
+"Geliştirici Mecd'in sitesine hoş geldiniz";
+
+
+document.getElementById("loginLink").href="/login/tr";
+
+
+}else{
+
+
+document.documentElement.lang="ar";
+document.documentElement.dir="rtl";
+
+
+document.getElementById("welcomeText").textContent=
+"مرحبًا بك في موقع المطور مجد";
+
+
+document.getElementById("loginLink").href="/login/ar";
+
+
+}
+
+}
+
+
+</script>
 
 
 </body>
