@@ -439,5 +439,75 @@ document.addEventListener("DOMContentLoaded", async () => {
         }
 
     }
+// =====================================
+// تشغيل / إيقاف الميكروفون
+// =====================================
 
+const voiceBtn =
+    document.getElementById("voiceBtn");
+
+let microphoneStream = null;
+let microphoneOn = false;
+
+if (voiceBtn) {
+
+    voiceBtn.addEventListener("click", async () => {
+
+        try {
+
+            // تشغيل الميكروفون
+            if (!microphoneOn) {
+
+                microphoneStream =
+                    await navigator.mediaDevices.getUserMedia({
+                        audio: true
+                    });
+
+                microphoneOn = true;
+
+                voiceBtn.textContent = "🔴";
+
+                console.log("Microphone ON");
+
+            }
+
+            // إيقاف الميكروفون
+            else {
+
+                if (microphoneStream) {
+
+                    microphoneStream
+                        .getTracks()
+                        .forEach(track => track.stop());
+
+                }
+
+                microphoneStream = null;
+
+                microphoneOn = false;
+
+                voiceBtn.textContent = "🎤";
+
+                console.log("Microphone OFF");
+
+            }
+
+        } catch (error) {
+
+            console.error(
+                "Microphone error:",
+                error
+            );
+
+            alert(
+                language === "tr"
+                    ? "Mikrofon izni verilmedi."
+                    : "لم يتم السماح باستخدام الميكروفون."
+            );
+
+        }
+
+    });
+
+}
 });
