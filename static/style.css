@@ -1,9 +1,10 @@
-* {
-    box-sizing: border-box;
-    font-family: "Cairo", Arial, sans-serif;
+*{
+    box-sizing:border-box;
+    font-family:"Cairo", Arial, sans-serif;
 }
 
-body {
+
+body{
 
     margin:0;
 
@@ -24,7 +25,7 @@ body {
 }
 
 
-/* الخلفية الليلية */
+/* خلفية متحركة */
 
 body::before{
 
@@ -40,33 +41,32 @@ body::before{
 
     left:-40%;
 
-
     background:
 
     radial-gradient(
-    circle at 20% 30%,
-    rgba(0,110,255,.35),
-    transparent 30%
+        circle at 20% 30%,
+        rgba(0,110,255,.35),
+        transparent 30%
     ),
 
     radial-gradient(
-    circle at 80% 20%,
-    rgba(160,0,255,.35),
-    transparent 35%
+        circle at 80% 20%,
+        rgba(160,0,255,.35),
+        transparent 35%
     ),
 
     radial-gradient(
-    circle at 50% 80%,
-    rgba(0,255,200,.15),
-    transparent 30%
+        circle at 50% 80%,
+        rgba(0,255,200,.15),
+        transparent 30%
     );
-
 
     animation:nightMove 18s infinite alternate;
 
     z-index:-1;
 
 }
+
 
 
 @keyframes nightMove{
@@ -83,9 +83,8 @@ body::before{
 
 
 
-/* الحاويات */
+/* الصفحة الرئيسية */
 
-.container,
 .home{
 
     width:90%;
@@ -98,56 +97,11 @@ body::before{
 
 
 
-/* الشعار */
-
-.logo{
-
-    font-size:70px;
-
-    margin-bottom:15px;
-
-}
-
-
-
-/* العناوين */
-
-h1{
-
-    font-size:36px;
-
-    margin:10px;
-
-}
-
-
-h2{
-
-    font-size:26px;
-
-}
-
-
-
-/* النصوص */
-
-p{
-
-    color:rgba(255,255,255,.75);
-
-    font-size:17px;
-
-}
-
-
-
 /* البروفايل */
 
-.profile-card,
 .profile{
 
-    background:
-    rgba(255,255,255,.10);
+    background:rgba(255,255,255,.10);
 
     backdrop-filter:blur(18px);
 
@@ -164,7 +118,7 @@ p{
 
 
 
-/* الصورة */
+/* صورة الحساب */
 
 .avatar{
 
@@ -174,7 +128,33 @@ p{
 
     border-radius:50%;
 
-    border:3px solid rgba(255,255,255,.8);
+    object-fit:cover;
+
+    border:3px solid white;
+
+}
+
+
+
+/* اسم المستخدم */
+
+.profile h2{
+
+    margin:15px 0 5px;
+
+    font-size:26px;
+
+}
+
+
+
+/* ID */
+
+.profile p{
+
+    color:#cbd5e1;
+
+    font-size:16px;
 
 }
 
@@ -182,27 +162,39 @@ p{
 
 /* الحالة */
 
-.online,
 .status{
 
     display:inline-block;
+
+    margin-top:10px;
 
     padding:8px 20px;
 
     border-radius:30px;
 
     background:
+
     rgba(0,255,120,.15);
 
 }
 
 
 
-/* الأزرار */
+/* العنوان */
 
-button,
-.lang-btn,
-.google-btn{
+.title{
+
+    font-size:36px;
+
+    margin:20px 0;
+
+}
+
+
+
+/* الأزرار العامة */
+
+button{
 
     width:100%;
 
@@ -221,48 +213,32 @@ button,
     cursor:pointer;
 
     background:
+
     rgba(255,255,255,.12);
 
     backdrop-filter:blur(12px);
 
     transition:.3s;
 
-    box-shadow:
-    0 10px 25px rgba(0,0,0,.35);
-
 }
 
 
-button:hover,
-.lang-btn:hover,
-.google-btn:hover{
 
-    transform:translateY(-4px);
+button:hover{
+
+    transform:translateY(-3px);
 
     background:
+
     rgba(255,255,255,.22);
 
 }
 
 
+
 button:active{
 
     transform:scale(.96);
-
-}
-
-
-
-/* زر جوجل */
-
-.google-btn{
-
-    background:
-    linear-gradient(
-    135deg,
-    #4285f4,
-    #34a853
-    );
 
 }
 
@@ -276,17 +252,18 @@ button:active{
 
     inset:0;
 
-    background:rgba(0,0,0,.75);
-
     display:none;
 
     justify-content:center;
 
     align-items:center;
 
+    background:rgba(0,0,0,.75);
+
     z-index:9999;
 
 }
+
 
 
 .popup-box{
@@ -295,16 +272,11 @@ button:active{
 
     max-width:90%;
 
-    background:#202225;
-
-    border-radius:18px;
-
     padding:25px;
 
-    color:white;
+    border-radius:20px;
 
-    box-shadow:
-    0 0 25px rgba(0,0,0,.45);
+    background:#202225;
 
     display:flex;
 
@@ -315,6 +287,7 @@ button:active{
 }
 
 
+
 .popup-box input,
 .popup-box select{
 
@@ -322,9 +295,9 @@ button:active{
 
     padding:12px;
 
-    border:none;
-
     border-radius:10px;
+
+    border:none;
 
     background:#2f3136;
 
@@ -333,6 +306,7 @@ button:active{
     font-size:16px;
 
 }
+
 
 
 .popup-box label{
@@ -346,6 +320,7 @@ button:active{
 }
 
 
+
 .popup-buttons{
 
     display:flex;
@@ -355,11 +330,13 @@ button:active{
 }
 
 
+
 .popup-buttons button{
 
     flex:1;
 
 }
+
 
 
 #createRoomNow{
@@ -369,367 +346,9 @@ button:active{
 }
 
 
+
 #cancelRoom{
 
     background:#444;
-
-}
-/* =============== DARK PRO ROOM =============== */
-
-
-.room-page{
-
-    width:100%;
-
-    height:100vh;
-
-    display:flex;
-
-    flex-direction:column;
-
-    background:
-
-    radial-gradient(
-    circle at top left,
-    #1e3a8a,
-    transparent 35%
-    ),
-
-    radial-gradient(
-    circle at bottom right,
-    #581c87,
-    transparent 40%
-    ),
-
-    #050505;
-
-    color:white;
-
-    overflow:hidden;
-
-}
-
-
-
-/* اله
-
-/* =============== MECD VOICE ROOM FINAL =============== */
-
-.room-page{
-
-    width:100%;
-    height:100vh;
-
-    display:flex;
-    flex-direction:column;
-
-    background:
-    radial-gradient(
-    circle at top right,
-    rgba(37,99,235,.35),
-    transparent 35%
-    ),
-
-    radial-gradient(
-    circle at bottom left,
-    rgba(124,58,237,.35),
-    transparent 40%
-    ),
-
-    #050510;
-
-    color:white;
-
-    overflow:hidden;
-}
-
-
-
-/* رأس الغرفة */
-
-.room-header{
-
-    min-height:120px;
-
-    height:auto;
-
-    padding:25px 20px;
-
-}
-
-
-
-/* اسم الغرفة */
-
-.room-info{
-
-    text-align:right;
-
-}
-
-
-.room-info h2{
-
-    margin:0;
-
-    font-size:25px;
-
-    line-height:1.4;
-
-}
-
-
-.room-info p{
-
-    margin-top:8px;
-
-    color:#cbd5e1;
-
-}
-
-
-
-/* أزرار الاتصال */
-
-.room-actions{
-
-    display:flex;
-
-    gap:12px;
-
-}
-
-
-
-.room-actions button{
-
-    width:55px;
-
-    height:55px;
-
-    border-radius:50%;
-
-    padding:0;
-
-    margin:0;
-
-    background:
-
-    rgba(255,255,255,.12);
-
-    border:
-
-    1px solid rgba(255,255,255,.2);
-
-    font-size:25px;
-
-}
-
-
-
-/* الرسائل */
-
-.messages{
-
-    flex:1;
-
-    padding:20px;
-
-    overflow-y:auto;
-
-}
-
-
-
-/* شريط الكتابة */
-
-.message-bar{
-
-    display:flex;
-
-    align-items:center;
-
-    gap:10px;
-
-    padding:15px;
-
-}
-
-
-
-/* مربع الرسالة */
-
-.message-bar input{
-
-    flex:1;
-
-    height:55px;
-
-    border-radius:30px;
-
-    border:none;
-
-    padding:0 20px;
-
-    background:
-
-    rgba(255,255,255,.12);
-
-    color:white;
-
-    font-size:16px;
-
-    backdrop-filter:blur(15px);
-
-}
-
-
-
-/* زر المايك */
-
-#voiceBtn{
-
-    width:50px;
-
-    height:50px;
-
-    border-radius:50%;
-
-    padding:0;
-
-    margin:0;
-
-    background:
-
-    linear-gradient(
-    135deg,
-    #6366f1,
-    #9333ea
-    );
-
-    color:white;
-
-    font-size:22px;
-
-    box-shadow:
-
-    0 0 25px rgba(139,92,246,.6);
-
-}
-
-
-
-/* زر الإرسال */
-
-#sendMessage{
-
-    width:55px;
-
-    height:55px;
-
-    border-radius:50%;
-
-    padding:0;
-
-    margin:0;
-
-    background:
-
-    linear-gradient(
-    135deg,
-    #2563eb,
-    #7c3aed
-    );
-
-    color:white;
-
-    font-size:23px;
-
-    box-shadow:
-
-    0 0 20px rgba(37,99,235,.5);
-
-}
-
-
-
-/* الأعضاء مخفية حالياً */
-
-.members-box{
-
-    display:none;
-
-}
-.message{
-
-    background: #1f2937;
-    color:white;
-
-    padding:12px;
-
-    margin:10px;
-
-    border-radius:15px;
-
-    max-width:75%;
-
-    box-shadow:0 4px 10px #0005;
-
-}
-
-
-
-.message-user{
-
-    font-size:14px;
-
-    color:#60a5fa;
-
-    margin-bottom:5px;
-
-    font-weight:bold;
-
-}
-
-
-
-.message-text{
-
-    font-size:17px;
-
-    word-wrap:break-word;
-
-}
-.message-head{
-
-display:flex;
-
-align-items:center;
-
-gap:10px;
-
-}
-
-
-.message-photo{
-
-width:35px;
-
-height:35px;
-
-border-radius:50%;
-
-object-fit:cover;
-
-}
-
-
-.message-user{
-
-color:#60a5fa;
-
-font-weight:bold;
-
-font-size:15px;
 
 }
