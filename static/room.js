@@ -1,112 +1,110 @@
-import { db } from "./app.js";
-
-import {
-  doc,
-  runTransaction
-} from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
-
 document.addEventListener("DOMContentLoaded", () => {
 
-  // =========================
-  // صفحة الغرفة
-  // =========================
+    // عرض بيانات الغرفة
 
-  const roomTitle = document.getElementById("roomName");
-  const roomIdText = document.getElementById("roomId");
+    const roomTitle = document.getElementById("roomName");
+    const roomIdText = document.getElementById("roomId");
 
-  const savedRoomName = localStorage.getItem("roomName");
-  const savedRoomId = localStorage.getItem("roomId");
+    const savedRoomName = localStorage.getItem("roomName");
+    const savedRoomId = localStorage.getItem("roomId");
 
-  if (roomTitle && savedRoomName) {
-    roomTitle.textContent = "🎙️ " + savedRoomName;
-  }
 
-  if (roomIdText && savedRoomId) {
-    roomIdText.textContent = "ID: " + savedRoomId;
-  }
+    if(roomTitle && savedRoomName){
+        roomTitle.textContent = "🎙️ " + savedRoomName;
+    }
 
-  // =========================
-  // صفحة Home
-  // =========================
 
-  const popup = document.getElementById("roomPopup");
-  const openBtn = document.getElementById("createRoomBtn");
-  const cancelBtn = document.getElementById("cancelRoom");
-  const createBtn = document.getElementById("createRoomNow");
+    if(roomIdText && savedRoomId){
+        roomIdText.textContent = "ID: " + savedRoomId;
+    }
 
-  // فتح النافذة
-  if (openBtn && popup) {
-    openBtn.onclick = () => {
-      popup.style.display = "flex";
-    };
-  }
 
-  // إغلاق النافذة
-  if (cancelBtn && popup) {
-    cancelBtn.onclick = () => {
-      popup.style.display = "none";
-    };
-  }
 
-  // إنشاء الغرفة
-  if (createBtn) {
+    // زر الاتصال الصوتي
 
-    createBtn.onclick = async () => {
+    const callBtn = document.getElementById("callBtn");
 
-      const roomName = document
-        .getElementById("newRoomName")
-        .value
-        .trim();
+    if(callBtn){
 
-      if (roomName === "") {
-        alert("اكتب اسم الغرفة");
-        return;
-      }
+        callBtn.onclick = () => {
 
-      try {
+            alert("زر الاتصال الصوتي يعمل 📞");
 
-        const counterRef = doc(db, "counters", "rooms");
+        };
 
-        const roomId = await runTransaction(db, async (transaction) => {
+    }
 
-          const counterDoc = await transaction.get(counterRef);
 
-          let lastNumber = 0;
 
-          if (counterDoc.exists()) {
-            lastNumber = counterDoc.data().lastNumber || 0;
-          }
+    // زر الفيديو
 
-          lastNumber++;
+    const videoBtn = document.getElementById("videoBtn");
 
-          transaction.set(
-            counterRef,
-            {
-              lastNumber: lastNumber
-            },
-            {
-              merge: true
+    if(videoBtn){
+
+        videoBtn.onclick = () => {
+
+            alert("زر الفيديو يعمل 📹");
+
+        };
+
+    }
+
+
+
+    // زر إرسال الرسالة
+
+    const sendBtn = document.getElementById("sendMessage");
+
+    const input = document.getElementById("messageInput");
+
+    const messages = document.getElementById("messages");
+
+
+    if(sendBtn){
+
+        sendBtn.onclick = () => {
+
+            let text = input.value.trim();
+
+
+            if(text === ""){
+                return;
             }
-          );
 
-          return "room-" + String(lastNumber).padStart(6, "0");
 
-        });
+            let p = document.createElement("p");
 
-        localStorage.setItem("roomName", roomName);
-        localStorage.setItem("roomId", roomId);
+            p.textContent = text;
 
-        window.location.href = "/room";
 
-      } catch (e) {
+            messages.appendChild(p);
 
-        console.error(e);
-        alert(e.message);
 
-      }
+            input.value = "";
 
-    };
 
-  }
+        };
+
+    }
+
+
+
+    // زر الصوت
+
+    const voiceBtn = document.getElementById("voiceBtn");
+
+
+    if(voiceBtn){
+
+        voiceBtn.onclick = () => {
+
+            alert("زر الصوت يعمل 🎤");
+
+        };
+
+    }
+
+
 
 });
