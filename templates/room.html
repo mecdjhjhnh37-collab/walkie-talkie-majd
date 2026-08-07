@@ -8,7 +8,7 @@
 
 <title>Mecd Voice Room</title>
 
-<link rel="stylesheet" href="style.css">
+<link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
 
 </head>
 
@@ -128,7 +128,7 @@ placeholder="اكتب رسالة...">
 
 
 
-<script type="module" src="room.js"></script>
+<script type="module" src="{{ url_for('static', filename='room.js') }}"></script>
 
 
 </body>
