@@ -157,13 +157,16 @@ document.addEventListener("DOMContentLoaded", () => {
 
 
 
-            const userName =
-            localStorage.getItem("userName") || "مستخدم";
+            const userName = 
+localStorage.getItem("userName") || 
+window.localStorage.getItem("name") ||
+"مستخدم";
 
 
-            const userPhoto =
-            localStorage.getItem("userPhoto") ||
-            "https://i.imgur.com/6VBx3io.png";
+const userPhoto =
+localStorage.getItem("userPhoto") ||
+window.localStorage.getItem("photo") ||
+"default.png";
 
 
 
