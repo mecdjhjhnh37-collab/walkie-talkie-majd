@@ -8,7 +8,7 @@ import {
 } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-database.js";
 
 import { app } from "./app.js";
-
+alert("user.js شغال");
 const auth = getAuth(app);
 const db = getDatabase(app);
 
