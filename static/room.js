@@ -1,3 +1,9 @@
+import { db } from "./app.js";
+
+import {
+  doc,
+  runTransaction
+} from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
 document.addEventListener("DOMContentLoaded", () => {
     const savedRoomName = localStorage.getItem("roomName");
 const savedRoomId = localStorage.getItem("roomId");
@@ -5,7 +11,7 @@ const savedRoomId = localStorage.getItem("roomId");
 
 const title = document.getElementById("roomName");
 const id = document.getElementById("roomId");
-
+ 
 
 if(title && savedRoomName){
 
@@ -45,7 +51,7 @@ if(id && savedRoomId){
     // إغلاق النافذة
     if(cancelBtn){
 
-        cancelBtn.onclick = () => {
+        createBtn.onclick = async () => {
 
             popup.style.display = "none";
 
@@ -70,18 +76,23 @@ if(id && savedRoomId){
             }
 
             // إنشاء ID للغرفة
-let lastRoomNumber = localStorage.getItem("lastRoomNumber") || 0;
+const counterRef = doc(db, "counters", "rooms");
 
-lastRoomNumber++;
+const roomId = await runTransaction(db, async (transaction) => {
 
-localStorage.setItem(
-    "lastRoomNumber",
-    lastRoomNumber
-);
+    const counterDoc = await transaction.get(counterRef);
 
+    let lastNumber = counterDoc.data().lastNumber;
 
-let roomId =
-"room-" + String(lastRoomNumber).padStart(6, "0");
+    lastNumber++;
+
+    transaction.update(counterRef, {
+        lastNumber: lastNumber
+    });
+
+    return "room-" + String(lastNumber).padStart(6, "0");
+
+});
 
 
 // حفظ بيانات الغرفة
