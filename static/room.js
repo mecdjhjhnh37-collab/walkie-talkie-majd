@@ -13,36 +13,33 @@ import {
 document.addEventListener("DOMContentLoaded", () => {
 
 
-    // =========================
-    // معلومات الغرفة
-    // =========================
-
     const roomTitle = document.getElementById("roomName");
     const roomIdText = document.getElementById("roomId");
 
 
-    const savedRoomName = localStorage.getItem("roomName");
-    const savedRoomId = localStorage.getItem("roomId");
+    const roomName = localStorage.getItem("roomName");
+    const roomId = localStorage.getItem("roomId");
 
 
-    if(roomTitle && savedRoomName){
 
-        roomTitle.textContent = "🎙️ " + savedRoomName;
+    if(roomTitle && roomName){
 
-    }
-
-
-    if(roomIdText && savedRoomId){
-
-        roomIdText.textContent = "ID: " + savedRoomId;
+        roomTitle.textContent = "🎙️ " + roomName;
 
     }
 
 
+    if(roomIdText && roomId){
 
-    // =========================
-    // الشات Firebase
-    // =========================
+        roomIdText.textContent = "ID: " + roomId;
+
+    }
+
+
+
+    // ======================
+    // الرسائل
+    // ======================
 
 
     const messagesBox = document.getElementById("messages");
@@ -50,19 +47,21 @@ document.addEventListener("DOMContentLoaded", () => {
     const sendBtn = document.getElementById("sendMessage");
 
 
-    const roomId = savedRoomId;
+
+    let messagesRef = null;
 
 
 
-    if(messagesBox && roomId){
+    if(roomId && messagesBox){
 
 
-        const messagesRef = collection(
+        messagesRef = collection(
             db,
             "rooms",
             roomId,
             "messages"
         );
+
 
 
         const q = query(
@@ -78,46 +77,59 @@ document.addEventListener("DOMContentLoaded", () => {
             messagesBox.innerHTML="";
 
 
+
             snapshot.forEach((doc)=>{
 
 
                 const data = doc.data();
 
 
-                const messageDiv = document.createElement("div");
 
-messageDiv.className = "message";
+                const messageDiv =
+                document.createElement("div");
 
-
-
-messageDiv.innerHTML = `
-
-<div class="message-head">
-
-<img src="${data.photo}" class="message-photo">
-
-<span class="message-user">
-${data.user}
-</span>
-
-</div>
+                messageDiv.className="message";
 
 
-<div class="message-text">
-${data.text}
-</div>
 
-`;
-`
+                messageDiv.innerHTML = `
+
+                <div class="message-head">
+
+                <img 
+                src="${data.photo || 'https://i.imgur.com/6VBx3io.png'}"
+                class="message-photo">
 
 
-messagesBox.appendChild(messageDiv);
+                <span class="message-user">
+
+                ${data.user || "مستخدم"}
+
+                </span>
+
+
+                </div>
+
+
+                <div class="message-text">
+
+                ${data.text}
+
+                </div>
+
+                `;
+
+
+
+                messagesBox.appendChild(messageDiv);
 
 
             });
 
 
+
         });
+
 
 
     }
@@ -137,8 +149,7 @@ messagesBox.appendChild(messageDiv);
             const text = input.value.trim();
 
 
-
-            if(text === ""){
+            if(text === "" || !messagesRef){
 
                 return;
 
@@ -146,20 +157,30 @@ messagesBox.appendChild(messageDiv);
 
 
 
-            
-const userName = localStorage.getItem("userName") || "مستخدم";
-
-const userPhoto = localStorage.getItem("userPhoto") || "https://i.imgur.com/6VBx3io.png";
+            const userName =
+            localStorage.getItem("userName") || "مستخدم";
 
 
-await addDoc(messagesRef,{
-    text:text,
-    user:userName,
-    photo:userPhoto,
-    time:serverTimestamp()
-});
+            const userPhoto =
+            localStorage.getItem("userPhoto") ||
+            "https://i.imgur.com/6VBx3io.png";
+
+
+
+
+            await addDoc(
+                messagesRef,
+                {
+
+                    text:text,
+
+                    user:userName,
+
+                    photo:userPhoto,
+
+                    time:serverTimestamp()
+
                 }
-
             );
 
 
@@ -167,7 +188,6 @@ await addDoc(messagesRef,{
             input.value="";
 
 
-
         };
 
 
@@ -176,21 +196,16 @@ await addDoc(messagesRef,{
 
 
 
-
-    // =========================
-    // أزرار الاتصال (تجربة)
-    // =========================
+    // أزرار الاتصال
 
 
-    const callBtn =
-    document.getElementById("callBtn");
-
+    const callBtn=document.getElementById("callBtn");
 
     if(callBtn){
 
         callBtn.onclick=()=>{
 
-            alert("📞 الاتصال الصوتي قيد التطوير");
+            alert("📞 الاتصال قيد التطوير");
 
         };
 
@@ -198,9 +213,7 @@ await addDoc(messagesRef,{
 
 
 
-    const videoBtn =
-    document.getElementById("videoBtn");
-
+    const videoBtn=document.getElementById("videoBtn");
 
     if(videoBtn){
 
@@ -214,15 +227,14 @@ await addDoc(messagesRef,{
 
 
 
-    const voiceBtn =
-    document.getElementById("voiceBtn");
 
+    const voiceBtn=document.getElementById("voiceBtn");
 
     if(voiceBtn){
 
         voiceBtn.onclick=()=>{
 
-            alert("🎤 تسجيل الصوت قيد التطوير");
+            alert("🎤 الصوت قيد التطوير");
 
         };
 
