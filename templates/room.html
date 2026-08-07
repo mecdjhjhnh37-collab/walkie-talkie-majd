@@ -1,0 +1,75 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+
+<head>
+
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+<title>Mecd Voice Room</title>
+
+<link rel="stylesheet"
+href="{{ url_for('static', filename='style.css') }}">
+
+</head>
+
+<body>
+
+<div class="room-page">
+
+    <div class="room-header">
+
+        <h1 id="roomTitle">
+            🎙️ اسم الغرفة
+        </h1>
+
+        <div id="roomMembers">
+            👥 1 / 10
+        </div>
+
+    </div>
+
+    <div class="room-chat" id="messages">
+
+    </div>
+
+    <div class="room-input">
+
+        <input
+        id="messageInput"
+        type="text"
+        placeholder="اكتب رسالة...">
+
+        <button id="sendMessage">
+            ➤
+        </button>
+
+    </div>
+
+    <div class="room-bottom">
+
+        <button id="voiceBtn">
+            🎤
+        </button>
+
+        <button id="callBtn">
+            📞
+        </button>
+
+        <button id="videoBtn">
+            📹
+        </button>
+
+    </div>
+
+</div>
+
+<script src="{{ url_for('static', filename='language.js') }}"></script>
+
+<script type="module"
+src="{{ url_for('static', filename='main.js') }}">
+</script>
+
+</body>
+
+</html>
