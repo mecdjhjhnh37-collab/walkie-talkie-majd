@@ -5,7 +5,8 @@
 
 <meta charset="UTF-8">
 
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="viewport"
+content="width=device-width, initial-scale=1.0">
 
 <title>Mecd Voice</title>
 
@@ -21,284 +22,361 @@ href="{{ url_for('static', filename='style.css') }}">
 <div class="home">
 
 
+    <!-- =========================
+         معلومات الحساب
+    ========================== -->
 
-<div class="profile">
+    <div class="profile">
+
+        <img
+        id="userPhoto"
+        src="https://i.imgur.com/6VBx3io.png"
+        class="avatar">
+
+        <h2 id="userName">
+            جارٍ التحميل...
+        </h2>
+
+        <p id="userId">
+            ID : ------
+        </p>
+
+        <div class="status">
+            🟢 Online
+        </div>
+
+    </div>
 
 
-<img 
-id="userPhoto"
-src="https://i.imgur.com/6VBx3io.png"
-class="avatar">
+    <h1 class="title">
+        🎙️ Mecd Voice
+    </h1>
 
 
+    <!-- =========================
+         أزرار الصفحة الرئيسية
+    ========================== -->
 
-<h2 id="userName">
-جارٍ التحميل...
-</h2>
+    <div class="menu">
+
+        <button id="friendsBtn" type="button">
+
+            👥
+
+            <span id="friendsText">
+                الأصدقاء
+            </span>
+
+        </button>
 
 
+        <button id="createRoomBtn" type="button">
 
-<p id="userId">
-ID : ------
-</p>
+            🎙️
+
+            <span id="createRoomText">
+                إنشاء غرفة
+            </span>
+
+        </button>
 
 
+        <button id="joinRoomBtn" type="button">
 
-<div class="status">
+            🚪
 
-🟢 Online
+            <span id="joinRoomText">
+                دخول إلى غرفة
+            </span>
+
+        </button>
+
+
+        <button id="publicRoomsBtn" type="button">
+
+            🌍
+
+            <span id="publicRoomsText">
+                الغرف العامة
+            </span>
+
+        </button>
+
+
+        <button id="settingsBtn" type="button">
+
+            ⚙️
+
+            <span id="settingsText">
+                الإعدادات
+            </span>
+
+        </button>
+
+    </div>
 
 </div>
 
 
 
-</div>
-
-
-
-
-
-<h1 class="title">
-
-🎙️ Mecd Voice
-
-</h1>
-
-
-
-
-
-<div class="menu">
-
-
-
-<button id="friendsBtn">
-
-👥
-
-<span id="friendsText">
-الأصدقاء
-</span>
-
-</button>
-
-
-
-
-
-<button id="createRoomBtn">
-
-🎙️
-
-<span id="createRoomText">
-إنشاء غرفة
-</span>
-
-</button>
-
-
-
-
-
-<button id="joinRoomBtn">
-
-🚪
-
-<span id="joinRoomText">
-دخول إلى غرفة
-</span>
-
-</button>
-
-
-
-
-
-<button id="publicRoomsBtn">
-
-🌍
-
-<span id="publicRoomsText">
-الغرف العامة
-</span>
-
-</button>
-
-
-
-
-
-<button id="settingsBtn">
-
-⚙️
-
-<span id="settingsText">
-الإعدادات
-</span>
-
-</button>
-
-
-
-</div>
-
-
-
-</div>
-
-
-
-
-
-
-
-
-<!-- نافذة إنشاء الغرفة -->
-
+<!-- ==================================================
+     نافذة إنشاء الغرفة
+================================================== -->
 
 <div id="roomPopup" class="popup">
 
+    <div class="popup-box">
 
-<div class="popup-box">
+        <h2 id="roomPopupTitle"></h2>
 
 
+        <input
+        id="newRoomName"
+        type="text">
 
-<h2 id="roomPopupTitle">
 
-</h2>
+        <input
+        id="roomPassword"
+        type="password">
 
 
+        <label>
 
-<input
-id="newRoomName"
-type="text">
+            <input
+            type="radio"
+            name="roomType"
+            value="public"
+            checked>
 
+            <span id="publicRoomText"></span>
 
+        </label>
 
-<input
-id="roomPassword"
-type="password">
 
+        <label>
 
+            <input
+            type="radio"
+            name="roomType"
+            value="private">
 
+            <span id="privateRoomText"></span>
 
+        </label>
 
-<label>
 
-<input
-type="radio"
-name="roomType"
-value="public"
-checked>
+        <label id="membersText"></label>
 
 
-<span id="publicRoomText">
+        <select id="roomMembers">
 
-</span>
+            <option>2</option>
+            <option>5</option>
+            <option selected>10</option>
+            <option>20</option>
+            <option>50</option>
 
+        </select>
 
-</label>
 
+        <div class="popup-buttons">
 
+            <button
+            id="createRoomNow"
+            type="button">
+            </button>
 
 
+            <button
+            id="cancelRoom"
+            type="button">
+            </button>
 
-<label>
+        </div>
 
-<input
-type="radio"
-name="roomType"
-value="private">
-
-
-<span id="privateRoomText">
-
-</span>
-
-
-</label>
-
-
-
-
-
-<label id="membersText">
-
-</label>
-
-
-
-
-
-<select id="roomMembers">
-
-
-<option>2</option>
-
-<option>5</option>
-
-<option selected>10</option>
-
-<option>20</option>
-
-<option>50</option>
-
-
-</select>
-
-
-
-
-
-
-<div class="popup-buttons">
-
-
-<button id="createRoomNow">
-
-</button>
-
-
-<button id="cancelRoom">
-
-</button>
-
+    </div>
 
 </div>
 
 
 
+<!-- ==================================================
+     نافذة دخول إلى غرفة
+================================================== -->
+
+<div id="joinRoomPopup" class="popup">
+
+    <div class="popup-box">
+
+        <h2 id="joinRoomTitle">
+            🚪 دخول إلى غرفة
+        </h2>
+
+
+        <input
+        id="joinRoomId"
+        type="text"
+        placeholder="أدخل ID الغرفة"
+        autocomplete="off">
+
+
+        <div class="popup-buttons">
+
+            <button
+            id="joinRoomNow"
+            type="button">
+            دخول
+            </button>
+
+
+            <button
+            id="cancelJoinRoom"
+            type="button">
+            إلغاء
+            </button>
+
+        </div>
+
+    </div>
+
 </div>
 
 
-</div>
 
-
-
-
-
-
-
+<!-- ==================================================
+     الملفات
+================================================== -->
 
 <script src="{{ url_for('static', filename='language.js') }}"></script>
 
 
-<script type="module"
+<script
+type="module"
 src="{{ url_for('static', filename='main.js') }}">
 </script>
 
 
-
-<script type="module"
+<script
+type="module"
 src="{{ url_for('static', filename='user.js') }}">
 </script>
 
 
-
-<script type="module"
+<script
+type="module"
 src="{{ url_for('static', filename='create-room.js') }}">
 </script>
 
+
+
+<!-- ==================================================
+     تشغيل زر دخول إلى غرفة
+================================================== -->
+
+<script>
+
+document.addEventListener("DOMContentLoaded", function () {
+
+    const joinBtn =
+        document.getElementById("joinRoomBtn");
+
+    const joinPopup =
+        document.getElementById("joinRoomPopup");
+
+    const joinNow =
+        document.getElementById("joinRoomNow");
+
+    const cancelJoin =
+        document.getElementById("cancelJoinRoom");
+
+    const roomIdInput =
+        document.getElementById("joinRoomId");
+
+
+    /* فتح نافذة الدخول */
+
+    if (joinBtn) {
+
+        joinBtn.addEventListener("click", function () {
+
+            joinPopup.style.display = "flex";
+
+            roomIdInput.value = "";
+
+            setTimeout(function () {
+                roomIdInput.focus();
+            }, 100);
+
+        });
+
+    }
+
+
+    /* إلغاء */
+
+    if (cancelJoin) {
+
+        cancelJoin.addEventListener("click", function () {
+
+            joinPopup.style.display = "none";
+
+        });
+
+    }
+
+
+    /* الدخول إلى الغرفة */
+
+    if (joinNow) {
+
+        joinNow.addEventListener("click", function () {
+
+            const roomId =
+                roomIdInput.value.trim();
+
+
+            if (!roomId) {
+
+                alert("أدخل ID الغرفة أولاً");
+
+                return;
+
+            }
+
+
+            /*
+             * ننتقل إلى صفحة الغرفة
+             * ونرسل معها ID الغرفة
+             */
+
+            window.location.href =
+                "/room?roomId=" +
+                encodeURIComponent(roomId);
+
+        });
+
+    }
+
+
+    /* الضغط خارج النافذة لإغلاقها */
+
+    if (joinPopup) {
+
+        joinPopup.addEventListener("click", function (event) {
+
+            if (event.target === joinPopup) {
+
+                joinPopup.style.display = "none";
+
+            }
+
+        });
+
+    }
+
+});
+
+</script>
 
 
 </body>
