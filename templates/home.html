@@ -8,125 +8,268 @@
     <meta name="viewport"
           content="width=device-width, initial-scale=1.0">
 
-    <title>Mecd Voice Room</title>
+    <title>Mecd Voice</title>
 
     <link rel="stylesheet"
           href="{{ url_for('static', filename='style.css') }}">
 
 </head>
 
-
 <body>
 
+<div class="home">
 
-<div class="room-page">
+    <!-- معلومات المستخدم -->
 
+    <div class="profile">
 
-    <!-- =========================
-         رأس الغرفة
-    ========================== -->
-
-    <div class="room-header">
-
-
-        <div class="room-info">
-
-            <h2 id="roomName">
-                🎙️ اسم الغرفة
-            </h2>
-
-
-            <p id="roomId">
-                ID: ------
-            </p>
-
-        </div>
-
-
-        <div class="room-actions">
-
-            <button id="callBtn"
-                    type="button">
-                📞
-            </button>
-
-
-            <button id="videoBtn"
-                    type="button">
-                📹
-            </button>
-
-        </div>
-
-
-    </div>
-
-
-
-    <!-- =========================
-         الأعضاء
-    ========================== -->
-
-    <div class="members-box">
-
-        <div id="membersList">
-        </div>
-
-    </div>
-
-
-
-    <!-- =========================
-         الرسائل
-    ========================== -->
-
-    <div class="messages"
-         id="messages">
-    </div>
-
-
-
-    <!-- =========================
-         شريط الكتابة
-    ========================== -->
-
-    <div class="message-bar">
-
-
-        <input
-            id="messageInput"
-            type="text"
-            placeholder="اكتب رسالة..."
-            autocomplete="off"
+        <img
+            id="userPhoto"
+            src="https://i.imgur.com/6VBx3io.png"
+            class="avatar"
         >
 
+        <h2 id="userName">
+            جارٍ التحميل...
+        </h2>
 
-        <button
-            id="voiceBtn"
-            type="button">
-            🎤
-        </button>
+        <p id="userId">
+            ID : ------
+        </p>
 
-
-        <button
-            id="sendMessage"
-            type="button">
-            ➤
-        </button>
-
+        <div class="status">
+            🟢 Online
+        </div>
 
     </div>
 
+
+    <!-- العنوان -->
+
+    <h1 class="title">
+        🎙️ Mecd Voice
+    </h1>
+
+
+    <!-- زر اللغة -->
+
+    <button
+        id="languageBtn"
+        type="button"
+        onclick="toggleLanguage()"
+    >
+        🌍 Türkçe / العربية
+    </button>
+
+
+    <br><br>
+
+
+    <!-- القائمة -->
+
+    <div class="menu">
+
+        <button type="button">
+            👥
+            <span id="friendsText">
+                الأصدقاء
+            </span>
+        </button>
+
+
+        <button
+            id="createRoomBtn"
+            type="button"
+        >
+            🎙️
+            <span id="createRoomText">
+                إنشاء غرفة
+            </span>
+        </button>
+
+
+        <button type="button">
+            🚪
+            <span id="joinRoomText">
+                دخول إلى غرفة
+            </span>
+        </button>
+
+
+        <button type="button">
+            🌍
+            <span id="publicRoomsText">
+                الغرف العامة
+            </span>
+        </button>
+
+
+        <button type="button">
+            ⚙️
+            <span id="settingsText">
+                الإعدادات
+            </span>
+        </button>
+
+    </div>
 
 </div>
 
 
+<!-- نافذة إنشاء الغرفة -->
+
+<div
+    id="roomPopup"
+    class="popup"
+>
+
+    <div class="popup-box">
+
+        <h2 id="roomPopupTitle">
+            إنشاء غرفة
+        </h2>
+
+
+        <input
+            id="newRoomName"
+            type="text"
+            placeholder="اسم الغرفة"
+        >
+
+
+        <input
+            id="roomPassword"
+            type="password"
+            placeholder="كلمة المرور"
+        >
+
+
+        <label>
+
+            <input
+                type="radio"
+                name="roomType"
+                value="public"
+                checked
+            >
+
+            <span id="publicRoomText">
+                عامة
+            </span>
+
+        </label>
+
+
+        <label>
+
+            <input
+                type="radio"
+                name="roomType"
+                value="private"
+            >
+
+            <span id="privateRoomText">
+                خاصة
+            </span>
+
+        </label>
+
+
+        <label id="membersText">
+            عدد الأشخاص
+        </label>
+
+
+        <select id="roomMembers">
+
+            <option>2</option>
+
+            <option>5</option>
+
+            <option selected>10</option>
+
+            <option>20</option>
+
+            <option>50</option>
+
+        </select>
+
+
+        <div class="popup-buttons">
+
+            <button
+                id="createRoomNow"
+                type="button"
+            >
+                إنشاء
+            </button>
+
+
+            <button
+                id="cancelRoom"
+                type="button"
+            >
+                إلغاء
+            </button>
+
+        </div>
+
+    </div>
+
+</div>
+
+
+<!-- اللغة -->
+
+<script
+    src="{{ url_for('static', filename='language.js') }}"
+></script>
+
+
+<!-- بيانات المستخدم -->
 
 <script
     type="module"
-    src="{{ url_for('static', filename='room.js') }}">
-</script>
+    src="{{ url_for('static', filename='user.js') }}"
+></script>
 
+
+<!-- إنشاء الغرفة -->
+
+<script
+    type="module"
+    src="{{ url_for('static', filename='create-room.js') }}"
+></script>
+
+
+<script>
+
+function toggleLanguage() {
+
+    const current =
+        localStorage.getItem("language") || "ar";
+
+    const newLanguage =
+        current === "ar" ? "tr" : "ar";
+
+    if (typeof setLanguage === "function") {
+
+        setLanguage(newLanguage);
+
+    } else {
+
+        localStorage.setItem(
+            "language",
+            newLanguage
+        );
+
+        location.reload();
+
+    }
+
+}
+
+</script>
 
 </body>
 
