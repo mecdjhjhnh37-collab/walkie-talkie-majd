@@ -352,3 +352,157 @@ button:active{
     background:#444;
 
 }
+/* ==========================
+   صفحة الغرفة
+========================== */
+
+
+.room-page{
+
+    width:100%;
+
+    height:100vh;
+
+    display:flex;
+
+    flex-direction:column;
+
+    background:
+
+    radial-gradient(
+        circle at top right,
+        rgba(37,99,235,.35),
+        transparent 35%
+    ),
+
+    radial-gradient(
+        circle at bottom left,
+        rgba(124,58,237,.35),
+        transparent 40%
+    ),
+
+    #050510;
+
+    overflow:hidden;
+
+}
+
+
+
+/* رأس الغرفة */
+
+.room-header{
+
+    width:100%;
+
+    display:flex;
+
+    flex-direction:row;
+
+    align-items:center;
+
+    justify-content:space-between;
+
+    padding:20px;
+
+    background:
+
+    rgba(255,255,255,.08);
+
+    backdrop-filter:blur(20px);
+
+    border-bottom:
+
+    1px solid rgba(255,255,255,.15);
+
+}
+
+
+
+/* معلومات الغرفة */
+
+.room-info{
+
+    text-align:right;
+
+}
+
+
+
+.room-info h2{
+
+    margin:0;
+
+    font-size:25px;
+
+}
+
+
+
+.room-info p{
+
+    margin-top:8px;
+
+    color:#cbd5e1;
+
+}
+
+
+
+/* أزرار الاتصال */
+
+.room-actions{
+
+    display:flex;
+
+    flex-direction:row;
+
+    gap:12px;
+
+}
+
+
+
+.room-actions button{
+
+    width:55px;
+
+    height:55px;
+
+    padding:0;
+
+    margin:0;
+
+    border-radius:50%;
+
+    display:flex;
+
+    align-items:center;
+
+    justify-content:center;
+
+    font-size:24px;
+
+    background:
+
+    rgba(255,255,255,.12);
+
+}
+
+
+
+/* الأعضاء */
+
+.members-box{
+
+    display:none;
+
+}
+
+
+
+/* صندوق الرسائل */
+
+.messages{
+
+   
