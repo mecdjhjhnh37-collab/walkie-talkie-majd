@@ -39,7 +39,6 @@ ID : ------
 🟢 Online
 </div>
 
-
 </div>
 
 
@@ -78,8 +77,8 @@ ID : ------
 
 </div>
 
-
 </div>
+
 
 
 <script src="{{ url_for('static', filename='language.js') }}"></script>
@@ -91,81 +90,106 @@ src="{{ url_for('static', filename='main.js') }}">
 
 
 <script type="module" src="{{ url_for('static', filename='user.js') }}"></script>
+
+
+
 <!-- نافذة إنشاء الغرفة -->
+
 <div id="roomPopup" class="popup">
 
-    <div class="popup-box">
+<div class="popup-box">
 
-        <h2 id="roomPopupTitle">
-            إنشاء غرفة
-        </h2>
 
-        <input
-            id="newRoomName"
-            type="text"
-            placeholder="اسم الغرفة">
+<h2 id="roomPopupTitle">
+</h2>
 
-        <input
-            id="roomPassword"
-            type="password"
-            placeholder="كلمة المرور">
 
-        <label>
+<input
+id="newRoomName"
+type="text"
+placeholder="">
 
-            <input
-                type="radio"
-                name="roomType"
-                value="public"
-                checked>
 
-            <span id="publicRoomText">
-                عامة
-            </span>
+<input
+id="roomPassword"
+type="password"
+placeholder="">
 
-        </label>
 
-        <label>
 
-            <input
-                type="radio"
-                name="roomType"
-                value="private">
+<label>
 
-            <span id="privateRoomText">
-                خاصة
-            </span>
+<input
+type="radio"
+name="roomType"
+value="public"
+checked>
 
-        </label>
 
-        <label id="membersText">
-            عدد الأشخاص
-        </label>
+<span id="publicRoomText">
+</span>
 
-        <select id="roomMembers">
 
-            <option>2</option>
-            <option>5</option>
-            <option selected>10</option>
-            <option>20</option>
-            <option>50</option>
+</label>
 
-        </select>
 
-        <div class="popup-buttons">
 
-            <button id="createRoomNow">
-                إنشاء
-            </button>
+<label>
 
-            <button id="cancelRoom">
-                إلغاء
-            </button>
+<input
+type="radio"
+name="roomType"
+value="private">
 
-        </div>
 
-    </div>
+<span id="privateRoomText">
+</span>
+
+
+</label>
+
+
+
+<label id="membersText">
+</label>
+
+
+
+<select id="roomMembers">
+
+<option>2</option>
+<option>5</option>
+<option selected>10</option>
+<option>20</option>
+<option>50</option>
+
+</select>
+
+
+
+<div class="popup-buttons">
+
+
+<button id="createRoomNow">
+</button>
+
+
+<button id="cancelRoom">
+</button>
+
 
 </div>
-    <script type="module" src="{{ url_for('static', filename='create-room.js') }}"></script>
+
+
+</div>
+
+</div>
+
+
+
+<script type="module" src="{{ url_for('static', filename='create-room.js') }}"></script>
+
+
 </body>
+
 </html>
