@@ -17,7 +17,27 @@ const translations = {
     }
 
 };
+translations.ar.room = {
+    title: "إنشاء غرفة",
+    roomName: "اسم الغرفة",
+    password: "كلمة المرور",
+    public: "عامة",
+    private: "خاصة",
+    members: "عدد الأشخاص",
+    create: "إنشاء",
+    cancel: "إلغاء"
+};
 
+translations.tr.room = {
+    title: "Oda Oluştur",
+    roomName: "Oda Adı",
+    password: "Şifre",
+    public: "Genel",
+    private: "Özel",
+    members: "Kişi Sayısı",
+    create: "Oluştur",
+    cancel: "İptal"
+};
 
 
 function setLanguage(lang){
