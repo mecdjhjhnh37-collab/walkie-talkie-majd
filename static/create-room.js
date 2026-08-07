@@ -1,4 +1,4 @@
-import { db } from "./app.js";
+import { db, app } from "./app.js";
 
 import {
     doc,
@@ -6,187 +6,196 @@ import {
     setDoc
 } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
 
+import {
+    getAuth
+} from "https://www.gstatic.com/firebasejs/10.12.2/firebase-auth.js";
 
-document.addEventListener("DOMContentLoaded",()=>{
 
+const auth = getAuth(app);
 
-const popup = document.getElementById("roomPopup");
-const openBtn = document.getElementById("createRoomBtn");
-const cancelBtn = document.getElementById("cancelRoom");
-const createBtn = document.getElementById("createRoomNow");
 
+document.addEventListener("DOMContentLoaded", () => {
 
+    const popup = document.getElementById("roomPopup");
+    const openBtn = document.getElementById("createRoomBtn");
+    const cancelBtn = document.getElementById("cancelRoom");
+    const createBtn = document.getElementById("createRoomNow");
 
-// فتح النافذة
 
-if(openBtn && popup){
+    // فتح نافذة إنشاء الغرفة
+    if (openBtn && popup) {
 
-openBtn.onclick=()=>{
+        openBtn.onclick = () => {
+            popup.style.display = "flex";
+        };
 
-popup.style.display="flex";
+    }
 
-};
 
-}
+    // إلغاء
+    if (cancelBtn && popup) {
 
+        cancelBtn.onclick = () => {
+            popup.style.display = "none";
+        };
 
+    }
 
-// إلغاء
 
-if(cancelBtn && popup){
+    // إنشاء الغرفة
+    if (createBtn) {
 
-cancelBtn.onclick=()=>{
+        createBtn.onclick = async () => {
 
-popup.style.display="none";
+            const roomNameInput =
+                document.getElementById("newRoomName");
 
-};
+            const roomName =
+                roomNameInput ? roomNameInput.value.trim() : "";
 
-}
 
+            if (roomName === "") {
 
+                alert(
+                    localStorage.getItem("language") === "tr"
+                        ? "Oda adını yazın"
+                        : "اكتب اسم الغرفة"
+                );
 
-// إنشاء الغرفة
+                return;
+            }
 
-if(createBtn){
 
+            // التأكد من تسجيل الدخول
+            const user = auth.currentUser;
 
-createBtn.onclick=async()=>{
+            if (!user) {
 
+                alert(
+                    localStorage.getItem("language") === "tr"
+                        ? "Önce Google ile giriş yapın"
+                        : "يجب تسجيل الدخول أولاً"
+                );
 
-const roomName=document
-.getElementById("newRoomName")
-.value
-.trim();
+                window.location.href = "/login/ar";
 
+                return;
+            }
 
 
-if(roomName===""){
+            const userName =
+                localStorage.getItem("userName") ||
+                user.displayName ||
+                "مستخدم";
 
-alert("اكتب اسم الغرفة");
-return;
 
-}
+            const userPhoto =
+                localStorage.getItem("userPhoto") ||
+                user.photoURL ||
+                "default.png";
 
 
+            const userUid = user.uid;
 
-// معلومات المستخدم
 
-const userName =
-localStorage.getItem("userName") || "مستخدم";
+            try {
 
+                // عداد الغرف
+                const counterRef =
+                    doc(db, "counters", "rooms");
 
-const userPhoto =
-localStorage.getItem("userPhoto") || "default.png";
 
+                const roomId =
+                    await runTransaction(
+                        db,
+                        async (transaction) => {
 
-const userUid =
-localStorage.getItem("userUid") || "unknown";
+                            const counterDoc =
+                                await transaction.get(counterRef);
 
 
+                            let lastNumber = 0;
 
-try{
 
+                            if (counterDoc.exists()) {
 
-const counterRef = doc(db,"counters","rooms");
+                                lastNumber =
+                                    counterDoc.data().lastNumber || 0;
 
+                            }
 
 
-const roomId = await runTransaction(db,async(transaction)=>{
+                            lastNumber++;
 
 
-const counterDoc = await transaction.get(counterRef);
+                            transaction.set(
+                                counterRef,
+                                {
+                                    lastNumber: lastNumber
+                                },
+                                {
+                                    merge: true
+                                }
+                            );
 
 
-let lastNumber = 0;
+                            return (
+                                "room-" +
+                                String(lastNumber).padStart(6, "0")
+                            );
 
+                        }
+                    );
 
 
-if(counterDoc.exists()){
+                // حفظ الغرفة
+                await setDoc(
+                    doc(db, "rooms", roomId),
+                    {
 
-lastNumber = counterDoc.data().lastNumber || 0;
+                        name: roomName,
 
-}
+                        ownerUid: userUid,
 
+                        ownerName: userName,
 
+                        ownerPhoto: userPhoto,
 
-lastNumber++;
+                        createdAt: new Date(),
 
+                        members: {}
 
+                    }
+                );
 
-transaction.set(
-counterRef,
-{
-lastNumber:lastNumber
-},
-{
-merge:true
-}
-);
 
+                // حفظ محليًا
+                localStorage.setItem(
+                    "roomName",
+                    roomName
+                );
 
 
-return "room-" + String(lastNumber).padStart(6,"0");
+                localStorage.setItem(
+                    "roomId",
+                    roomId
+                );
 
 
+                // الدخول للغرفة
+                window.location.href = "/room";
 
-});
 
+            } catch (e) {
 
+                console.error(e);
 
+                alert(e.message);
 
-// حفظ بيانات الغرفة في Firestore
+            }
 
-await setDoc(
-doc(db,"rooms",roomId),
-{
+        };
 
-name: roomName,
-
-ownerUid: userUid,
-
-ownerName: userName,
-
-ownerPhoto: userPhoto,
-
-createdAt: new Date(),
-
-members:{}
-
-}
-);
-
-
-
-
-// حفظ محلي
-
-localStorage.setItem("roomName",roomName);
-
-localStorage.setItem("roomId",roomId);
-
-
-
-// الدخول للغرفة
-
-window.location.href="/room";
-
-
-
-}catch(e){
-
-console.error(e);
-
-alert(e.message);
-
-}
-
-
-
-};
-
-
-}
-
-
+    }
 
 });
