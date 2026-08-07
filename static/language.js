@@ -84,3 +84,9 @@ document.addEventListener(
     "DOMContentLoaded",
     loadLanguage
 );
+document.addEventListener(
+    "DOMContentLoaded",
+    loadLanguage
+);
+
+window.translations = translations;
