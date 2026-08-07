@@ -7,121 +7,112 @@ document.addEventListener("DOMContentLoaded", () => {
 
     if (!joinRoomBtn) return;
 
+    joinRoomBtn.addEventListener("click", openJoinRoom);
 
-    joinRoomBtn.addEventListener("click", () => {
 
-        // اللغة المختارة
+    function openJoinRoom() {
+
         const language =
             localStorage.getItem("language") || "ar";
 
+        const isTurkish =
+            language === "tr" ||
+            language === "turkish";
 
-        // إنشاء النافذة
-        const popup = document.createElement("div");
 
+        // إذا كانت النافذة موجودة، لا تنشئ واحدة ثانية
+        const oldPopup =
+            document.getElementById("joinRoomPopup");
+
+        if (oldPopup) {
+            oldPopup.remove();
+        }
+
+
+        const popup =
+            document.createElement("div");
+
+        popup.id = "joinRoomPopup";
         popup.className = "popup";
 
         popup.style.display = "flex";
 
 
-        // =========================
-        // التركية
-        // =========================
+        popup.innerHTML = `
 
-        if (
-            language === "tr" ||
-            language === "turkish"
-        ) {
+            <div class="popup-box">
 
-            popup.innerHTML = `
-
-                <div class="popup-box">
-
-                    <h2>
-                        🚪 Odaya Katıl
-                    </h2>
+                <h2>
+                    ${
+                        isTurkish
+                        ? "🚪 Odaya Katıl"
+                        : "🚪 دخول إلى غرفة"
+                    }
+                </h2>
 
 
-                    <input
-                        id="joinRoomId"
-                        type="text"
-                        placeholder="Oda ID'sini gir"
-                        autocomplete="off"
-                    >
+                <input
+                    id="joinRoomId"
+                    type="text"
+                    placeholder="${
+                        isTurkish
+                        ? "Oda ID'sini gir"
+                        : "أدخل ID الغرفة"
+                    }"
+                    autocomplete="off"
+                >
 
 
-                    <div class="popup-buttons">
+                <div class="popup-buttons">
 
-                        <button id="joinRoomNow">
-                            🚪 Katıl
-                        </button>
+                    <button
+                        type="button"
+                        id="joinRoomNow">
 
+                        ${
+                            isTurkish
+                            ? "🚪 Katıl"
+                            : "🚪 دخول"
+                        }
 
-                        <button id="cancelJoinRoom">
-                            ❌ İptal
-                        </button>
-
-                    </div>
-
-                </div>
-
-            `;
-
-        }
+                    </button>
 
 
-        // =========================
-        // العربية
-        // =========================
+                    <button
+                        type="button"
+                        id="cancelJoinRoom">
 
-        else {
+                        ${
+                            isTurkish
+                            ? "❌ İptal"
+                            : "❌ إلغاء"
+                        }
 
-            popup.innerHTML = `
-
-                <div class="popup-box">
-
-                    <h2>
-                        🚪 دخول إلى غرفة
-                    </h2>
-
-
-                    <input
-                        id="joinRoomId"
-                        type="text"
-                        placeholder="أدخل ID الغرفة"
-                        autocomplete="off"
-                    >
-
-
-                    <div class="popup-buttons">
-
-                        <button id="joinRoomNow">
-                            🚪 دخول
-                        </button>
-
-
-                        <button id="cancelJoinRoom">
-                            ❌ إلغاء
-                        </button>
-
-                    </div>
+                    </button>
 
                 </div>
 
-            `;
+            </div>
 
-        }
+        `;
 
 
         document.body.appendChild(popup);
 
 
-        // =========================
-        // زر الإلغاء
-        // =========================
+        const input =
+            popup.querySelector("#joinRoomId");
+
+        const joinBtn =
+            popup.querySelector("#joinRoomNow");
 
         const cancelBtn =
-            document.getElementById("cancelJoinRoom");
+            popup.querySelector("#cancelJoinRoom");
 
+
+        // =========================
+        // إلغاء
+        // =========================
 
         cancelBtn.addEventListener("click", () => {
 
@@ -131,47 +122,60 @@ document.addEventListener("DOMContentLoaded", () => {
 
 
         // =========================
-        // زر الدخول
+        // دخول
         // =========================
-
-        const joinBtn =
-            document.getElementById("joinRoomNow");
-
 
         joinBtn.addEventListener("click", () => {
 
             const roomId =
-                document
-                    .getElementById("joinRoomId")
-                    .value
-                    .trim();
+                input.value.trim();
 
 
             if (!roomId) {
 
-                if (
-                    language === "tr" ||
-                    language === "turkish"
-                ) {
+                alert(
+                    isTurkish
+                    ? "Lütfen oda ID'sini girin."
+                    : "يرجى إدخال ID الغرفة."
+                );
 
-                    alert("Lütfen oda ID'sini girin.");
-
-                } else {
-
-                    alert("يرجى إدخال ID الغرفة.");
-
-                }
+                input.focus();
 
                 return;
             }
 
 
-            // الانتقال إلى الغرفة
+            console.log(
+                "Joining room:",
+                roomId
+            );
+
+
             window.location.href =
                 `/room/${encodeURIComponent(roomId)}`;
 
         });
 
-    });
+
+        // =========================
+        // زر Enter
+        // =========================
+
+        input.addEventListener("keydown", (event) => {
+
+            if (event.key === "Enter") {
+
+                event.preventDefault();
+
+                joinBtn.click();
+
+            }
+
+        });
+
+
+        input.focus();
+
+    }
 
 });
