@@ -6,240 +6,375 @@ import {
     onSnapshot,
     serverTimestamp,
     orderBy,
-    query
+    query,
+    doc,
+    getDoc
 } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
 
 
-document.addEventListener("DOMContentLoaded", () => {
+document.addEventListener("DOMContentLoaded", async () => {
 
-    // =========================
-    // معلومات الغرفة
-    // =========================
-
-    const roomTitle = document.getElementById("roomName");
-    const roomIdText = document.getElementById("roomId");
-
-    const roomName =
-        localStorage.getItem("roomName");
-
-    const roomId =
-        localStorage.getItem("roomId");
-
-
-    // اسم الغرفة
-    if (roomTitle && roomName) {
-
-        roomTitle.textContent = "🎙️ " + roomName;
-
-    }
-
-
-    // ID الغرفة
-    if (roomIdText && roomId) {
-
-        let displayRoomId = roomId;
-
-        // إذا كان الـ ID القديم يبدأ بـ room-
-        // نظهره للمستخدم بصيغة MC-
-        if (roomId.startsWith("room-")) {
-
-            const number =
-                roomId.replace("room-", "");
-
-            displayRoomId = "MC-" + number;
-
-        }
-
-        roomIdText.textContent =
-            "ID: " + displayRoomId;
-
-    }
-
-
-    // =========================
+    // =====================================
     // اللغة
-    // =========================
+    // =====================================
 
     const language =
         localStorage.getItem("language") || "ar";
 
-
-    const input =
-        document.getElementById("messageInput");
-
-
-    if (input) {
-
-        if (language === "tr") {
-
-            input.placeholder =
-                "Mesaj yaz...";
-
-        } else {
-
-            input.placeholder =
-                "اكتب رسالة...";
-
-        }
-
-    }
+    const isTurkish =
+        language === "tr" ||
+        language === "turkish";
 
 
-    // =========================
-    // الرسائل
-    // =========================
+    // =====================================
+    // الحصول على Room ID من الرابط
+    // =====================================
+
+    const pathParts =
+        window.location.pathname.split("/");
+
+    const urlRoomId =
+        decodeURIComponent(
+            pathParts[pathParts.length - 1]
+        );
+
+
+    let roomId =
+        urlRoomId ||
+        localStorage.getItem("roomId");
+
+
+    // =====================================
+    // عناصر الصفحة
+    // =====================================
+
+    const roomTitle =
+        document.getElementById("roomName");
+
+    const roomIdText =
+        document.getElementById("roomId");
 
     const messagesBox =
         document.getElementById("messages");
+
+    const input =
+        document.getElementById("messageInput");
 
     const sendBtn =
         document.getElementById("sendMessage");
 
 
-    let messagesRef = null;
+    // =====================================
+    // إذا لم يوجد Room ID
+    // =====================================
+
+    if (!roomId || roomId === "room.html") {
+
+        if (roomTitle) {
+
+            roomTitle.textContent =
+                isTurkish
+                    ? "🎙️ Oda bulunamadı"
+                    : "🎙️ لم يتم العثور على الغرفة";
+
+        }
+
+        return;
+    }
 
 
-    if (roomId && messagesBox) {
+    // =====================================
+    // حفظ Room ID
+    // =====================================
 
-        messagesRef = collection(
-            db,
-            "rooms",
-            roomId,
-            "messages"
-        );
-
-
-        const q = query(
-            messagesRef,
-            orderBy("time")
-        );
+    localStorage.setItem(
+        "roomId",
+        roomId
+    );
 
 
-        onSnapshot(q, (snapshot) => {
+    // =====================================
+    // عرض Room ID
+    // =====================================
 
-            messagesBox.innerHTML = "";
+    if (roomIdText) {
 
-
-            snapshot.forEach((messageDoc) => {
-
-                const data =
-                    messageDoc.data();
-
-
-                const messageDiv =
-                    document.createElement("div");
-
-                messageDiv.className =
-                    "message";
-
-
-                messageDiv.innerHTML = `
-
-                    <div class="message-head">
-
-                        <img
-                            src="${data.photo || "https://i.imgur.com/6VBx3io.png"}"
-                            class="message-photo"
-                        >
-
-                        <span class="message-user">
-                            ${data.user || "مستخدم"}
-                        </span>
-
-                    </div>
-
-                    <div class="message-text">
-                        ${data.text || ""}
-                    </div>
-
-                `;
-
-
-                messagesBox.appendChild(
-                    messageDiv
-                );
-
-            });
-
-
-            // النزول لآخر رسالة
-            messagesBox.scrollTop =
-                messagesBox.scrollHeight;
-
-        });
+        roomIdText.textContent =
+            "ID: " + roomId;
 
     }
 
 
-    // =========================
-    // إرسال رسالة
-    // =========================
+    // =====================================
+    // جلب معلومات الغرفة من Firestore
+    // =====================================
 
-    if (sendBtn && input) {
-
-        sendBtn.onclick = async () => {
-
-            const text =
-                input.value.trim();
+    let realRoomName =
+        localStorage.getItem("roomName");
 
 
-            if (text === "" || !messagesRef) {
+    try {
 
-                return;
-
-            }
-
-
-            const userName =
-                localStorage.getItem("userName") ||
-                "مستخدم";
+        const roomRef =
+            doc(
+                db,
+                "rooms",
+                roomId
+            );
 
 
-            const userPhoto =
-                localStorage.getItem("userPhoto") ||
-                "default.png";
+        const roomSnapshot =
+            await getDoc(roomRef);
 
 
-            try {
+        if (roomSnapshot.exists()) {
 
-                await addDoc(
-                    messagesRef,
-                    {
+            const roomData =
+                roomSnapshot.data();
 
-                        text: text,
 
-                        user: userName,
+            // جرّب أكثر من اسم للحقل
+            realRoomName =
+                roomData.name ||
+                roomData.roomName ||
+                roomData.title ||
+                realRoomName ||
+                (isTurkish
+                    ? "İsimsiz Oda"
+                    : "غرفة بدون اسم");
 
-                        photo: userPhoto,
 
-                        time: serverTimestamp()
+            // حفظ الاسم
+            localStorage.setItem(
+                "roomName",
+                realRoomName
+            );
+
+        }
+
+    } catch (error) {
+
+        console.error(
+            "Room information error:",
+            error
+        );
+
+    }
+
+
+    // =====================================
+    // عرض اسم الغرفة
+    // =====================================
+
+    if (roomTitle) {
+
+        roomTitle.textContent =
+            "🎙️ " + (
+                realRoomName ||
+                (
+                    isTurkish
+                        ? "Oda"
+                        : "الغرفة"
+                )
+            );
+
+    }
+
+
+    // =====================================
+    // Placeholder الرسائل
+    // =====================================
+
+    if (input) {
+
+        input.placeholder =
+            isTurkish
+                ? "Mesaj yaz..."
+                : "اكتب رسالة...";
+
+    }
+
+
+    // =====================================
+    // الرسائل
+    // =====================================
+
+    let messagesRef = null;
+
+
+    if (messagesBox) {
+
+        messagesRef =
+            collection(
+                db,
+                "rooms",
+                roomId,
+                "messages"
+            );
+
+
+        const messagesQuery =
+            query(
+                messagesRef,
+                orderBy("time")
+            );
+
+
+        onSnapshot(
+            messagesQuery,
+            (snapshot) => {
+
+                messagesBox.innerHTML = "";
+
+
+                snapshot.forEach(
+                    (messageDoc) => {
+
+                        const data =
+                            messageDoc.data();
+
+
+                        const messageDiv =
+                            document.createElement("div");
+
+
+                        messageDiv.className =
+                            "message";
+
+
+                        const photo =
+                            data.photo ||
+                            "https://i.imgur.com/6VBx3io.png";
+
+
+                        const user =
+                            data.user ||
+                            (
+                                isTurkish
+                                    ? "Kullanıcı"
+                                    : "مستخدم"
+                            );
+
+
+                        const text =
+                            data.text || "";
+
+
+                        messageDiv.innerHTML = `
+
+                            <div class="message-head">
+
+                                <img
+                                    src="${photo}"
+                                    class="message-photo"
+                                >
+
+                                <span class="message-user">
+                                    ${user}
+                                </span>
+
+                            </div>
+
+                            <div class="message-text">
+                                ${text}
+                            </div>
+
+                        `;
+
+
+                        messagesBox.appendChild(
+                            messageDiv
+                        );
 
                     }
                 );
 
 
-                input.value = "";
-
-
-            } catch (error) {
-
-                console.error(error);
-
-                alert(
-                    "حدث خطأ أثناء إرسال الرسالة"
-                );
+                messagesBox.scrollTop =
+                    messagesBox.scrollHeight;
 
             }
+        );
 
-        };
+    }
 
 
-        // إرسال بالضغط على Enter
+    // =====================================
+    // إرسال رسالة
+    // =====================================
+
+    if (sendBtn && input && messagesRef) {
+
+        sendBtn.addEventListener(
+            "click",
+            async () => {
+
+                const text =
+                    input.value.trim();
+
+
+                if (!text) return;
+
+
+                const userName =
+                    localStorage.getItem("userName") ||
+                    (
+                        isTurkish
+                            ? "Kullanıcı"
+                            : "مستخدم"
+                    );
+
+
+                const userPhoto =
+                    localStorage.getItem("userPhoto") ||
+                    "https://i.imgur.com/6VBx3io.png";
+
+
+                try {
+
+                    await addDoc(
+                        messagesRef,
+                        {
+
+                            text: text,
+
+                            user: userName,
+
+                            photo: userPhoto,
+
+                            time: serverTimestamp()
+
+                        }
+                    );
+
+
+                    input.value = "";
+
+                } catch (error) {
+
+                    console.error(error);
+
+
+                    alert(
+                        isTurkish
+                            ? "Mesaj gönderilemedi."
+                            : "حدث خطأ أثناء إرسال الرسالة."
+                    );
+
+                }
+
+            }
+        );
+
+
+        // Enter = إرسال
         input.addEventListener(
             "keydown",
             (event) => {
 
                 if (event.key === "Enter") {
+
+                    event.preventDefault();
 
                     sendBtn.click();
 
@@ -251,9 +386,9 @@ document.addEventListener("DOMContentLoaded", () => {
     }
 
 
-    // =========================
+    // =====================================
     // زر الاتصال
-    // =========================
+    // =====================================
 
     const callBtn =
         document.getElementById("callBtn");
@@ -261,20 +396,25 @@ document.addEventListener("DOMContentLoaded", () => {
 
     if (callBtn) {
 
-        callBtn.onclick = () => {
+        callBtn.addEventListener(
+            "click",
+            () => {
 
-            alert(
-                "📞 الاتصال قيد التطوير"
-            );
+                alert(
+                    isTurkish
+                        ? "📞 Arama özelliği yakında."
+                        : "📞 الاتصال قيد التطوير."
+                );
 
-        };
+            }
+        );
 
     }
 
 
-    // =========================
+    // =====================================
     // زر الفيديو
-    // =========================
+    // =====================================
 
     const videoBtn =
         document.getElementById("videoBtn");
@@ -282,20 +422,25 @@ document.addEventListener("DOMContentLoaded", () => {
 
     if (videoBtn) {
 
-        videoBtn.onclick = () => {
+        videoBtn.addEventListener(
+            "click",
+            () => {
 
-            alert(
-                "📹 الفيديو قيد التطوير"
-            );
+                alert(
+                    isTurkish
+                        ? "📹 Görüntülü arama yakında."
+                        : "📹 الفيديو قيد التطوير."
+                );
 
-        };
+            }
+        );
 
     }
 
 
-    // =========================
+    // =====================================
     // زر الميكروفون
-    // =========================
+    // =====================================
 
     const voiceBtn =
         document.getElementById("voiceBtn");
@@ -303,165 +448,19 @@ document.addEventListener("DOMContentLoaded", () => {
 
     if (voiceBtn) {
 
-        voiceBtn.onclick = () => {
-
-            alert(
-                "🎤 الصوت قيد التطوير"
-                // ===============================
-// دخول إلى غرفة
-// ===============================
-
-document.addEventListener("DOMContentLoaded", () => {
-
-    const joinRoomBtn = document.getElementById("joinRoomBtn");
-
-    if (!joinRoomBtn) return;
-
-
-    joinRoomBtn.addEventListener("click", () => {
-
-        const language =
-            localStorage.getItem("language") || "ar";
-
-
-        const title =
-            language === "tr"
-                ? "🚪 Odaya Katıl"
-                : "🚪 دخول إلى غرفة";
-
-
-        const placeholder =
-            language === "tr"
-                ? "Oda ID'sini gir"
-                : "أدخل ID الغرفة";
-
-
-        const joinText =
-            language === "tr"
-                ? "🚪 Katıl"
-                : "🚪 دخول";
-
-
-        const cancelText =
-            language === "tr"
-                ? "❌ İptal"
-                : "❌ إلغاء";
-
-
-        // إنشاء النافذة
-        const popup = document.createElement("div");
-
-        popup.className = "popup";
-
-        popup.style.display = "flex";
-
-        popup.innerHTML = `
-
-            <div class="popup-box">
-
-                <h2>
-                    ${title}
-                </h2>
-
-                <input
-                    id="joinRoomId"
-                    type="text"
-                    placeholder="${placeholder}"
-                    autocomplete="off"
-                >
-
-                <div class="popup-buttons">
-
-                    <button id="joinRoomConfirm">
-                        ${joinText}
-                    </button>
-
-                    <button id="joinRoomCancel">
-                        ${cancelText}
-                    </button>
-
-                </div>
-
-            </div>
-
-        `;
-
-
-        document.body.appendChild(popup);
-
-
-        // ===============================
-        // زر إلغاء
-        // ===============================
-
-        const cancel =
-            document.getElementById("joinRoomCancel");
-
-
-        cancel.addEventListener("click", () => {
-
-            popup.remove();
-
-        });
-
-
-        // ===============================
-        // زر دخول
-        // ===============================
-
-        const confirm =
-            document.getElementById("joinRoomConfirm");
-
-
-        const input =
-            document.getElementById("joinRoomId");
-
-
-        confirm.addEventListener("click", () => {
-
-            const roomId =
-                input.value.trim();
-
-
-            if (!roomId) {
+        voiceBtn.addEventListener(
+            "click",
+            () => {
 
                 alert(
-                    language === "tr"
-                        ? "Lütfen oda ID'sini gir."
-                        : "يرجى إدخال ID الغرفة."
+                    isTurkish
+                        ? "🎤 Ses özelliği yakında."
+                        : "🎤 الصوت قيد التطوير."
                 );
 
-                return;
-
             }
+        );
 
-
-            // الانتقال إلى الغرفة
-            window.location.href =
-                "/room/" + encodeURIComponent(roomId);
-
-        });
-
-
-        // Enter من الكيبورد = دخول
-        input.addEventListener("keydown", (event) => {
-
-            if (event.key === "Enter") {
-
-                confirm.click();
-
-            }
-
-        });
-
-
-        // التركيز على خانة ID
-        setTimeout(() => {
-
-            input.focus();
-
-        }, 100);
-
-    });
+    }
 
 });
