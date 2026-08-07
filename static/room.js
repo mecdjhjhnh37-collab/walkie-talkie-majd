@@ -363,43 +363,94 @@ document.addEventListener("DOMContentLoaded", async () => {
 
 
         // =====================================
-        // 🎤 الميكروفون
-        // =====================================
+// 🎤 تسجيل الصوت
+// =====================================
 
-        if (voiceBtn) {
+let mediaRecorder = null;
+let audioChunks = [];
+let isRecording = false;
 
-            voiceBtn.addEventListener(
-                "click",
-                async () => {
 
-                    try {
+if (voiceBtn) {
 
-                        if (
-                            !navigator.mediaDevices ||
-                            !navigator.mediaDevices.getUserMedia
-                        ) {
+    voiceBtn.addEventListener("click", async () => {
 
-                            alert(
-                                isTurkish
-                                    ? "Mikrofon desteklenmiyor."
-                                    : "الميكروفون غير مدعوم."
+        // ===============================
+        // بدء التسجيل
+        // ===============================
+
+        if (!isRecording) {
+
+            try {
+
+                const stream =
+                    await navigator.mediaDevices.getUserMedia({
+                        audio: true
+                    });
+
+
+                audioChunks = [];
+
+
+                mediaRecorder =
+                    new MediaRecorder(stream);
+
+
+                mediaRecorder.addEventListener(
+                    "dataavailable",
+                    (event) => {
+
+                        if (event.data.size > 0) {
+
+                            audioChunks.push(
+                                event.data
                             );
 
-                            return;
                         }
 
-
-                        const stream =
-                            await navigator.mediaDevices.getUserMedia({
-                                audio: true
-                            });
+                    }
+                );
 
 
-                        alert(
-                            isTurkish
-                                ? "🎤 Mikrofon çalışıyor!"
-                                : "🎤 الميكروفون يعمل!"
+                mediaRecorder.addEventListener(
+                    "stop",
+                    () => {
+
+                        const audioBlob =
+                            new Blob(
+                                audioChunks,
+                                {
+                                    type: "audio/webm"
+                                }
+                            );
+
+
+                        const audioUrl =
+                            URL.createObjectURL(
+                                audioBlob
+                            );
+
+
+                        const audio =
+                            document.createElement("audio");
+
+
+                        audio.controls = true;
+
+                        audio.src = audioUrl;
+
+                        audio.style.width = "100%";
+
+                        audio.style.marginTop = "10px";
+
+
+                        messagesBox.appendChild(
+                            audio
                         );
+
+
+                        messagesBox.scrollTop =
+                            messagesBox.scrollHeight;
 
 
                         stream
@@ -408,27 +459,62 @@ document.addEventListener("DOMContentLoaded", async () => {
                                 track => track.stop()
                             );
 
-
-                    } catch (error) {
-
-                        console.error(
-                            "Microphone error:",
-                            error
-                        );
-
-
-                        alert(
-                            isTurkish
-                                ? "❌ Mikrofon açılamadı."
-                                : "❌ لم يتم تشغيل الميكروفون."
-                        );
-
                     }
+                );
 
-                }
-            );
+
+                mediaRecorder.start();
+
+                isRecording = true;
+
+
+                voiceBtn.textContent = "⏹️";
+
+
+            } catch (error) {
+
+                console.error(
+                    "Recording error:",
+                    error
+                );
+
+
+                alert(
+                    isTurkish
+                        ? "❌ Mikrofon açılamadı."
+                        : "❌ لم يتم تشغيل الميكروفون."
+                );
+
+            }
 
         }
+
+        // ===============================
+        // إيقاف التسجيل
+        // ===============================
+
+        else {
+
+            if (
+                mediaRecorder &&
+                mediaRecorder.state !== "inactive"
+            ) {
+
+                mediaRecorder.stop();
+
+            }
+
+
+            isRecording = false;
+
+
+            voiceBtn.textContent = "🎤";
+
+        }
+
+    });
+
+}
 
 
         // =====================================
