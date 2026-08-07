@@ -1,44 +1,40 @@
 import { db } from "./app.js";
 
 import {
-  doc,
-  runTransaction
+    doc,
+    runTransaction
 } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
+
 document.addEventListener("DOMContentLoaded", () => {
+
+    // =========================
+    // صفحة الغرفة
+    // =========================
+
+    const roomTitle = document.getElementById("roomName");
+    const roomId = document.getElementById("roomId");
+
     const savedRoomName = localStorage.getItem("roomName");
-const savedRoomId = localStorage.getItem("roomId");
+    const savedRoomId = localStorage.getItem("roomId");
 
+    if (roomTitle && savedRoomName) {
+        roomTitle.textContent = "🎙️ " + savedRoomName;
+    }
 
-const title = document.getElementById("roomName");
-const id = document.getElementById("roomId");
- 
+    if (roomId && savedRoomId) {
+        roomId.textContent = "ID: " + savedRoomId;
+    }
 
-if(title && savedRoomName){
-
-    title.textContent = "🎙️ " + savedRoomName;
-
-}
-
-
-if(id && savedRoomId){
-
-    id.textContent = "ID: " + savedRoomId;
-
-}
+    // =========================
+    // صفحة Home
+    // =========================
 
     const popup = document.getElementById("roomPopup");
-
-    // زر إنشاء غرفة من الصفحة الرئيسية
     const openBtn = document.getElementById("createRoomBtn");
-
-    // زر إلغاء داخل النافذة
     const cancelBtn = document.getElementById("cancelRoom");
-
-    // زر إنشاء داخل النافذة
     const createBtn = document.getElementById("createRoomNow");
 
-    // فتح النافذة
-    if(openBtn){
+    if (openBtn && popup) {
 
         openBtn.onclick = () => {
 
@@ -48,10 +44,9 @@ if(id && savedRoomId){
 
     }
 
-    // إغلاق النافذة
-    if(cancelBtn){
+    if (cancelBtn && popup) {
 
-        createBtn.onclick = async () => {
+        cancelBtn.onclick = () => {
 
             popup.style.display = "none";
 
@@ -59,15 +54,16 @@ if(id && savedRoomId){
 
     }
 
-    // إنشاء الغرفة والانتقال
-    if(createBtn){
+    if (createBtn) {
 
-        createBtn.onclick = () => {
+        createBtn.onclick = async () => {
 
-            const roomName =
-            document.getElementById("roomName").value.trim();
+            const roomName = document
+                .getElementById("newRoomName")
+                .value
+                .trim();
 
-            if(roomName === ""){
+            if (roomName === "") {
 
                 alert("اكتب اسم الغرفة");
 
@@ -75,41 +71,41 @@ if(id && savedRoomId){
 
             }
 
-            // إنشاء ID للغرفة
-const counterRef = doc(db, "counters", "rooms");
+            try {
 
-const roomId = await runTransaction(db, async (transaction) => {
+                const counterRef = doc(db, "counters", "rooms");
 
-    const counterDoc = await transaction.get(counterRef);
+                const roomId = await runTransaction(db, async (transaction) => {
 
-    let lastNumber = counterDoc.data().lastNumber;
+                    const counterDoc = await transaction.get(counterRef);
 
-    lastNumber++;
+                    let lastNumber = 0;
 
-    transaction.update(counterRef, {
-        lastNumber: lastNumber
-    });
+                    if (counterDoc.exists()) {
+                        lastNumber = counterDoc.data().lastNumber;
+                    }
 
-    return "room-" + String(lastNumber).padStart(6, "0");
+                    lastNumber++;
 
-});
+                    transaction.set(counterRef, {
+                        lastNumber: lastNumber
+                    }, { merge: true });
 
+                    return "room-" + String(lastNumber).padStart(6, "0");
 
-// حفظ بيانات الغرفة
-localStorage.setItem(
-    "roomName",
-    roomName
-);
+                });
 
+                localStorage.setItem("roomName", roomName);
+                localStorage.setItem("roomId", roomId);
 
-localStorage.setItem(
-    "roomId",
-    roomId
-);
+                window.location.href = "/room";
 
+            } catch (e) {
 
-// الانتقال للغرفة
-window.location.href = "/room";
+                console.error(e);
+                alert("حدث خطأ أثناء إنشاء الغرفة");
+
+            }
 
         };
 
