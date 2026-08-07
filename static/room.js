@@ -46,7 +46,14 @@ document.addEventListener("DOMContentLoaded", () => {
 
     if (cancelBtn && popup) {
 
-        cancelBtn.onclick = () => {
+        createBtn.onclick = async () => {
+
+    alert("تم الضغط على زر إنشاء");
+
+    const roomName = document
+        .getElementById("newRoomName")
+        .value
+        .trim();
 
             popup.style.display = "none";
 
