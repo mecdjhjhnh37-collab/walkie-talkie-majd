@@ -89,17 +89,26 @@ document.addEventListener("DOMContentLoaded", () => {
 messageDiv.className = "message";
 
 
+
 messageDiv.innerHTML = `
 
-<div class="message-user">
-👤 ${data.user}
+<div class="message-head">
+
+<img src="${data.photo}" class="message-photo">
+
+<span class="message-user">
+${data.user}
+</span>
+
 </div>
+
 
 <div class="message-text">
 ${data.text}
 </div>
 
 `;
+`
 
 
 messagesBox.appendChild(messageDiv);
