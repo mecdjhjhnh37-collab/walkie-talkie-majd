@@ -3,17 +3,25 @@
 
 <head>
 
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta charset="UTF-8">
 
-    <title>تسجيل الدخول - Mecd Voice</title>
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
 
-    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+
+<title>
+تسجيل الدخول - Mecd Voice
+</title>
+
+
+<link rel="stylesheet"
+href="{{ url_for('static', filename='style.css') }}">
+
 
 </head>
 
 
 <body>
+
 
 <div class="container">
 
@@ -23,10 +31,14 @@
     </div>
 
 
-    <h1>Mecd Voice</h1>
+    <h1>
+        Mecd Voice
+    </h1>
 
 
-    <h2>تسجيل الدخول</h2>
+    <h2>
+        تسجيل الدخول
+    </h2>
 
 
     <p>
@@ -35,10 +47,14 @@
 
 
 
-    <!-- زر تسجيل الدخول بجوجل -->
-    <button id="loginBtn" class="lang-btn google-btn" type="button">
-🔵 تسجيل الدخول بواسطة Google
-</button>
+    <button
+    id="loginBtn"
+    class="google-btn"
+    type="button">
+
+        🔵 تسجيل الدخول بواسطة Google
+
+    </button>
 
 
 
@@ -46,26 +62,40 @@
 
 
 
-    <a href="/">
+    <button
+    id="backBtn"
+    class="lang-btn"
+    type="button">
 
-        <button class="lang-btn" type="button">
+        ↩️ رجوع
 
-            رجوع
-
-        </button>
-
-    </a>
+    </button>
 
 
 
 </div>
 
 
-<script src="{{ url_for('static', filename='language.js') }}"></script>
-<script 
-type="module" 
+
+
+<script>
+
+
+document.getElementById("backBtn").onclick = ()=>{
+
+    window.location.href="/";
+
+};
+
+
+</script>
+
+
+
+<script type="module"
 src="{{ url_for('static', filename='app.js') }}">
 </script>
+
 
 
 </body>
