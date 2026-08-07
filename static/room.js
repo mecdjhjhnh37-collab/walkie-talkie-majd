@@ -1,125 +1,112 @@
 import { db } from "./app.js";
 
 import {
-    doc,
-    runTransaction
+  doc,
+  runTransaction
 } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
 
 document.addEventListener("DOMContentLoaded", () => {
 
-    // =========================
-    // صفحة الغرفة
-    // =========================
+  // =========================
+  // صفحة الغرفة
+  // =========================
 
-    const roomTitle = document.getElementById("roomName");
-    const roomId = document.getElementById("roomId");
+  const roomTitle = document.getElementById("roomName");
+  const roomIdText = document.getElementById("roomId");
 
-    const savedRoomName = localStorage.getItem("roomName");
-    const savedRoomId = localStorage.getItem("roomId");
+  const savedRoomName = localStorage.getItem("roomName");
+  const savedRoomId = localStorage.getItem("roomId");
 
-    if (roomTitle && savedRoomName) {
-        roomTitle.textContent = "🎙️ " + savedRoomName;
-    }
+  if (roomTitle && savedRoomName) {
+    roomTitle.textContent = "🎙️ " + savedRoomName;
+  }
 
-    if (roomId && savedRoomId) {
-        roomId.textContent = "ID: " + savedRoomId;
-    }
+  if (roomIdText && savedRoomId) {
+    roomIdText.textContent = "ID: " + savedRoomId;
+  }
 
-    // =========================
-    // صفحة Home
-    // =========================
+  // =========================
+  // صفحة Home
+  // =========================
 
-    const popup = document.getElementById("roomPopup");
-    const openBtn = document.getElementById("createRoomBtn");
-    const cancelBtn = document.getElementById("cancelRoom");
-    const createBtn = document.getElementById("createRoomNow");
+  const popup = document.getElementById("roomPopup");
+  const openBtn = document.getElementById("createRoomBtn");
+  const cancelBtn = document.getElementById("cancelRoom");
+  const createBtn = document.getElementById("createRoomNow");
 
-    if (openBtn && popup) {
+  // فتح النافذة
+  if (openBtn && popup) {
+    openBtn.onclick = () => {
+      popup.style.display = "flex";
+    };
+  }
 
-        openBtn.onclick = () => {
+  // إغلاق النافذة
+  if (cancelBtn && popup) {
+    cancelBtn.onclick = () => {
+      popup.style.display = "none";
+    };
+  }
 
-            popup.style.display = "flex";
+  // إنشاء الغرفة
+  if (createBtn) {
 
-        };
+    createBtn.onclick = async () => {
 
-    }
-
-    if (cancelBtn && popup) {
-
-        createBtn.onclick = async () => {
-
-    alert("تم الضغط على زر إنشاء");
-
-    const roomName = document
+      const roomName = document
         .getElementById("newRoomName")
         .value
         .trim();
 
-            popup.style.display = "none";
+      if (roomName === "") {
+        alert("اكتب اسم الغرفة");
+        return;
+      }
 
-        };
+      try {
 
-    }
+        const counterRef = doc(db, "counters", "rooms");
 
-    if (createBtn) {
+        const roomId = await runTransaction(db, async (transaction) => {
 
-        createBtn.onclick = async () => {
+          const counterDoc = await transaction.get(counterRef);
 
-            const roomName = document
-                .getElementById("newRoomName")
-                .value
-                .trim();
+          let lastNumber = 0;
 
-            if (roomName === "") {
+          if (counterDoc.exists()) {
+            lastNumber = counterDoc.data().lastNumber || 0;
+          }
 
-                alert("اكتب اسم الغرفة");
+          lastNumber++;
 
-                return;
-
+          transaction.set(
+            counterRef,
+            {
+              lastNumber: lastNumber
+            },
+            {
+              merge: true
             }
+          );
 
-            try {
+          return "room-" + String(lastNumber).padStart(6, "0");
 
-                const counterRef = doc(db, "counters", "rooms");
+        });
 
-                const roomId = await runTransaction(db, async (transaction) => {
+        localStorage.setItem("roomName", roomName);
+        localStorage.setItem("roomId", roomId);
 
-                    const counterDoc = await transaction.get(counterRef);
+        window.location.href = "/room";
 
-                    let lastNumber = 0;
+      } catch (e) {
 
-                    if (counterDoc.exists()) {
-                        lastNumber = counterDoc.data().lastNumber;
-                    }
+        console.error(e);
+        alert(e.message);
 
-                    lastNumber++;
+      }
 
-                    transaction.set(counterRef, {
-                        lastNumber: lastNumber
-                    }, { merge: true });
+    };
 
-                    return "room-" + String(lastNumber).padStart(6, "0");
-
-                });
-
-                localStorage.setItem("roomName", roomName);
-                localStorage.setItem("roomId", roomId);
-
-                window.location.href = "/room";
-
-            } catch (e) {
-
-                catch (e) {
-
-    console.error(e);
-    alert(e.message);
-
-            }
-
-            }
-
-        };
-
-    }
+  }
 
 });
