@@ -137,23 +137,18 @@ messagesBox.appendChild(messageDiv);
 
 
 
-            await addDoc(
+            
+const userName = localStorage.getItem("userName") || "مستخدم";
 
-                collection(
-                    db,
-                    "rooms",
-                    roomId,
-                    "messages"
-                ),
+const userPhoto = localStorage.getItem("userPhoto") || "https://i.imgur.com/6VBx3io.png";
 
-                {
 
-                    text:text,
-
-                    user:"مستخدم",
-
-                    time:serverTimestamp()
-
+await addDoc(messagesRef,{
+    text:text,
+    user:userName,
+    photo:userPhoto,
+    time:serverTimestamp()
+});
                 }
 
             );
