@@ -3,26 +3,21 @@ import os
 
 app = Flask(__name__)
 
-
 @app.route("/")
 def index():
     return render_template("index.html")
-
 
 @app.route("/login/ar")
 def login_ar():
     return render_template("login_ar.html")
 
-
 @app.route("/login/tr")
 def login_tr():
     return render_template("login_tr.html")
 
-
 @app.route("/home")
 def home():
     return render_template("home.html")
-
 
 if __name__ == "__main__":
     port = int(os.environ.get("PORT", 10000))
