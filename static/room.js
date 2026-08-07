@@ -84,18 +84,25 @@ document.addEventListener("DOMContentLoaded", () => {
                 const data = doc.data();
 
 
-                const p = document.createElement("p");
+                const messageDiv = document.createElement("div");
+
+messageDiv.className = "message";
 
 
-                p.textContent =
-                "👤 " +
-                data.user +
-                ": " +
-                data.text;
+messageDiv.innerHTML = `
+
+<div class="message-user">
+👤 ${data.user}
+</div>
+
+<div class="message-text">
+${data.text}
+</div>
+
+`;
 
 
-
-                messagesBox.appendChild(p);
+messagesBox.appendChild(messageDiv);
 
 
             });
