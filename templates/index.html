@@ -4,11 +4,15 @@
 <head>
 
 <meta charset="UTF-8">
+
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
 <title>Mecd Voice</title>
 
-<link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+
+<link rel="stylesheet"
+href="{{ url_for('static', filename='style.css') }}">
+
 
 </head>
 
@@ -19,100 +23,95 @@
 <div class="container">
 
 
-<div class="logo">
-🎙️
-</div>
+    <div class="logo">
+        🎙️
+    </div>
 
 
-<h1>
-Mecd Voice
-</h1>
+    <h1>
+        Mecd Voice
+    </h1>
 
 
-<p id="welcomeText">
-مرحبًا بك في موقع المطور مجد
-</p>
+    <h2 id="welcome">
+        مرحبًا بك في موقع المطور مجد
+    </h2>
 
 
-
-<button 
-class="lang-btn"
-onclick="setLanguage('ar')">
-
-🇸🇦 العربية
-
-</button>
+    <p id="welcomeTr" style="display:none;">
+        Geliştirici Mecd'in sitesine hoş geldiniz
+    </p>
 
 
 
-<button 
-class="lang-btn"
-onclick="setLanguage('tr')">
-
-🇹🇷 Türkçe
-
-</button>
+    <div class="language-buttons">
 
 
+        <button id="arabicBtn"
+        type="button">
+            🇸🇦 العربية
+        </button>
 
-<a id="loginLink" href="/login/ar">
 
-<button class="google-btn">
 
-🔵 تسجيل الدخول
+        <button id="turkishBtn"
+        type="button">
+            🇹🇷 Türkçe
+        </button>
 
-</button>
 
-</a>
+    </div>
 
 
 
 </div>
 
-
-
-<script src="{{ url_for('static', filename='language.js') }}"></script>
 
 
 <script>
 
-function setLanguage(lang){
 
-localStorage.setItem("language",lang);
-
-
-if(lang==="tr"){
-
-document.documentElement.lang="tr";
-document.documentElement.dir="ltr";
-
-document.getElementById("welcomeText").textContent=
-"Geliştirici Mecd'in sitesine hoş geldiniz";
+const arabicBtn =
+document.getElementById("arabicBtn");
 
 
-document.getElementById("loginLink").href="/login/tr";
+const turkishBtn =
+document.getElementById("turkishBtn");
 
 
-}else{
+
+arabicBtn.onclick = ()=>{
+
+    localStorage.setItem(
+        "language",
+        "ar"
+    );
 
 
-document.documentElement.lang="ar";
-document.documentElement.dir="rtl";
+    window.location.href =
+    "/login/ar";
+
+};
 
 
-document.getElementById("welcomeText").textContent=
-"مرحبًا بك في موقع المطور مجد";
+
+turkishBtn.onclick = ()=>{
+
+    localStorage.setItem(
+        "language",
+        "tr"
+    );
 
 
-document.getElementById("loginLink").href="/login/ar";
+    window.location.href =
+    "/login/tr";
 
+};
 
-}
-
-}
 
 
 </script>
+
 
 
 </body>
