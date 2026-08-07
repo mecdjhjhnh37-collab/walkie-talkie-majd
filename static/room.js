@@ -440,74 +440,45 @@ document.addEventListener("DOMContentLoaded", async () => {
 
     }
 // =====================================
-// تشغيل / إيقاف الميكروفون
+// اختبار الميكروفون فقط
 // =====================================
 
-const voiceBtn =
-    document.getElementById("voiceBtn");
-
-let microphoneStream = null;
-let microphoneOn = false;
+const voiceBtn = document.getElementById("voiceBtn");
 
 if (voiceBtn) {
 
     voiceBtn.addEventListener("click", async () => {
 
+        console.log("VOICE BUTTON CLICKED");
+
+        if (!navigator.mediaDevices || !navigator.mediaDevices.getUserMedia) {
+
+            alert("المتصفح لا يدعم تشغيل الميكروفون هنا.");
+
+            return;
+        }
+
         try {
 
-            // تشغيل الميكروفون
-            if (!microphoneOn) {
+            const stream =
+                await navigator.mediaDevices.getUserMedia({
+                    audio: true
+                });
 
-                microphoneStream =
-                    await navigator.mediaDevices.getUserMedia({
-                        audio: true
-                    });
+            alert("🎤 الميكروفون يعمل!");
 
-                microphoneOn = true;
-
-                voiceBtn.textContent = "🔴";
-
-                console.log("Microphone ON");
-
-            }
-
-            // إيقاف الميكروفون
-            else {
-
-                if (microphoneStream) {
-
-                    microphoneStream
-                        .getTracks()
-                        .forEach(track => track.stop());
-
-                }
-
-                microphoneStream = null;
-
-                microphoneOn = false;
-
-                voiceBtn.textContent = "🎤";
-
-                console.log("Microphone OFF");
-
-            }
+            stream.getTracks().forEach(track => track.stop());
 
         } catch (error) {
 
-            console.error(
-                "Microphone error:",
-                error
-            );
+            console.error("MIC ERROR:", error);
 
             alert(
-                language === "tr"
-                    ? "Mikrofon izni verilmedi."
-                    : "لم يتم السماح باستخدام الميكروفون."
+                "❌ لم يتم تشغيل الميكروفون\n\n" +
+                error.name + "\n" +
+                error.message
             );
 
         }
 
     });
-
-}
-});
