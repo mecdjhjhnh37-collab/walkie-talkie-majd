@@ -42,3 +42,30 @@ export async function createRoom(roomName, password) {
     return roomRef.key;
 
 }
+document.addEventListener("DOMContentLoaded", () => {
+
+    const createRoomBtn =
+    document.getElementById("createRoomBtn");
+
+    if (!createRoomBtn) return;
+
+    createRoomBtn.onclick = async () => {
+
+        const roomName = prompt("اسم الغرفة");
+
+        if (!roomName) return;
+
+        const password =
+        prompt("كلمة المرور (اختياري)") || "";
+
+        const roomID =
+        await createRoom(roomName, password);
+
+        alert("تم إنشاء الغرفة");
+
+        window.location.href =
+        "/room?id=" + roomID;
+
+    };
+
+});
