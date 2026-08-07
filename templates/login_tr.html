@@ -3,57 +3,101 @@
 
 <head>
 
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta charset="UTF-8">
 
-    <title>Giriş Yap - Mecd Voice</title>
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
 
-    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+
+<title>
+Giriş - Mecd Voice
+</title>
+
+
+<link rel="stylesheet"
+href="{{ url_for('static', filename='style.css') }}">
+
 
 </head>
 
+
 <body>
 
+
 <div class="container">
+
 
     <div class="logo">
         🔐
     </div>
 
-    <h1>Mecd Voice</h1>
 
-    <h2>Giriş Yap</h2>
+    <h1>
+        Mecd Voice
+    </h1>
+
+
+    <h2>
+        Giriş Yap
+    </h2>
+
 
     <p>
         Geliştirici Mecd'in sitesine hoş geldiniz
     </p>
-<button
+
+
+
+    <button
     id="loginBtn"
-    class="lang-btn google-btn"
+    class="google-btn"
     type="button">
 
-    🔵 Google ile giriş yap
+        🔵 Google ile giriş yap
 
-</button>
+    </button>
+
+
 
     <br><br>
 
-    <a href="/">
 
-        <button class="lang-btn" type="button">
 
-            Geri
+    <button
+    id="backBtn"
+    class="lang-btn"
+    type="button">
 
-        </button>
+        ↩️ Geri
 
-    </a>
+    </button>
+
+
 
 </div>
 
-<script
-type="module"
+
+
+
+<script>
+
+
+document.getElementById("backBtn").onclick = ()=>{
+
+    window.location.href="/";
+
+};
+
+
+</script>
+
+
+
+<script type="module"
 src="{{ url_for('static', filename='app.js') }}">
 </script>
 
+
+
 </body>
+
 </html>
