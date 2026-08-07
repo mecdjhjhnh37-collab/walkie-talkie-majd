@@ -33,9 +33,11 @@ document.addEventListener("DOMContentLoaded", () => {
 
             try {
 
-                await signInWithPopup(auth, provider);
+                const result = await signInWithPopup(auth, provider);
 
-                window.location.href = "/home";
+localStorage.setItem("userUid", result.user.uid);
+
+window.location.href = "/home";
 
             } catch (error) {
 
