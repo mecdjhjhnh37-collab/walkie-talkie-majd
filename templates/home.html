@@ -3,265 +3,325 @@
 
 <head>
 
-    <meta charset="UTF-8">
+<meta charset="UTF-8">
 
-    <meta name="viewport"
-          content="width=device-width, initial-scale=1.0">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
 
-    <title>Mecd Voice</title>
 
-    <link rel="stylesheet"
-          href="{{ url_for('static', filename='style.css') }}">
+<title>
+Mecd Voice
+</title>
+
+
+<link rel="stylesheet"
+href="{{ url_for('static', filename='style.css') }}">
+
 
 </head>
 
+
 <body>
+
+
 
 <div class="home">
 
-    <!-- معلومات المستخدم -->
-
-    <div class="profile">
-
-        <img
-            id="userPhoto"
-            src="https://i.imgur.com/6VBx3io.png"
-            class="avatar"
-        >
-
-        <h2 id="userName">
-            جارٍ التحميل...
-        </h2>
-
-        <p id="userId">
-            ID : ------
-        </p>
-
-        <div class="status">
-            🟢 Online
-        </div>
-
-    </div>
 
 
-    <!-- العنوان -->
+<!-- معلومات المستخدم -->
 
-    <h1 class="title">
-        🎙️ Mecd Voice
-    </h1>
+<div class="profile">
 
 
-    <!-- زر اللغة -->
-
-    <button
-        id="languageBtn"
-        type="button"
-        onclick="toggleLanguage()"
-    >
-        🌍 Türkçe / العربية
-    </button>
+<img 
+id="userPhoto"
+src="https://i.imgur.com/6VBx3io.png"
+class="avatar">
 
 
-    <br><br>
+
+<h2 id="userName">
+جارٍ التحميل...
+</h2>
 
 
-    <!-- القائمة -->
 
-    <div class="menu">
-
-        <button type="button">
-            👥
-            <span id="friendsText">
-                الأصدقاء
-            </span>
-        </button>
+<p id="userId">
+ID : ------
+</p>
 
 
-        <button
-            id="createRoomBtn"
-            type="button"
-        >
-            🎙️
-            <span id="createRoomText">
-                إنشاء غرفة
-            </span>
-        </button>
 
+<div class="status">
 
-        <button type="button">
-            🚪
-            <span id="joinRoomText">
-                دخول إلى غرفة
-            </span>
-        </button>
-
-
-        <button type="button">
-            ⚙️
-            <span id="settingsText">
-                الإعدادات
-            </span>
-        </button>
-
-    </div>
+🟢 Online
 
 </div>
+
+
+
+</div>
+
+
+
+
+
+<h1 class="title">
+
+🎙️ Mecd Voice
+
+</h1>
+
+
+
+
+
+<!-- القائمة -->
+
+<div class="menu">
+
+
+
+<button>
+
+👥 
+<span id="friendsText">
+الأصدقاء
+</span>
+
+</button>
+
+
+
+
+<button id="createRoomBtn">
+
+🎙️ 
+<span id="createRoomText">
+إنشاء غرفة
+</span>
+
+</button>
+
+
+
+
+
+<button id="joinRoomBtn">
+
+🚪
+<span id="joinRoomText">
+دخول إلى غرفة
+</span>
+
+</button>
+
+
+
+
+
+<button id="publicRoomsBtn">
+
+🌍
+<span id="publicRoomsText">
+الغرف العامة
+</span>
+
+</button>
+
+
+
+
+
+<button id="settingsBtn">
+
+⚙️
+<span id="settingsText">
+الإعدادات
+</span>
+
+</button>
+
+
+
+
+</div>
+
+
+
+</div>
+
+
+
+
+
 
 
 <!-- نافذة إنشاء الغرفة -->
 
-<div
-    id="roomPopup"
-    class="popup"
->
-
-    <div class="popup-box">
-
-        <h2 id="roomPopupTitle">
-            إنشاء غرفة
-        </h2>
+<div id="roomPopup" class="popup">
 
 
-        <input
-            id="newRoomName"
-            type="text"
-            placeholder="اسم الغرفة"
-        >
+<div class="popup-box">
 
 
-        <input
-            id="roomPassword"
-            type="password"
-            placeholder="كلمة المرور"
-        >
+
+<h2 id="roomPopupTitle">
+
+</h2>
 
 
-        <label>
 
-            <input
-                type="radio"
-                name="roomType"
-                value="public"
-                checked
-            >
-
-            <span id="publicRoomText">
-                عامة
-            </span>
-
-        </label>
+<input
+id="newRoomName"
+type="text">
 
 
-        <label>
 
-            <input
-                type="radio"
-                name="roomType"
-                value="private"
-            >
-
-            <span id="privateRoomText">
-                خاصة
-            </span>
-
-        </label>
+<input
+id="roomPassword"
+type="password">
 
 
-        <label id="membersText">
-            عدد الأشخاص
-        </label>
 
 
-        <select id="roomMembers">
 
-            <option>2</option>
+<label>
 
-            <option>5</option>
-
-            <option selected>10</option>
-
-            <option>20</option>
-
-            <option>50</option>
-
-        </select>
+<input
+type="radio"
+name="roomType"
+value="public"
+checked>
 
 
-        <div class="popup-buttons">
+<span id="publicRoomText">
 
-            <button
-                id="createRoomNow"
-                type="button"
-            >
-                إنشاء
-            </button>
+</span>
 
 
-            <button
-                id="cancelRoom"
-                type="button"
-            >
-                إلغاء
-            </button>
+</label>
 
-        </div>
 
-    </div>
+
+
+
+<label>
+
+<input
+type="radio"
+name="roomType"
+value="private">
+
+
+<span id="privateRoomText">
+
+</span>
+
+
+</label>
+
+
+
+
+
+<label id="membersText">
+
+</label>
+
+
+
+
+
+<select id="roomMembers">
+
+
+<option>
+2
+</option>
+
+
+<option>
+5
+</option>
+
+
+<option selected>
+10
+</option>
+
+
+<option>
+20
+</option>
+
+
+<option>
+50
+</option>
+
+
+</select>
+
+
+
+
+
+
+
+<div class="popup-buttons">
+
+
+<button id="createRoomNow">
+
+</button>
+
+
+
+<button id="cancelRoom">
+
+</button>
+
 
 </div>
 
 
-<!-- اللغة -->
 
-<script
-    src="{{ url_for('static', filename='language.js') }}"
-></script>
+</div>
 
 
-<!-- بيانات المستخدم -->
-
-<script
-    type="module"
-    src="{{ url_for('static', filename='user.js') }}"
-></script>
+</div>
 
 
-<!-- إنشاء الغرفة -->
-
-<script
-    type="module"
-    src="{{ url_for('static', filename='create-room.js') }}"
-></script>
 
 
-<script>
 
-function toggleLanguage() {
 
-    const current =
-        localStorage.getItem("language") || "ar";
 
-    const newLanguage =
-        current === "ar" ? "tr" : "ar";
 
-    if (typeof setLanguage === "function") {
+<script src="{{ url_for('static', filename='language.js') }}"></script>
 
-        setLanguage(newLanguage);
 
-    } else {
 
-        localStorage.setItem(
-            "language",
-            newLanguage
-        );
-
-        location.reload();
-
-    }
-
-}
-
+<script type="module"
+src="{{ url_for('static', filename='main.js') }}">
 </script>
+
+
+
+
+<script type="module"
+src="{{ url_for('static', filename='user.js') }}">
+</script>
+
+
+
+
+<script type="module"
+src="{{ url_for('static', filename='create-room.js') }}">
+</script>
+
+
 
 </body>
 
