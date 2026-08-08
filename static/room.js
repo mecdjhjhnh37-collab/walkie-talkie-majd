@@ -453,6 +453,7 @@ if (voiceBtn) {
     "stop",
     async () => {
         alert("🛑 STOP اشتغل");
+        console.log("🎤 عدد أجزاء التسجيل:", audioChunks.length);
 
 const audioBlob =  
                         new Blob(  
