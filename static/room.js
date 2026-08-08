@@ -501,16 +501,34 @@ const firebaseAudioUrl =
                         audio  
                     );  
 
-             await addDoc(
-    messagesRef,
-    {
-        type: "audio",
-        audioUrl: firebaseAudioUrl,
-        user: localStorage.getItem("userName") || "مستخدم",
-        photo: localStorage.getItem("userPhoto") || "default.png",
-        time: serverTimestamp()
-    }
-);     
+                try {
+
+    await addDoc(
+        messagesRef,
+        {
+            type: "audio",
+            audioUrl: firebaseAudioUrl,
+            user: localStorage.getItem("userName") || "مستخدم",
+            photo: localStorage.getItem("userPhoto") || "default.png",
+            time: serverTimestamp()
+        }
+    );
+
+    console.log("✅ تم حفظ التسجيل في Firestore");
+
+} catch (error) {
+
+    console.error(
+        "❌ خطأ في حفظ التسجيل:",
+        error
+    );
+
+    alert(
+        "❌ لم يتم حفظ التسجيل: " +
+        error.message
+    );
+
+} 
        messagesBox.scrollTop =  
                         messagesBox.scrollHeight;  
 
