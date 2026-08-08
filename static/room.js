@@ -770,10 +770,6 @@ document.addEventListener("DOMContentLoaded", async () => {
                             isRecording = true;
 
 
-                            voiceBtn.textContent =
-                                "⏹️";
-
-
                             console.log(
                                 "🎤 Recording started"
                             );
@@ -815,10 +811,6 @@ document.addEventListener("DOMContentLoaded", async () => {
 
 
                         isRecording = false;
-
-
-                        voiceBtn.textContent =
-                            "🎤";
 
 
                         console.log(
