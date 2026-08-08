@@ -1,4 +1,5 @@
-import { db } from "./app.js";
+import { db, storage } from "./app.js";
+
 import {
     ref,
     uploadBytes,
