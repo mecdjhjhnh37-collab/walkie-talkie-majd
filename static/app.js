@@ -21,7 +21,7 @@ const firebaseConfig = {
     databaseURL: "https://mecd-voice-ap-default-rtdb.firebaseio.com"
 };
 
-
+import { getStorage } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-storage.js";
 export const app = initializeApp(firebaseConfig);
 
 export const db = getFirestore(app);
@@ -30,6 +30,7 @@ import { getStorage } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-
 export const storage = getStorage(app);
 
 const auth = getAuth(app);
+export { app, db, storage };
 
 const provider = new GoogleAuthProvider();
 
