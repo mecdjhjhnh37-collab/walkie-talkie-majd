@@ -230,134 +230,168 @@ document.addEventListener("DOMContentLoaded", async () => {
             );
 
 
-        // =====================================
-        // قراءة الرسائل
-        // =====================================
+      // =====================================
+// قراءة الرسائل
+// =====================================
 
-        const messagesQuery =
-            query(
-                messagesRef,
-                orderBy("time")
-            );
+const messagesQuery =
+    query(
+        messagesRef,
+        orderBy("time")
+    );
 
 
-        onSnapshot(
-            messagesQuery,
-            (snapshot) => {
+onSnapshot(
+    messagesQuery,
+    (snapshot) => {
 
-                if (!messagesBox) {
-                    return;
+        if (!messagesBox) {
+            return;
+        }
+
+        messagesBox.innerHTML = "";
+
+
+        snapshot.forEach(
+            (messageDoc) => {
+
+                const data =
+                    messageDoc.data();
+
+
+                const messageDiv =
+                    document.createElement("div");
+
+
+                messageDiv.className =
+                    "message";
+
+
+                // =================================
+                // 👤 رأس الرسالة
+                // =================================
+
+                const messageHead =
+                    document.createElement("div");
+
+                messageHead.className =
+                    "message-head";
+
+
+                const photo =
+                    document.createElement("img");
+
+                photo.src =
+                    data.photo || "default.png";
+
+                photo.className =
+                    "message-photo";
+
+
+                const user =
+                    document.createElement("span");
+
+                user.className =
+                    "message-user";
+
+                user.textContent =
+                    data.user || "مستخدم";
+
+
+                messageHead.appendChild(photo);
+                messageHead.appendChild(user);
+
+                messageDiv.appendChild(messageHead);
+
+
+                // =================================
+                // 🎤 رسالة صوتية
+                // =================================
+
+                if (
+                    data.type === "audio" &&
+                    data.audioUrl
+                ) {
+
+                    const audio =
+                        document.createElement("audio");
+
+
+                    audio.controls =
+                        true;
+
+                    audio.preload =
+                        "metadata";
+
+                    audio.src =
+                        data.audioUrl;
+
+
+                    audio.style.width =
+                        "100%";
+
+                    audio.style.marginTop =
+                        "10px";
+
+
+                    messageDiv.appendChild(
+                        audio
+                    );
+
                 }
 
 
-                messagesBox.innerHTML = "";
+                // =================================
+                // 💬 رسالة نصية
+                // =================================
+
+                else {
+
+                    const messageText =
+                        document.createElement("div");
 
 
-                snapshot.forEach(
-                    (messageDoc) => {
-
-                        const data =
-                            messageDoc.data();
+                    messageText.className =
+                        "message-text";
 
 
-                        const messageDiv =
-                            document.createElement("div");
+                    messageText.textContent =
+                        data.text || "";
 
 
-                        messageDiv.className =
-                            "message";
+                    messageDiv.appendChild(
+                        messageText
+                    );
+
+                }
 
 
-                        // =================================
-                        // رسالة صوتية
-                        // =================================
+                // =================================
+                // إضافة الرسالة للدردشة
+                // =================================
 
-                        if (
-                            data.type === "audio" &&
-                            data.audioUrl
-                        ) {
-
-                            messageDiv.innerHTML = `
-
-                                <div class="message-head">
-
-                                    <img
-                                        src="${data.photo || "default.png"}"
-                                        class="message-photo"
-                                    >
-
-                                    <span class="message-user">
-                                        ${data.user || "مستخدم"}
-                                    </span>
-
-                                </div>
-
-                                <audio
-                                    controls
-                                    preload="metadata"
-                                    src="${data.audioUrl}"
-                                    style="
-                                        width:100%;
-                                        margin-top:10px;
-                                    "
-                                ></audio>
-
-                            `;
-
-                        }
-
-                        // =================================
-                        // رسالة نصية
-                        // =================================
-
-                        else {
-
-                            messageDiv.innerHTML = `
-
-                                <div class="message-head">
-
-                                    <img
-                                        src="${data.photo || "default.png"}"
-                                        class="message-photo"
-                                    >
-
-                                    <span class="message-user">
-                                        ${data.user || "مستخدم"}
-                                    </span>
-
-                                </div>
-
-                                <div class="message-text">
-                                    ${data.text || ""}
-                                </div>
-
-                            `;
-
-                        }
-
-
-                        messagesBox.appendChild(
-                            messageDiv
-                        );
-
-                    }
-                );
-
-
-                messagesBox.scrollTop =
-                    messagesBox.scrollHeight;
-
-            },
-
-            (error) => {
-
-                console.error(
-                    "❌ Messages error:",
-                    error
+                messagesBox.appendChild(
+                    messageDiv
                 );
 
             }
         );
+
+
+        messagesBox.scrollTop =
+            messagesBox.scrollHeight;
+
+    },
+
+    (error) => {
+
+        console.error(
+            "❌ Messages error:",
+            error
+        );
+
+    }
+);
 
 
         // =====================================
