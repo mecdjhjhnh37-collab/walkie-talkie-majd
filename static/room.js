@@ -32,10 +32,8 @@ document.addEventListener("DOMContentLoaded", async () => {
     const voiceBtn = document.getElementById("voiceBtn");
     const callBtn = document.getElementById("callBtn");
     const videoBtn = document.getElementById("videoBtn");
-navigator.permissions.query({ name: "microphone" }).then(p => console.log("🎤 Microphone:", p.state));
-    
-navigator.permissions.query({ name: "microphone" }).then(p => p.onchange = () => console.log("🎤 Microphone changed:", p.state));
-    console.log("🎤 getUserMedia:", !!navigator.mediaDevices?.getUserMedia);
+
+
     // =====================================
     // اللغة
     // =====================================
@@ -70,7 +68,8 @@ navigator.permissions.query({ name: "microphone" }).then(p => p.onchange = () =>
         }
 
         if (roomIdText) {
-            roomIdText.textContent = "ID: ------";
+            roomIdText.textContent =
+                "ID: ------";
         }
 
         return;
@@ -303,6 +302,14 @@ navigator.permissions.query({ name: "microphone" }).then(p => p.onchange = () =>
                     messagesBox.scrollTop =
                         messagesBox.scrollHeight;
 
+                },
+                (error) => {
+
+                    console.error(
+                        "Messages listener error:",
+                        error
+                    );
+
                 }
             );
 
@@ -402,7 +409,6 @@ navigator.permissions.query({ name: "microphone" }).then(p => p.onchange = () =>
                 "click",
                 async () => {
 
-
                     // =================================
                     // بدء التسجيل
                     // =================================
@@ -411,21 +417,100 @@ navigator.permissions.query({ name: "microphone" }).then(p => p.onchange = () =>
 
                         try {
 
+                            if (
+                                !navigator.mediaDevices ||
+                                !navigator.mediaDevices.getUserMedia
+                            ) {
+
+                                throw new Error(
+                                    "getUserMedia is not supported"
+                                );
+
+                            }
+
+
                             const stream =
-                                await navigator.mediaDevices
-                                    .getUserMedia({
-                                        audio: true
-                                    });
+                                await navigator.mediaDevices.getUserMedia({
+                                    audio: true
+                                });
 
 
                             audioChunks = [];
 
 
+                            // =================================
+                            // اختيار صيغة مدعومة
+                            // =================================
+
+                            let mimeType =
+                                "audio/webm";
+
+
+                            if (
+                                MediaRecorder.isTypeSupported(
+                                    "audio/webm;codecs=opus"
+                                )
+                            ) {
+
+                                mimeType =
+                                    "audio/webm;codecs=opus";
+
+                            }
+
+                            else if (
+                                MediaRecorder.isTypeSupported(
+                                    "audio/webm"
+                                )
+                            ) {
+
+                                mimeType =
+                                    "audio/webm";
+
+                            }
+
+                            else if (
+                                MediaRecorder.isTypeSupported(
+                                    "audio/mp4"
+                                )
+                            ) {
+
+                                mimeType =
+                                    "audio/mp4";
+
+                            }
+
+                            else if (
+                                MediaRecorder.isTypeSupported(
+                                    "audio/ogg;codecs=opus"
+                                )
+                            ) {
+
+                                mimeType =
+                                    "audio/ogg;codecs=opus";
+
+                            }
+
+
+                            console.log(
+                                "🎤 Audio format:",
+                                mimeType
+                            );
+
+
                             mediaRecorder =
-                                new MediaRecorder(stream);
+                                new MediaRecorder(
+                                    stream,
+                                    {
+                                        mimeType:
+                                            mimeType
+                                    }
+                                );
 
 
+                            // =================================
                             // استقبال بيانات الصوت
+                            // =================================
+
                             mediaRecorder.addEventListener(
                                 "dataavailable",
                                 (event) => {
@@ -455,34 +540,91 @@ navigator.permissions.query({ name: "microphone" }).then(p => p.onchange = () =>
 
                                     try {
 
+                                        console.log(
+                                            "🎤 Audio chunks:",
+                                            audioChunks.length
+                                        );
+
+
                                         if (
                                             audioChunks.length === 0
                                         ) {
 
                                             throw new Error(
-                                                "No audio data"
+                                                "No audio data recorded"
                                             );
 
                                         }
 
 
+                                        // =================================
                                         // إنشاء ملف الصوت
+                                        // =================================
+
                                         const audioBlob =
                                             new Blob(
                                                 audioChunks,
                                                 {
                                                     type:
-                                                        "audio/webm"
+                                                        mimeType
                                                 }
                                             );
 
 
+                                        console.log(
+                                            "🎤 Audio size:",
+                                            audioBlob.size
+                                        );
+
+
+                                        if (
+                                            audioBlob.size === 0
+                                        ) {
+
+                                            throw new Error(
+                                                "Audio blob is empty"
+                                            );
+
+                                        }
+
+
                                         // =================================
-                                        // اسم ملف فريد
+                                        // امتداد الملف
+                                        // =================================
+
+                                        let extension =
+                                            "webm";
+
+
+                                        if (
+                                            mimeType.includes(
+                                                "mp4"
+                                            )
+                                        ) {
+
+                                            extension =
+                                                "mp4";
+
+                                        }
+
+                                        else if (
+                                            mimeType.includes(
+                                                "ogg"
+                                            )
+                                        ) {
+
+                                            extension =
+                                                "ogg";
+
+                                        }
+
+
+                                        // =================================
+                                        // اسم الملف
                                         // =================================
 
                                         const fileName =
-                                            `rooms/${realRoomId}/audio/${Date.now()}-${Math.random().toString(36).slice(2)}.webm`;
+                                            `rooms/${realRoomId}/audio/${Date.now()}-${Math.random().toString(36).slice(2)}.${extension}`;
 
 
                                         // =================================
@@ -501,8 +643,13 @@ navigator.permissions.query({ name: "microphone" }).then(p => p.onchange = () =>
                                             audioBlob,
                                             {
                                                 contentType:
-                                                    "audio/webm"
+                                                    mimeType
                                             }
+                                        );
+
+
+                                        console.log(
+                                            "✅ Audio uploaded"
                                         );
 
 
@@ -514,6 +661,12 @@ navigator.permissions.query({ name: "microphone" }).then(p => p.onchange = () =>
                                             await getDownloadURL(
                                                 audioRef
                                             );
+
+
+                                        console.log(
+                                            "✅ Audio URL:",
+                                            audioUrl
+                                        );
 
 
                                         // =================================
@@ -538,38 +691,38 @@ navigator.permissions.query({ name: "microphone" }).then(p => p.onchange = () =>
                                         // حفظ الصوت في Firestore
                                         // =================================
 
-                                        await addDoc(
-                                            messagesRef,
-                                            {
+                                        const audioMessage =
+                                            await addDoc(
+                                                messagesRef,
+                                                {
+                                                    type:
+                                                        "audio",
 
-                                                type:
-                                                    "audio",
+                                                    audioUrl:
+                                                        audioUrl,
 
-                                                audioUrl:
-                                                    audioUrl,
+                                                    user:
+                                                        userName,
 
-                                                user:
-                                                    userName,
+                                                    photo:
+                                                        userPhoto,
 
-                                                photo:
-                                                    userPhoto,
-
-                                                time:
-                                                    serverTimestamp()
-
-                                            }
-                                        );
+                                                    time:
+                                                        serverTimestamp()
+                                                }
+                                            );
 
 
                                         console.log(
-                                            "✅ تم حفظ التسجيل الصوتي"
+                                            "✅ Audio message saved:",
+                                            audioMessage.id
                                         );
 
 
                                     } catch (error) {
 
                                         console.error(
-                                            "Audio upload error:",
+                                            "❌ Audio error:",
                                             error
                                         );
 
@@ -609,7 +762,9 @@ navigator.permissions.query({ name: "microphone" }).then(p => p.onchange = () =>
                             // تشغيل التسجيل
                             // =================================
 
-                            mediaRecorder.start();
+                            mediaRecorder.start(
+                                1000
+                            );
 
 
                             isRecording = true;
@@ -627,7 +782,7 @@ navigator.permissions.query({ name: "microphone" }).then(p => p.onchange = () =>
                         } catch (error) {
 
                             console.error(
-                                "Recording error:",
+                                "❌ Recording error:",
                                 error
                             );
 
