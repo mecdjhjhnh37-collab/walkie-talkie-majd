@@ -1,4 +1,8 @@
 import { db, storage } from "./app.js";
+import {
+    startVoiceRecording,
+    stopVoiceRecording
+} from "./voiceRecorder.js";
 
 import {
     ref,
@@ -400,197 +404,34 @@ document.addEventListener("DOMContentLoaded", async () => {
 
 
         
-// =====================================
+
+
+
+        // =====================================
 // 🎤 تسجيل الصوت
 // =====================================
-
-let mediaRecorder = null;
-let audioChunks = [];
-let isRecording = false;
-
 
 if (voiceBtn) {
 
     voiceBtn.addEventListener("click", async () => {
 
-        // ===============================
-        // بدء التسجيل
-        // ===============================
+        if (!voiceBtn.dataset.recording) {
 
-        if (!isRecording) {
+            voiceBtn.dataset.recording = "true";
+            voiceBtn.textContent = "⏹️";
 
-            try {
+            await startVoiceRecording(
+                realRoomId,
+                messagesRef
+            );
 
-                const stream =
-                    await navigator.mediaDevices.getUserMedia({
-                        audio: true
-                    });
+        } else {
 
-
-                audioChunks = [];
-
-
-                mediaRecorder =
-                    new MediaRecorder(stream);
-
-
-                mediaRecorder.addEventListener(
-                    "dataavailable",
-                    (event) => {
-
-                        if (event.data.size > 0) {
-
-                            audioChunks.push(
-                                event.data
-                            );
-
-                        }
-
-                    }
-                );
-
-
-             mediaRecorder.addEventListener(
-    "stop",
-    async () => {
-        alert("🛑 STOP اشتغل");
-        console.log("🎤 عدد أجزاء التسجيل:", audioChunks.length);
-
-const audioBlob =  
-                        new Blob(  
-                            audioChunks,  
-                            {  
-                                type: "audio/webm"  
-                            }  
-                        );  
-
-
-                    const audioUrl =  
-                        URL.createObjectURL(  
-                            audioBlob  
-                        );  
-        const fileName =
-    `rooms/${realRoomId}/audio/${Date.now()}.webm`;
-
-const audioRef =
-    ref(storage, fileName);
-
-await uploadBytes(
-    audioRef,
-    audioBlob,
-    {
-        contentType: "audio/webm"
-    }
-);
-
-const firebaseAudioUrl =
-    await getDownloadURL(audioRef);
-
-
-                    const audio =  
-                        document.createElement("audio");  
-
-
-                    audio.controls = true;  
-
-                    audio.src = audioUrl;  
-
-                    audio.style.width = "100%";  
-
-                    audio.style.marginTop = "10px";  
-
-
-                    messagesBox.appendChild(  
-                        audio  
-                    );  
-
-                try {
-
-    await addDoc(
-        messagesRef,
-        {
-            type: "audio",
-            audioUrl: firebaseAudioUrl,
-            user: localStorage.getItem("userName") || "مستخدم",
-            photo: localStorage.getItem("userPhoto") || "default.png",
-            time: serverTimestamp()
-        }
-    );
-
-    console.log("✅ تم حفظ التسجيل في Firestore");
-
-} catch (error) {
-
-    console.error(
-        "❌ خطأ في حفظ التسجيل:",
-        error
-    );
-
-    alert(
-        "❌ لم يتم حفظ التسجيل: " +
-        error.message
-    );
-
-} 
-       messagesBox.scrollTop =  
-                        messagesBox.scrollHeight;  
-
-
-                    stream  
-                        .getTracks()  
-                        .forEach(  
-                            track => track.stop()  
-                        );  
-
-                }  
-            );  
-
-
-            mediaRecorder.start();  
-
-            isRecording = true;  
-
-
-            voiceBtn.textContent = "⏹️";  
-
-
-        } catch (error) {  
-
-            console.error(  
-                "Recording error:",  
-                error  
-            );  
-
-
-            alert(  
-                isTurkish  
-                    ? "❌ Mikrofon açılamadı."  
-                    : "❌ لم يتم تشغيل الميكروفون."  
-            );  
-
-        }  
-
-    }
-        // ===============================
-        // إيقاف التسجيل
-        // ===============================
-
-        else {
-
-            if (
-                mediaRecorder &&
-                mediaRecorder.state !== "inactive"
-            ) {
-
-                mediaRecorder.stop();
-
-            }
-
-
-            isRecording = false;
-
+            voiceBtn.dataset.recording = "";
 
             voiceBtn.textContent = "🎤";
+
+            await stopVoiceRecording();
 
         }
 
