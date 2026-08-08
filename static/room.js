@@ -61,7 +61,7 @@ document.addEventListener("DOMContentLoaded", async () => {
 
 
     // =====================================
-    // الحصول على ID الغرفة
+    // ID الغرفة
     // =====================================
 
     const urlParams =
@@ -75,15 +75,19 @@ document.addEventListener("DOMContentLoaded", async () => {
     if (!roomId) {
 
         if (roomTitle) {
+
             roomTitle.textContent =
                 isTurkish
                     ? "Oda bulunamadı"
                     : "لم يتم العثور على الغرفة";
+
         }
 
         if (roomIdText) {
+
             roomIdText.textContent =
                 "ID: ------";
+
         }
 
         return;
@@ -130,15 +134,19 @@ document.addEventListener("DOMContentLoaded", async () => {
         if (!roomDoc.exists()) {
 
             if (roomTitle) {
+
                 roomTitle.textContent =
                     isTurkish
                         ? "Oda bulunamadı"
                         : "الغرفة غير موجودة";
+
             }
 
             if (roomIdText) {
+
                 roomIdText.textContent =
                     "ID: " + roomId;
+
             }
 
             return;
@@ -153,10 +161,6 @@ document.addEventListener("DOMContentLoaded", async () => {
             roomDoc.data();
 
 
-        // الأهم:
-        // نستخدم Document ID الحقيقي
-        // وليس room.id إذا كان مختلفاً
-
         const realRoomId =
             roomDoc.id;
 
@@ -165,17 +169,6 @@ document.addEventListener("DOMContentLoaded", async () => {
             room.name ||
             room.roomName ||
             "Mecd Voice";
-
-
-        console.log(
-            "✅ Room ID:",
-            realRoomId
-        );
-
-        console.log(
-            "✅ Room name:",
-            realRoomName
-        );
 
 
         // =====================================
@@ -230,172 +223,226 @@ document.addEventListener("DOMContentLoaded", async () => {
             );
 
 
-      // =====================================
-// قراءة الرسائل
-// =====================================
+        // =====================================
+        // رسائل مؤقتة محلية
+        // مهم حتى لا يختفي التسجيل
+        // عند إرسال رسالة جديدة
+        // =====================================
 
-const messagesQuery =
-    query(
-        messagesRef,
-        orderBy("time")
-    );
+        const localAudioMessages = [];
 
 
-onSnapshot(
-    messagesQuery,
-    (snapshot) => {
+        // =====================================
+        // دالة عرض رسالة
+        // =====================================
 
-        if (!messagesBox) {
-            return;
+        function createMessageElement(data) {
+
+            const messageDiv =
+                document.createElement("div");
+
+            messageDiv.className =
+                "message";
+
+
+            const photo =
+                data.photo ||
+                "default.png";
+
+
+            const user =
+                data.user ||
+                "مستخدم";
+
+
+            // =================================
+            // 🎤 صوت
+            // =================================
+
+            if (
+                data.type === "audio" &&
+                data.audioUrl
+            ) {
+
+                messageDiv.innerHTML = `
+
+                    <div class="message-head">
+
+                        <img
+                            src="${photo}"
+                            class="message-photo"
+                        >
+
+                        <span class="message-user">
+                            ${user}
+                        </span>
+
+                    </div>
+
+                    <audio
+                        controls
+                        preload="metadata"
+                        src="${data.audioUrl}"
+                        style="
+                            width:100%;
+                            margin-top:10px;
+                        "
+                    ></audio>
+
+                `;
+
+            }
+
+            // =================================
+            // 📝 نص
+            // =================================
+
+            else {
+
+                messageDiv.innerHTML = `
+
+                    <div class="message-head">
+
+                        <img
+                            src="${photo}"
+                            class="message-photo"
+                        >
+
+                        <span class="message-user">
+                            ${user}
+                        </span>
+
+                    </div>
+
+                    <div class="message-text">
+                        ${data.text || ""}
+                    </div>
+
+                `;
+
+            }
+
+
+            return messageDiv;
         }
 
-        messagesBox.innerHTML = "";
+
+        // =====================================
+        // عرض كل الرسائل
+        // =====================================
+
+        function renderMessages(snapshot) {
+
+            if (!messagesBox) {
+                return;
+            }
 
 
-        snapshot.forEach(
-            (messageDoc) => {
-
-                const data =
-                    messageDoc.data();
+            messagesBox.innerHTML = "";
 
 
-                const messageDiv =
-                    document.createElement("div");
+            // الرسائل الموجودة في Firestore
+            snapshot.forEach(
+                (messageDoc) => {
+
+                    const data =
+                        messageDoc.data();
 
 
-                messageDiv.className =
-                    "message";
-
-
-                // =================================
-                // 👤 رأس الرسالة
-                // =================================
-
-                const messageHead =
-                    document.createElement("div");
-
-                messageHead.className =
-                    "message-head";
-
-
-                const photo =
-                    document.createElement("img");
-
-                photo.src =
-                    data.photo || "default.png";
-
-                photo.className =
-                    "message-photo";
-
-
-                const user =
-                    document.createElement("span");
-
-                user.className =
-                    "message-user";
-
-                user.textContent =
-                    data.user || "مستخدم";
-
-
-                messageHead.appendChild(photo);
-                messageHead.appendChild(user);
-
-                messageDiv.appendChild(messageHead);
-
-
-                // =================================
-                // 🎤 رسالة صوتية
-                // =================================
-
-                if (
-                    data.type === "audio" &&
-                    data.audioUrl
-                ) {
-
-                    const audio =
-                        document.createElement("audio");
-
-
-                    audio.controls =
-                        true;
-
-                    audio.preload =
-                        "metadata";
-
-                    audio.src =
-                        data.audioUrl;
-
-
-                    audio.style.width =
-                        "100%";
-
-                    audio.style.marginTop =
-                        "10px";
-
-
-                    messageDiv.appendChild(
-                        audio
+                    messagesBox.appendChild(
+                        createMessageElement(data)
                     );
 
                 }
+            );
 
 
-                // =================================
-                // 💬 رسالة نصية
-                // =================================
+            // =================================
+            // إعادة عرض التسجيلات المحلية
+            // التي لم تظهر بعد في Snapshot
+            // =================================
 
-                else {
+            localAudioMessages.forEach(
+                (audioMessage) => {
 
-                    const messageText =
-                        document.createElement("div");
+                    const exists =
+                        Array.from(
+                            snapshot.docs
+                        ).some(
+                            docItem => {
+
+                                const data =
+                                    docItem.data();
+
+                                return (
+                                    data.type === "audio" &&
+                                    data.audioUrl ===
+                                    audioMessage.audioUrl
+                                );
+
+                            }
+                        );
 
 
-                    messageText.className =
-                        "message-text";
+                    if (!exists) {
 
+                        messagesBox.appendChild(
+                            createMessageElement(
+                                audioMessage
+                            )
+                        );
 
-                    messageText.textContent =
-                        data.text || "";
-
-
-                    messageDiv.appendChild(
-                        messageText
-                    );
+                    }
 
                 }
+            );
 
 
-                // =================================
-                // إضافة الرسالة للدردشة
-                // =================================
+            messagesBox.scrollTop =
+                messagesBox.scrollHeight;
 
-                messagesBox.appendChild(
-                    messageDiv
+        }
+
+
+        // =====================================
+        // قراءة الرسائل
+        // =====================================
+
+        const messagesQuery =
+            query(
+                messagesRef,
+                orderBy("time")
+            );
+
+
+        onSnapshot(
+            messagesQuery,
+
+            (snapshot) => {
+
+                console.log(
+                    "📨 تم تحديث الرسائل:",
+                    snapshot.size
+                );
+
+
+                renderMessages(snapshot);
+
+            },
+
+            (error) => {
+
+                console.error(
+                    "❌ Messages error:",
+                    error
                 );
 
             }
         );
 
 
-        messagesBox.scrollTop =
-            messagesBox.scrollHeight;
-
-    },
-
-    (error) => {
-
-        console.error(
-            "❌ Messages error:",
-            error
-        );
-
-    }
-);
-
-
         // =====================================
-        // إرسال الرسائل
+        // إرسال الرسائل النصية
         // =====================================
 
         if (
@@ -515,19 +562,26 @@ onSnapshot(
 
                     try {
 
-                        // =============================
+                        // =================================
                         // بدء التسجيل
-                        // =============================
+                        // =================================
 
                         if (
-                            voiceBtn.dataset.recording !== "true"
+                            voiceBtn.dataset.recording !==
+                            "true"
                         ) {
 
                             voiceBtn.dataset.recording =
                                 "true";
 
+
                             voiceBtn.textContent =
                                 "⏹️";
+
+
+                            console.log(
+                                "🔴 بدء التسجيل"
+                            );
 
 
                             await startVoiceRecording(
@@ -537,20 +591,31 @@ onSnapshot(
 
                         }
 
-                        // =============================
+                        // =================================
                         // إيقاف التسجيل
-                        // =============================
+                        // =================================
 
                         else {
 
+                            console.log(
+                                "⏹️ إيقاف التسجيل"
+                            );
+
+
                             voiceBtn.dataset.recording =
                                 "false";
+
 
                             voiceBtn.textContent =
                                 "🎤";
 
 
                             await stopVoiceRecording();
+
+
+                            console.log(
+                                "✅ انتهى إرسال التسجيل"
+                            );
 
                         }
 
@@ -565,14 +630,15 @@ onSnapshot(
                         voiceBtn.dataset.recording =
                             "false";
 
+
                         voiceBtn.textContent =
                             "🎤";
 
 
                         alert(
                             isTurkish
-                                ? "Ses kaydı başlatılamadı."
-                                : "❌ لم يتم تسجيل الصوت."
+                                ? "Ses kaydı gönderilemedi."
+                                : "❌ لم يتم إرسال التسجيل الصوتي."
                         );
 
                     }
