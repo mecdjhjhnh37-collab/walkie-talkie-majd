@@ -1,6 +1,6 @@
 // =====================================
 // 🎤 voiceRecorder.js
-// تسجيل الصوت + Firebase
+// تسجيل الصوت + رفعه + حفظه في Firestore
 // =====================================
 
 import { storage } from "./app.js";
@@ -33,37 +33,84 @@ let currentMessagesRef = null;
 // ▶️ بدء التسجيل
 // =====================================
 
-export async function startVoiceRecording(
-    roomId,
-    messagesRef
-) {
+export async function startVoiceRecording(roomId, messagesRef) {
 
     currentRoomId = roomId;
     currentMessagesRef = messagesRef;
 
-    currentStream =
-        await navigator.mediaDevices.getUserMedia({
-            audio: true
-        });
+    console.log("🎤 Room:", currentRoomId);
+    console.log("🎤 MessagesRef:", currentMessagesRef);
 
-    audioChunks = [];
+    if (!currentRoomId) {
+        throw new Error("Room ID غير موجود");
+    }
 
-
-    // =====================================
-    // إنشاء المسجل
-    // =====================================
-
-    mediaRecorder =
-        new MediaRecorder(currentStream);
+    if (!currentMessagesRef) {
+        throw new Error("messagesRef غير موجود");
+    }
 
 
-    // =====================================
-    // استقبال الصوت
-    // =====================================
+    try {
 
-    mediaRecorder.addEventListener(
-        "dataavailable",
-        (event) => {
+        // تشغيل الميكروفون
+        currentStream =
+            await navigator.mediaDevices.getUserMedia({
+                audio: true
+            });
+
+
+        audioChunks = [];
+
+
+        // =================================
+        // تحديد نوع التسجيل
+        // =================================
+
+        let mimeType = "";
+
+        if (
+            MediaRecorder.isTypeSupported("audio/webm;codecs=opus")
+        ) {
+
+            mimeType = "audio/webm;codecs=opus";
+
+        } else if (
+            MediaRecorder.isTypeSupported("audio/webm")
+        ) {
+
+            mimeType = "audio/webm";
+
+        }
+
+
+        console.log(
+            "🎤 MIME:",
+            mimeType || "default"
+        );
+
+
+        // =================================
+        // إنشاء MediaRecorder
+        // =================================
+
+        mediaRecorder =
+            mimeType
+                ? new MediaRecorder(
+                    currentStream,
+                    {
+                        mimeType: mimeType
+                    }
+                )
+                : new MediaRecorder(
+                    currentStream
+                );
+
+
+        // =================================
+        // استقبال الصوت
+        // =================================
+
+        mediaRecorder.ondataavailable = (event) => {
 
             if (
                 event.data &&
@@ -72,115 +119,144 @@ export async function startVoiceRecording(
 
                 audioChunks.push(event.data);
 
+                console.log(
+                    "🎤 Audio chunk:",
+                    event.data.size
+                );
+
             }
 
+        };
+
+
+        // =================================
+        // بدء التسجيل
+        // =================================
+
+        mediaRecorder.start();
+
+        console.log("🔴 بدأ التسجيل");
+
+    } catch (error) {
+
+        console.error(
+            "❌ خطأ في تشغيل الميكروفون:",
+            error
+        );
+
+
+        if (currentStream) {
+
+            currentStream
+                .getTracks()
+                .forEach(track => track.stop());
+
         }
-    );
 
 
-    // =====================================
-    // عند انتهاء التسجيل
-    // =====================================
+        currentStream = null;
+        mediaRecorder = null;
 
-    mediaRecorder.addEventListener(
-        "stop",
-        async () => {
+        throw error;
+    }
+}
+
+
+// =====================================
+// ⏹️ إيقاف التسجيل وحفظه
+// =====================================
+
+export function stopVoiceRecording() {
+
+    return new Promise((resolve, reject) => {
+
+        if (
+            !mediaRecorder ||
+            mediaRecorder.state === "inactive"
+        ) {
+
+            resolve();
+
+            return;
+        }
+
+
+        const recorder = mediaRecorder;
+
+
+        recorder.onstop = async () => {
 
             try {
 
-                console.log(
-                    "🛑 STOP اشتغل"
-                );
+                console.log("⏹️ التسجيل توقف");
 
-                console.log(
-                    "🎤 عدد أجزاء الصوت:",
-                    audioChunks.length
-                );
+                // =================================
+                // التأكد من وجود الصوت
+                // =================================
 
-
-                if (
-                    audioChunks.length === 0
-                ) {
+                if (audioChunks.length === 0) {
 
                     throw new Error(
-                        "لم يتم الحصول على بيانات صوت"
+                        "لم يتم الحصول على بيانات صوتية"
                     );
 
                 }
 
 
                 // =================================
-                // إنشاء ملف الصوت
+                // إنشاء Blob
                 // =================================
 
                 const audioBlob =
                     new Blob(
                         audioChunks,
                         {
-                            type: "audio/webm"
+                            type:
+                                recorder.mimeType ||
+                                "audio/webm"
                         }
                     );
 
 
                 console.log(
-                    "🎤 حجم الصوت:",
+                    "🎤 حجم التسجيل:",
                     audioBlob.size
                 );
 
 
-                // =================================
-                // عرض الصوت مباشرة
-                // =================================
+                if (audioBlob.size === 0) {
 
-                const localAudioUrl =
-                    URL.createObjectURL(
-                        audioBlob
+                    throw new Error(
+                        "ملف الصوت فارغ"
                     );
-
-
-                const messagesBox =
-                    document.getElementById(
-                        "messages"
-                    );
-
-
-                if (messagesBox) {
-
-                    const audio =
-                        document.createElement(
-                            "audio"
-                        );
-
-                    audio.controls = true;
-
-                    audio.preload = "metadata";
-
-                    audio.src =
-                        localAudioUrl;
-
-                    audio.style.width =
-                        "100%";
-
-                    audio.style.marginTop =
-                        "10px";
-
-                    messagesBox.appendChild(
-                        audio
-                    );
-
-                    messagesBox.scrollTop =
-                        messagesBox.scrollHeight;
 
                 }
 
 
                 // =================================
-                // Firebase Storage
+                // اسم الملف
                 // =================================
 
-                const fileName =
-                    `rooms/${currentRoomId}/audio/${Date.now()}.webm`;
+                const extension =
+                    recorder.mimeType &&
+                    recorder.mimeType.includes("webm")
+                        ? "webm"
+                        : "webm";
 
+
+                const fileName =
+                    `rooms/${currentRoomId}/audio/${Date.now()}.${extension}`;
+
+
+                console.log(
+                    "📁 Storage path:",
+                    fileName
+                );
+
+
+                // =================================
+                // رفع الصوت إلى Storage
+                // =================================
 
                 const audioRef =
                     ref(
@@ -190,7 +266,7 @@ export async function startVoiceRecording(
 
 
                 console.log(
-                    "⬆️ رفع الصوت إلى Firebase..."
+                    "⬆️ جاري رفع الصوت..."
                 );
 
 
@@ -199,18 +275,19 @@ export async function startVoiceRecording(
                     audioBlob,
                     {
                         contentType:
+                            recorder.mimeType ||
                             "audio/webm"
                     }
                 );
 
 
                 console.log(
-                    "✅ تم رفع الصوت"
+                    "✅ تم رفع الصوت إلى Storage"
                 );
 
 
                 // =================================
-                // رابط Firebase
+                // الحصول على الرابط
                 // =================================
 
                 const audioUrl =
@@ -220,25 +297,14 @@ export async function startVoiceRecording(
 
 
                 console.log(
-                    "🔗 Firebase URL:",
+                    "🔗 Audio URL:",
                     audioUrl
                 );
 
 
                 // =================================
-                // Firestore
+                // بيانات المستخدم
                 // =================================
-
-                if (
-                    !currentMessagesRef
-                ) {
-
-                    throw new Error(
-                        "messagesRef غير موجود"
-                    );
-
-                }
-
 
                 const userName =
                     localStorage.getItem(
@@ -254,117 +320,92 @@ export async function startVoiceRecording(
                     "default.png";
 
 
-                await addDoc(
-                    currentMessagesRef,
-                    {
+                // =================================
+                // حفظ الصوت في Firestore
+                // =================================
 
-                        type:
-                            "audio",
-
-                        audioUrl:
-                            audioUrl,
-
-                        user:
-                            userName,
-
-                        photo:
-                            userPhoto,
-
-                        time:
-                            serverTimestamp()
-
-                    }
+                console.log(
+                    "💾 جاري حفظ الصوت في Firestore..."
                 );
+
+
+                const messageDoc =
+                    await addDoc(
+                        currentMessagesRef,
+                        {
+
+                            type: "audio",
+
+                            audioUrl: audioUrl,
+
+                            user: userName,
+
+                            photo: userPhoto,
+
+                            time:
+                                serverTimestamp()
+
+                        }
+                    );
 
 
                 console.log(
-                    "✅ تم حفظ الصوت في Firestore"
+                    "✅ تم حفظ الصوت في Firestore:",
+                    messageDoc.id
                 );
+
+
+                // =================================
+                // تنظيف
+                // =================================
+
+                resolve();
 
 
             } catch (error) {
 
                 console.error(
-                    "❌ Voice Firebase error:",
+                    "❌ خطأ في إرسال الصوت:",
                     error
                 );
 
 
-                alert(
-                    "❌ خطأ في إرسال الصوت:\n" +
-                    error.message
-                );
-
-            }
+                reject(error);
 
 
-            // =================================
-            // إغلاق الميكروفون
-            // =================================
+            } finally {
 
-            if (
-                currentStream
-            ) {
+                // إيقاف الميكروفون
 
-                currentStream
-                    .getTracks()
-                    .forEach(
-                        track => {
+                if (currentStream) {
+
+                    currentStream
+                        .getTracks()
+                        .forEach(track => {
                             track.stop();
-                        }
-                    );
+                        });
+
+                }
+
+
+                currentStream = null;
+                mediaRecorder = null;
+                audioChunks = [];
+                currentRoomId = null;
+                currentMessagesRef = null;
 
             }
 
-
-            currentStream =
-                null;
-
-            mediaRecorder =
-                null;
-
-            audioChunks = [];
-
-        }
-    );
+        };
 
 
-    // =====================================
-    // بدء التسجيل
-    // =====================================
+        // =================================
+        // إرسال آخر جزء من التسجيل
+        // =================================
 
-    mediaRecorder.start();
+        recorder.requestData();
 
-    console.log(
-        "🔴 بدأ تسجيل الصوت"
-    );
+        recorder.stop();
 
-}
-
-
-// =====================================
-// ⏹️ إيقاف التسجيل
-// =====================================
-
-export function stopVoiceRecording() {
-
-    if (
-        mediaRecorder &&
-        mediaRecorder.state === "recording"
-    ) {
-
-        console.log(
-            "⏹️ إيقاف التسجيل..."
-        );
-
-
-        // نجبر MediaRecorder
-        // على إرسال آخر جزء من الصوت
-
-        mediaRecorder.requestData();
-
-        mediaRecorder.stop();
-
-    }
-
+    });
 }
