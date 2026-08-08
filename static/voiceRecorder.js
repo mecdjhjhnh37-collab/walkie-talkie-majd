@@ -43,6 +43,10 @@ export async function startVoiceRecording(
 
     try {
 
+        // =====================================
+        // التأكد من البيانات
+        // =====================================
+
         if (!currentRoomId) {
             throw new Error("Room ID غير موجود");
         }
@@ -52,8 +56,14 @@ export async function startVoiceRecording(
         }
 
 
+        console.log(
+            "🎤 Room ID:",
+            currentRoomId
+        );
+
+
         // =====================================
-        // 🎙️ تشغيل الميكروفون
+        // تشغيل الميكروفون
         // =====================================
 
         currentStream =
@@ -66,18 +76,19 @@ export async function startVoiceRecording(
 
 
         // =====================================
-        // 🎧 تحديد نوع التسجيل
+        // تحديد نوع الصوت
         // =====================================
 
         let mimeType = "";
 
-        const supportedTypes = [
+        const types = [
             "audio/webm;codecs=opus",
             "audio/webm",
             "audio/ogg;codecs=opus"
         ];
 
-        for (const type of supportedTypes) {
+
+        for (const type of types) {
 
             if (
                 MediaRecorder.isTypeSupported(type)
@@ -92,24 +103,31 @@ export async function startVoiceRecording(
 
 
         // =====================================
-        // إنشاء المسجل
+        // إنشاء MediaRecorder
         // =====================================
 
-        mediaRecorder =
-            mimeType
-                ? new MediaRecorder(
+        if (mimeType) {
+
+            mediaRecorder =
+                new MediaRecorder(
                     currentStream,
                     {
                         mimeType: mimeType
                     }
-                )
-                : new MediaRecorder(
+                );
+
+        } else {
+
+            mediaRecorder =
+                new MediaRecorder(
                     currentStream
                 );
 
+        }
+
 
         console.log(
-            "🎙️ MediaRecorder:",
+            "🎙️ نوع التسجيل:",
             mediaRecorder.mimeType
         );
 
@@ -131,6 +149,11 @@ export async function startVoiceRecording(
                         event.data
                     );
 
+                    console.log(
+                        "🎧 جزء صوت:",
+                        event.data.size
+                    );
+
                 }
 
             }
@@ -138,7 +161,7 @@ export async function startVoiceRecording(
 
 
         // =====================================
-        // عند انتهاء التسجيل
+        // عند إيقاف التسجيل
         // =====================================
 
         mediaRecorder.addEventListener(
@@ -148,24 +171,13 @@ export async function startVoiceRecording(
                 try {
 
                     console.log(
-                        "⏹️ انتهى التسجيل"
+                        "⏹️ التسجيل توقف"
                     );
 
 
-                    if (
-                        audioChunks.length === 0
-                    ) {
-
-                        throw new Error(
-                            "لم يتم التقاط الصوت"
-                        );
-
-                    }
-
-
-                    // =====================================
+                    // =================================
                     // إنشاء Blob
-                    // =====================================
+                    // =================================
 
                     const finalType =
                         mediaRecorder?.mimeType ||
@@ -183,23 +195,25 @@ export async function startVoiceRecording(
 
 
                     console.log(
-                        "🎤 حجم الملف:",
+                        "🎤 حجم التسجيل:",
                         audioBlob.size
                     );
 
 
-                    if (audioBlob.size === 0) {
+                    if (
+                        audioBlob.size === 0
+                    ) {
 
                         throw new Error(
-                            "ملف الصوت فارغ"
+                            "ملف التسجيل فارغ"
                         );
 
                     }
 
 
-                    // =====================================
-                    // 👤 بيانات المستخدم
-                    // =====================================
+                    // =================================
+                    // بيانات المستخدم
+                    // =================================
 
                     const userName =
                         localStorage.getItem(
@@ -215,9 +229,9 @@ export async function startVoiceRecording(
                         "default.png";
 
 
-                    // =====================================
-                    // 📁 اسم ملف Firebase Storage
-                    // =====================================
+                    // =================================
+                    // اسم الملف
+                    // =================================
 
                     const extension =
                         finalType.includes("ogg")
@@ -236,32 +250,33 @@ export async function startVoiceRecording(
                         );
 
 
+                    // =================================
+                    // رفع الصوت
+                    // =================================
+
                     console.log(
-                        "⬆️ رفع الصوت إلى Firebase..."
+                        "⬆️ جاري رفع الصوت..."
                     );
 
-
-                    // =====================================
-                    // ⬆️ رفع الصوت
-                    // =====================================
 
                     await uploadBytes(
                         audioRef,
                         audioBlob,
                         {
-                            contentType: finalType
+                            contentType:
+                                finalType
                         }
                     );
 
 
                     console.log(
-                        "✅ تم رفع الصوت"
+                        "✅ تم رفع الصوت إلى Storage"
                     );
 
 
-                    // =====================================
-                    // 🔗 رابط التحميل
-                    // =====================================
+                    // =================================
+                    // رابط الصوت
+                    // =================================
 
                     const audioUrl =
                         await getDownloadURL(
@@ -270,14 +285,14 @@ export async function startVoiceRecording(
 
 
                     console.log(
-                        "🔗 رابط الصوت:",
+                        "🔗 رابط الصوت جاهز:",
                         audioUrl
                     );
 
 
-                    // =====================================
-                    // 🗄️ حفظ الرسالة في Firestore
-                    // =====================================
+                    // =================================
+                    // حفظ الصوت في Firestore
+                    // =================================
 
                     const messageData = {
 
@@ -302,16 +317,92 @@ export async function startVoiceRecording(
 
 
                     console.log(
-                        "✅ تم حفظ الصوت في Firestore:",
+                        "✅ تم حفظ التسجيل في Firestore:",
                         messageDoc.id
                     );
 
 
-                    // =====================================
-                    // 📢 إرسال حدث إلى room.js
-                    // =====================================
-                    // هذا فقط لإظهار الصوت فورًا.
-                    // لا يحتوي أي منطق تسجيل.
+                    // =================================
+                    // 🎧 إظهار التسجيل فورًا بالدردشة
+                    // =================================
+
+                    const messagesBox =
+                        document.getElementById(
+                            "messages"
+                        );
+
+
+                    if (messagesBox) {
+
+                        const messageDiv =
+                            document.createElement(
+                                "div"
+                            );
+
+
+                        messageDiv.className =
+                            "message";
+
+
+                        messageDiv.dataset.messageId =
+                            messageDoc.id;
+
+
+                        messageDiv.innerHTML = `
+
+                            <div class="message-head">
+
+                                <img
+                                    src="${userPhoto}"
+                                    class="message-photo"
+                                >
+
+                                <span
+                                    class="message-user"
+                                >
+                                    ${userName}
+                                </span>
+
+                            </div>
+
+                            <audio
+                                controls
+                                preload="metadata"
+                                src="${audioUrl}"
+                                style="
+                                    width:100%;
+                                    margin-top:10px;
+                                "
+                            ></audio>
+
+                        `;
+
+
+                        messagesBox.appendChild(
+                            messageDiv
+                        );
+
+
+                        messagesBox.scrollTop =
+                            messagesBox.scrollHeight;
+
+
+                        console.log(
+                            "🎧 ظهر التسجيل في الدردشة"
+                        );
+
+                    } else {
+
+                        console.error(
+                            "❌ لم نجد عنصر messages"
+                        );
+
+                    }
+
+
+                    // =================================
+                    // إرسال حدث اختياري
+                    // =================================
 
                     window.dispatchEvent(
                         new CustomEvent(
@@ -343,13 +434,13 @@ export async function startVoiceRecording(
                 } catch (error) {
 
                     console.error(
-                        "❌ خطأ في حفظ التسجيل:",
+                        "❌ خطأ كامل في التسجيل:",
                         error
                     );
 
 
                     alert(
-                        "❌ لم يتم إرسال التسجيل الصوتي\n" +
+                        "❌ لم يتم إرسال التسجيل الصوتي\n\n" +
                         error.message
                     );
 
@@ -357,7 +448,7 @@ export async function startVoiceRecording(
                 } finally {
 
                     // =================================
-                    // 🎙️ إغلاق الميكروفون
+                    // إغلاق الميكروفون
                     // =================================
 
                     if (currentStream) {
@@ -389,7 +480,7 @@ export async function startVoiceRecording(
 
 
         // =====================================
-        // 🔴 بدء التسجيل
+        // بدء التسجيل
         // =====================================
 
         mediaRecorder.start();
@@ -403,68 +494,4 @@ export async function startVoiceRecording(
     } catch (error) {
 
         console.error(
-            "❌ خطأ في تشغيل الميكروفون:",
-            error
-        );
-
-
-        if (currentStream) {
-
-            currentStream
-                .getTracks()
-                .forEach(
-                    (track) => {
-                        track.stop();
-                    }
-                );
-
-        }
-
-
-        currentStream =
-            null;
-
-        mediaRecorder =
-            null;
-
-        audioChunks =
-            [];
-
-        throw error;
-
-    }
-
-}
-
-
-// =====================================
-// ⏹️ إيقاف التسجيل
-// =====================================
-
-export function stopVoiceRecording() {
-
-    if (
-        mediaRecorder &&
-        mediaRecorder.state !== "inactive"
-    ) {
-
-        console.log(
-            "⏹️ جاري إيقاف التسجيل..."
-        );
-
-
-        mediaRecorder.stop();
-
-        return true;
-
-    }
-
-
-    console.log(
-        "⚠️ لا يوجد تسجيل قيد التشغيل"
-    );
-
-
-    return false;
-
-}
+            "❌ خطأ في بدء
