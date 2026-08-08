@@ -276,15 +276,17 @@ export async function startVoiceRecording(
                         !cloudinaryResponse.ok
                     ) {
 
-                        const errorText =
-                            await cloudinaryResponse.text();
+                        const errorText = await cloudinaryResponse.text();
 
-                        console.error(
-                            "Cloudinary Error:",
-                            errorText
-                        );
+console.log("🔥 CLOUDINARY STATUS:", cloudinaryResponse.status);
+console.log("🔥 CLOUDINARY ERROR:", errorText);
 
-                        throw new Error(
+alert(
+    "Cloudinary Error:\n\n" +
+    errorText
+);
+
+throw new Error(
     `Cloudinary Error:\n${errorText}`
 );
                         
