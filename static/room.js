@@ -100,6 +100,7 @@ document.addEventListener("DOMContentLoaded", async () => {
 
     // =====================================
     // إصلاح ID القديم
+    // room-000001 → MC-000001
     // =====================================
 
     if (
@@ -163,9 +164,7 @@ document.addEventListener("DOMContentLoaded", async () => {
             roomDoc.data();
 
 
-        // مهم جدًا:
         // نستخدم Document ID الحقيقي
-
         const realRoomId =
             roomDoc.id;
 
@@ -215,7 +214,7 @@ document.addEventListener("DOMContentLoaded", async () => {
 
 
         // =====================================
-        // عرض ID
+        // عرض ID الغرفة
         // =====================================
 
         if (roomIdText) {
@@ -240,28 +239,18 @@ document.addEventListener("DOMContentLoaded", async () => {
 
 
         // =====================================
-        // 📨 قراءة الرسائل من Firebase
-        // =====================================
-        //
-        // لا نستخدم orderBy هنا.
-        // نرتب الرسائل داخل JavaScript.
-        //
-        // هذا يمنع مشكلة serverTimestamp
-        // ويضمن ظهور التسجيل الصوتي.
+        // قراءة الرسائل من Firebase
         // =====================================
 
         onSnapshot(
             messagesRef,
+
             (snapshot) => {
 
                 if (!messagesBox) {
                     return;
                 }
 
-
-                // =================================
-                // تحويل الرسائل إلى Array
-                // =================================
 
                 const messages = [];
 
@@ -283,23 +272,25 @@ document.addEventListener("DOMContentLoaded", async () => {
                 );
 
 
-                // =================================
-                // ترتيب الرسائل حسب الوقت
-                // =================================
+                // =====================================
+                // ترتيب الرسائل
+                // =====================================
 
                 messages.sort(
                     (a, b) => {
 
                         const timeA =
                             a.data.time &&
-                            typeof a.data.time.toMillis === "function"
+                            typeof a.data.time.toMillis ===
+                                "function"
                                 ? a.data.time.toMillis()
                                 : 0;
 
 
                         const timeB =
                             b.data.time &&
-                            typeof b.data.time.toMillis === "function"
+                            typeof b.data.time.toMillis ===
+                                "function"
                                 ? b.data.time.toMillis()
                                 : 0;
 
@@ -310,21 +301,12 @@ document.addEventListener("DOMContentLoaded", async () => {
                 );
 
 
-                // =================================
-                // تنظيف العرض فقط
-                // =================================
-                //
-                // لا نحذف Firestore.
-                // فقط نعيد بناء واجهة الدردشة.
-                // التسجيلات المحفوظة ستبقى.
-                // =================================
+                // =====================================
+                // تحديث الدردشة
+                // =====================================
 
                 messagesBox.innerHTML = "";
 
-
-                // =================================
-                // عرض جميع الرسائل
-                // =================================
 
                 messages.forEach(
                     (message) => {
@@ -346,10 +328,6 @@ document.addEventListener("DOMContentLoaded", async () => {
                         messageDiv.dataset.messageId =
                             message.id;
 
-
-                        // =================================
-                        // بيانات المستخدم
-                        // =================================
 
                         const userName =
                             data.user ||
@@ -436,10 +414,6 @@ document.addEventListener("DOMContentLoaded", async () => {
                         }
 
 
-                        // =================================
-                        // إضافة الرسالة للدردشة
-                        // =================================
-
                         messagesBox.appendChild(
                             messageDiv
                         );
@@ -448,26 +422,17 @@ document.addEventListener("DOMContentLoaded", async () => {
                 );
 
 
-                // =================================
-                // النزول لآخر رسالة
-                // =================================
-
                 messagesBox.scrollTop =
                     messagesBox.scrollHeight;
 
 
                 console.log(
-                    "✅ تم تحديث الدردشة:",
-                    messages.length,
-                    "رسالة"
+                    "✅ عدد الرسائل:",
+                    messages.length
                 );
 
             },
 
-
-            // =====================================
-            // خطأ Firestore
-            // =====================================
 
             (error) => {
 
@@ -481,7 +446,7 @@ document.addEventListener("DOMContentLoaded", async () => {
 
 
         // =====================================
-        // 💬 إرسال الرسائل النصية
+        // 💬 زر إرسال الرسائل
         // =====================================
 
         if (
@@ -573,9 +538,7 @@ document.addEventListener("DOMContentLoaded", async () => {
             );
 
 
-            // =================================
             // Enter للإرسال
-            // =================================
 
             input.addEventListener(
                 "keydown",
@@ -598,7 +561,14 @@ document.addEventListener("DOMContentLoaded", async () => {
 
 
         // =====================================
-        // 🎤 تسجيل الصوت
+        // 🎤 ربط زر تسجيل الصوت فقط
+        // =====================================
+        //
+        // كل كود التسجيل موجود في:
+        // voiceRecorder.js
+        //
+        // room.js فقط يرسل:
+        // ID الغرفة + messagesRef
         // =====================================
 
         if (voiceBtn) {
@@ -609,9 +579,7 @@ document.addEventListener("DOMContentLoaded", async () => {
 
                     try {
 
-                        // =================================
                         // بدء التسجيل
-                        // =================================
 
                         if (
                             voiceBtn.dataset.recording !==
@@ -627,7 +595,7 @@ document.addEventListener("DOMContentLoaded", async () => {
 
 
                             console.log(
-                                "🔴 بدء التسجيل"
+                                "🔴 بدء تسجيل الصوت"
                             );
 
 
@@ -638,17 +606,9 @@ document.addEventListener("DOMContentLoaded", async () => {
 
                         }
 
-
-                        // =================================
                         // إيقاف التسجيل
-                        // =================================
 
                         else {
-
-                            console.log(
-                                "⏹️ إيقاف التسجيل"
-                            );
-
 
                             voiceBtn.dataset.recording =
                                 "false";
@@ -658,12 +618,12 @@ document.addEventListener("DOMContentLoaded", async () => {
                                 "🎤";
 
 
-                            stopVoiceRecording();
-
-
                             console.log(
-                                "📤 تم طلب إرسال التسجيل"
+                                "⏹️ إيقاف تسجيل الصوت"
                             );
+
+
+                            stopVoiceRecording();
 
                         }
 
@@ -686,7 +646,7 @@ document.addEventListener("DOMContentLoaded", async () => {
                         alert(
                             isTurkish
                                 ? "Ses kaydı gönderilemedi."
-                                : "❌ لم يتم إرسال التسجيل الصوتي."
+                                : "❌ لم يتم تسجيل الصوت."
                         );
 
                     }
@@ -698,7 +658,7 @@ document.addEventListener("DOMContentLoaded", async () => {
 
 
         // =====================================
-        // 📞 الاتصال
+        // 📞 زر الاتصال
         // =====================================
 
         if (callBtn) {
@@ -720,7 +680,7 @@ document.addEventListener("DOMContentLoaded", async () => {
 
 
         // =====================================
-        // 📹 الفيديو
+        // 📹 زر الفيديو
         // =====================================
 
         if (videoBtn) {
