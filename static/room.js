@@ -11,9 +11,7 @@ import {
     collection,
     addDoc,
     onSnapshot,
-    serverTimestamp,
-    orderBy,
-    query
+    serverTimestamp
 } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
 
 
@@ -61,11 +59,13 @@ document.addEventListener("DOMContentLoaded", async () => {
 
 
     // =====================================
-    // ID الغرفة
+    // الحصول على ID الغرفة
     // =====================================
 
     const urlParams =
-        new URLSearchParams(window.location.search);
+        new URLSearchParams(
+            window.location.search
+        );
 
     let roomId =
         urlParams.get("roomId") ||
@@ -94,7 +94,8 @@ document.addEventListener("DOMContentLoaded", async () => {
     }
 
 
-    roomId = roomId.trim();
+    roomId =
+        roomId.trim();
 
 
     // =====================================
@@ -108,7 +109,8 @@ document.addEventListener("DOMContentLoaded", async () => {
     ) {
 
         roomId =
-            "MC-" + roomId.substring(5);
+            "MC-" +
+            roomId.substring(5);
 
     }
 
@@ -116,7 +118,7 @@ document.addEventListener("DOMContentLoaded", async () => {
     try {
 
         // =====================================
-        // جلب الغرفة
+        // جلب بيانات الغرفة
         // =====================================
 
         const roomRef =
@@ -161,6 +163,9 @@ document.addEventListener("DOMContentLoaded", async () => {
             roomDoc.data();
 
 
+        // مهم جدًا:
+        // نستخدم Document ID الحقيقي
+
         const realRoomId =
             roomDoc.id;
 
@@ -169,6 +174,17 @@ document.addEventListener("DOMContentLoaded", async () => {
             room.name ||
             room.roomName ||
             "Mecd Voice";
+
+
+        console.log(
+            "✅ Room ID:",
+            realRoomId
+        );
+
+        console.log(
+            "✅ Room name:",
+            realRoomName
+        );
 
 
         // =====================================
@@ -187,7 +203,7 @@ document.addEventListener("DOMContentLoaded", async () => {
 
 
         // =====================================
-        // عرض الاسم
+        // عرض اسم الغرفة
         // =====================================
 
         if (roomTitle) {
@@ -224,318 +240,248 @@ document.addEventListener("DOMContentLoaded", async () => {
 
 
         // =====================================
-        // رسائل مؤقتة محلية
-        // مهم حتى لا يختفي التسجيل
-        // عند إرسال رسالة جديدة
+        // 📨 قراءة الرسائل من Firebase
+        // =====================================
+        //
+        // لا نستخدم orderBy هنا.
+        // نرتب الرسائل داخل JavaScript.
+        //
+        // هذا يمنع مشكلة serverTimestamp
+        // ويضمن ظهور التسجيل الصوتي.
         // =====================================
 
-        const localAudioMessages = [];
+        onSnapshot(
+            messagesRef,
+            (snapshot) => {
 
-
-        // =====================================
-        // دالة عرض رسالة
-        // =====================================
-
-        function createMessageElement(data) {
-
-            const messageDiv =
-                document.createElement("div");
-
-            messageDiv.className =
-                "message";
-
-
-            const photo =
-                data.photo ||
-                "default.png";
-
-
-            const user =
-                data.user ||
-                "مستخدم";
-
-
-            // =================================
-            // 🎤 صوت
-            // =================================
-
-            if (
-                data.type === "audio" &&
-                data.audioUrl
-            ) {
-
-                messageDiv.innerHTML = `
-
-                    <div class="message-head">
-
-                        <img
-                            src="${photo}"
-                            class="message-photo"
-                        >
-
-                        <span class="message-user">
-                            ${user}
-                        </span>
-
-                    </div>
-
-                    <audio
-                        controls
-                        preload="metadata"
-                        src="${data.audioUrl}"
-                        style="
-                            width:100%;
-                            margin-top:10px;
-                        "
-                    ></audio>
-
-                `;
-
-            }
-
-            // =================================
-            // 📝 نص
-            // =================================
-
-            else {
-
-                messageDiv.innerHTML = `
-
-                    <div class="message-head">
-
-                        <img
-                            src="${photo}"
-                            class="message-photo"
-                        >
-
-                        <span class="message-user">
-                            ${user}
-                        </span>
-
-                    </div>
-
-                    <div class="message-text">
-                        ${data.text || ""}
-                    </div>
-
-                `;
-
-            }
-
-
-            return messageDiv;
-        }
-
-
-        // =====================================
-        // عرض كل الرسائل
-        // =====================================
-
-        function renderMessages(snapshot) {
-
-            if (!messagesBox) {
-                return;
-            }
-
-
-            
-
-
-            // الرسائل الموجودة في Firestore
-            snapshot.forEach(
-                (messageDoc) => {
-
-                    const data =
-                        messageDoc.data();
-
-
-                    messagesBox.appendChild(
-                        createMessageElement(data)
-                    );
-
+                if (!messagesBox) {
+                    return;
                 }
-            );
 
 
-            // =================================
-            // إعادة عرض التسجيلات المحلية
-            // التي لم تظهر بعد في Snapshot
-            // =================================
+                // =================================
+                // تحويل الرسائل إلى Array
+                // =================================
 
-            localAudioMessages.forEach(
-                (audioMessage) => {
-
-                    const exists =
-                        Array.from(
-                            snapshot.docs
-                        ).some(
-                            docItem => {
-
-                                const data =
-                                    docItem.data();
-
-                                return (
-                                    data.type === "audio" &&
-                                    data.audioUrl ===
-                                    audioMessage.audioUrl
-                                );
-
-                            }
-                        );
+                const messages = [];
 
 
-                    if (!exists) {
+                snapshot.forEach(
+                    (messageDoc) => {
+
+                        messages.push({
+
+                            id:
+                                messageDoc.id,
+
+                            data:
+                                messageDoc.data()
+
+                        });
+
+                    }
+                );
+
+
+                // =================================
+                // ترتيب الرسائل حسب الوقت
+                // =================================
+
+                messages.sort(
+                    (a, b) => {
+
+                        const timeA =
+                            a.data.time &&
+                            typeof a.data.time.toMillis === "function"
+                                ? a.data.time.toMillis()
+                                : 0;
+
+
+                        const timeB =
+                            b.data.time &&
+                            typeof b.data.time.toMillis === "function"
+                                ? b.data.time.toMillis()
+                                : 0;
+
+
+                        return timeA - timeB;
+
+                    }
+                );
+
+
+                // =================================
+                // تنظيف العرض فقط
+                // =================================
+                //
+                // لا نحذف Firestore.
+                // فقط نعيد بناء واجهة الدردشة.
+                // التسجيلات المحفوظة ستبقى.
+                // =================================
+
+                messagesBox.innerHTML = "";
+
+
+                // =================================
+                // عرض جميع الرسائل
+                // =================================
+
+                messages.forEach(
+                    (message) => {
+
+                        const data =
+                            message.data;
+
+
+                        const messageDiv =
+                            document.createElement(
+                                "div"
+                            );
+
+
+                        messageDiv.className =
+                            "message";
+
+
+                        messageDiv.dataset.messageId =
+                            message.id;
+
+
+                        // =================================
+                        // بيانات المستخدم
+                        // =================================
+
+                        const userName =
+                            data.user ||
+                            "مستخدم";
+
+
+                        const userPhoto =
+                            data.photo ||
+                            "default.png";
+
+
+                        // =================================
+                        // 🎤 رسالة صوتية
+                        // =================================
+
+                        if (
+                            data.type === "audio" &&
+                            data.audioUrl
+                        ) {
+
+                            messageDiv.innerHTML = `
+
+                                <div class="message-head">
+
+                                    <img
+                                        src="${userPhoto}"
+                                        class="message-photo"
+                                    >
+
+                                    <span
+                                        class="message-user"
+                                    >
+                                        ${userName}
+                                    </span>
+
+                                </div>
+
+                                <audio
+                                    controls
+                                    preload="metadata"
+                                    src="${data.audioUrl}"
+                                    style="
+                                        width:100%;
+                                        margin-top:10px;
+                                    "
+                                ></audio>
+
+                            `;
+
+                        }
+
+
+                        // =================================
+                        // 💬 رسالة نصية
+                        // =================================
+
+                        else if (
+                            data.type === "text"
+                        ) {
+
+                            messageDiv.innerHTML = `
+
+                                <div class="message-head">
+
+                                    <img
+                                        src="${userPhoto}"
+                                        class="message-photo"
+                                    >
+
+                                    <span
+                                        class="message-user"
+                                    >
+                                        ${userName}
+                                    </span>
+
+                                </div>
+
+                                <div class="message-text">
+                                    ${data.text || ""}
+                                </div>
+
+                            `;
+
+                        }
+
+
+                        // =================================
+                        // إضافة الرسالة للدردشة
+                        // =================================
 
                         messagesBox.appendChild(
-                            createMessageElement(
-                                audioMessage
-                            )
+                            messageDiv
                         );
 
                     }
-
-                }
-            );
-
-
-            messagesBox.scrollTop =
-                messagesBox.scrollHeight;
-
-        }
-
-
-        // =====================================
-        // قراءة الرسائل
-        // =====================================
-
-        const messagesQuery =
-            query(
-                messagesRef,
-                orderBy("time")
-            );
-
-
-          onSnapshot(
-    messagesQuery,
-    (snapshot) => {
-
-        if (!messagesBox) {
-            return;
-        }
-
-        snapshot.forEach((messageDoc) => {
-
-            const data = messageDoc.data();
-
-            // نبحث إذا الرسالة موجودة مسبقًا
-            let messageDiv =
-                messagesBox.querySelector(
-                    `[data-message-id="${messageDoc.id}"]`
                 );
 
-            // إذا الرسالة غير موجودة، ننشئها
-            if (!messageDiv) {
 
-                messageDiv =
-                    document.createElement("div");
+                // =================================
+                // النزول لآخر رسالة
+                // =================================
 
-                messageDiv.className = "message";
+                messagesBox.scrollTop =
+                    messagesBox.scrollHeight;
 
-                messageDiv.dataset.messageId =
-                    messageDoc.id;
 
-                messagesBox.appendChild(
-                    messageDiv
+                console.log(
+                    "✅ تم تحديث الدردشة:",
+                    messages.length,
+                    "رسالة"
                 );
-            }
+
+            },
+
 
             // =====================================
-            // 🎤 رسالة صوتية
+            // خطأ Firestore
             // =====================================
 
-            if (
-                data.type === "audio" &&
-                data.audioUrl
-            ) {
+            (error) => {
 
-                messageDiv.innerHTML = `
-
-                    <div class="message-head">
-
-                        <img
-                            src="${data.photo || "default.png"}"
-                            class="message-photo"
-                        >
-
-                        <span class="message-user">
-                            ${data.user || "مستخدم"}
-                        </span>
-
-                    </div>
-
-                    <audio
-                        controls
-                        preload="metadata"
-                        src="${data.audioUrl}"
-                        style="
-                            width:100%;
-                            margin-top:10px;
-                        "
-                    ></audio>
-
-                `;
+                console.error(
+                    "❌ Messages error:",
+                    error
+                );
 
             }
-
-            // =====================================
-            // 💬 رسالة نصية
-            // =====================================
-
-            else {
-
-                messageDiv.innerHTML = `
-
-                    <div class="message-head">
-
-                        <img
-                            src="${data.photo || "default.png"}"
-                            class="message-photo"
-                        >
-
-                        <span class="message-user">
-                            ${data.user || "مستخدم"}
-                        </span>
-
-                    </div>
-
-                    <div class="message-text">
-                        ${data.text || ""}
-                    </div>
-
-                `;
-
-            }
-
-        });
-
-        messagesBox.scrollTop =
-            messagesBox.scrollHeight;
-
-    },
-
-    (error) => {
-
-        console.error(
-            "❌ Messages error:",
-            error
         );
 
-    }
-);
-
 
         // =====================================
-        // إرسال الرسائل النصية
+        // 💬 إرسال الرسائل النصية
         // =====================================
 
         if (
@@ -580,13 +526,17 @@ document.addEventListener("DOMContentLoaded", async () => {
                             messagesRef,
                             {
 
-                                type: "text",
+                                type:
+                                    "text",
 
-                                text: text,
+                                text:
+                                    text,
 
-                                user: userName,
+                                user:
+                                    userName,
 
-                                photo: userPhoto,
+                                photo:
+                                    userPhoto,
 
                                 time:
                                     serverTimestamp()
@@ -622,6 +572,10 @@ document.addEventListener("DOMContentLoaded", async () => {
                 }
             );
 
+
+            // =================================
+            // Enter للإرسال
+            // =================================
 
             input.addEventListener(
                 "keydown",
@@ -684,6 +638,7 @@ document.addEventListener("DOMContentLoaded", async () => {
 
                         }
 
+
                         // =================================
                         // إيقاف التسجيل
                         // =================================
@@ -703,11 +658,11 @@ document.addEventListener("DOMContentLoaded", async () => {
                                 "🎤";
 
 
-                            await stopVoiceRecording();
+                            stopVoiceRecording();
 
 
                             console.log(
-                                "✅ انتهى إرسال التسجيل"
+                                "📤 تم طلب إرسال التسجيل"
                             );
 
                         }
