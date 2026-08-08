@@ -450,113 +450,81 @@ if (voiceBtn) {
 
 
                 mediaRecorder.addEventListener(
-    "stop",
-    async () => {
+"stop",
+() => {
 
-        try {
-
-            const audioBlob =
-                new Blob(
-                    audioChunks,
-                    {
-                        type: "audio/webm"
-                    }
-                );
+const audioBlob =  
+                        new Blob(  
+                            audioChunks,  
+                            {  
+                                type: "audio/webm"  
+                            }  
+                        );  
 
 
-            // اسم الملف
-            const fileName =
-                `rooms/${realRoomId}/audio/${Date.now()}.webm`;
+                    const audioUrl =  
+                        URL.createObjectURL(  
+                            audioBlob  
+                        );  
 
 
-            // مكان الملف في Firebase Storage
-            const audioRef =
-                ref(
-                    storage,
-                    fileName
-                );
+                    const audio =  
+                        document.createElement("audio");  
 
 
-            // رفع التسجيل
-            await uploadBytes(
-                audioRef,
-                audioBlob,
-                {
-                    contentType: "audio/webm"
-                }
-            );
+                    audio.controls = true;  
+
+                    audio.src = audioUrl;  
+
+                    audio.style.width = "100%";  
+
+                    audio.style.marginTop = "10px";  
 
 
-            // الحصول على رابط التسجيل
-            const audioUrl =
-                await getDownloadURL(
-                    audioRef
-                );
+                    messagesBox.appendChild(  
+                        audio  
+                    );  
 
 
-            // معلومات المستخدم
-            const userName =
-                localStorage.getItem("userName") ||
-                "مستخدم";
+                    messagesBox.scrollTop =  
+                        messagesBox.scrollHeight;  
 
 
-            const userPhoto =
-                localStorage.getItem("userPhoto") ||
-                "default.png";
+                    stream  
+                        .getTracks()  
+                        .forEach(  
+                            track => track.stop()  
+                        );  
+
+                }  
+            );  
 
 
-            // حفظ التسجيل كرسالة في Firestore
-            await addDoc(
-                messagesRef,
-                {
-                    type: "audio",
+            mediaRecorder.start();  
 
-                    audioUrl: audioUrl,
-
-                    user: userName,
-
-                    photo: userPhoto,
-
-                    time: serverTimestamp()
-                }
-            );
+            isRecording = true;  
 
 
-            console.log(
-                "✅ تم حفظ التسجيل"
-            );
+            voiceBtn.textContent = "⏹️";  
 
 
-        } catch (error) {
+        } catch (error) {  
 
-            console.error(
-                "❌ Audio upload error:",
-                error
-            );
-
-
-            alert(
-                "❌ لم يتم إرسال التسجيل:\n\n" +
-                (error?.message || error)
-            );
-
-        }
+            console.error(  
+                "Recording error:",  
+                error  
+            );  
 
 
-        // إيقاف الميكروفون
-        stream
-            .getTracks()
-            .forEach(
-                track => track.stop()
-            );
+            alert(  
+                isTurkish  
+                    ? "❌ Mikrofon açılamadı."  
+                    : "❌ لم يتم تشغيل الميكروفون."  
+            );  
 
-
-        audioChunks = [];
-
-        mediaRecorder = null;
+        }  
 
     }
-);
         // ===============================
         // إيقاف التسجيل
         // ===============================
