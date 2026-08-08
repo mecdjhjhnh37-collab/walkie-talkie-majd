@@ -121,7 +121,82 @@ placeholder="اكتب رسالة...">
 
 </div>
 
+<!-- 🛠️ زر فحص الصوت مؤقت -->
+<button id="debugAudioBtn" type="button">
+    🛠️ فحص الصوت
+</button>
 
+<div id="debugAudioBox"
+     style="
+        display:none;
+        margin:10px;
+        padding:10px;
+        background:#111;
+        color:#0f0;
+        direction:ltr;
+        text-align:left;
+        white-space:pre-wrap;
+        border-radius:10px;
+     ">
+</div>
+
+<script>
+document.addEventListener("DOMContentLoaded", () => {
+
+    const btn = document.getElementById("debugAudioBtn");
+    const box = document.getElementById("debugAudioBox");
+
+    btn.onclick = async () => {
+
+        box.style.display = "block";
+        box.textContent = "جاري فحص الميكروفون...\n";
+
+        try {
+
+            if (!navigator.mediaDevices ||
+                !navigator.mediaDevices.getUserMedia) {
+
+                box.textContent +=
+                    "❌ المتصفح لا يدعم الوصول للميكروفون.";
+
+                return;
+            }
+
+            const stream =
+                await navigator.mediaDevices.getUserMedia({
+                    audio: true
+                });
+
+            box.textContent +=
+                "✅ تم الوصول إلى الميكروفون.\n";
+
+            box.textContent +=
+                "🎤 عدد مسارات الصوت: " +
+                stream.getAudioTracks().length +
+                "\n";
+
+            stream.getTracks().forEach(track => {
+                track.stop();
+            });
+
+            box.textContent +=
+                "✅ انتهى الفحص.";
+
+        } catch (error) {
+
+            box.textContent +=
+                "❌ خطأ:\n" +
+                error.name +
+                "\n" +
+                error.message;
+
+            console.error(error);
+        }
+
+    };
+
+});
+</script>
 
 <script type="module" src="{{ url_for('static', filename='room.js') }}"></script>
 
