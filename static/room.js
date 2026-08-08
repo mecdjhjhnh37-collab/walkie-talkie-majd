@@ -450,82 +450,113 @@ if (voiceBtn) {
 
 
                 mediaRecorder.addEventListener(
-                    "stop",
-                    () => {
+    "stop",
+    async () => {
 
-                        const audioBlob =
-                            new Blob(
-                                audioChunks,
-                                {
-                                    type: "audio/webm"
-                                }
-                            );
+        try {
 
-
-                        const audioUrl =
-                            URL.createObjectURL(
-                                audioBlob
-                            );
-
-
-                        const audio =
-                            document.createElement("audio");
-
-
-                        audio.controls = true;
-
-                        audio.src = audioUrl;
-
-                        audio.style.width = "100%";
-
-                        audio.style.marginTop = "10px";
-
-
-                        messagesBox.appendChild(
-                            audio
-                        );
-
-
-                        messagesBox.scrollTop =
-                            messagesBox.scrollHeight;
-
-
-                        stream
-                            .getTracks()
-                            .forEach(
-                                track => track.stop()
-                            );
-
+            const audioBlob =
+                new Blob(
+                    audioChunks,
+                    {
+                        type: "audio/webm"
                     }
                 );
 
 
-                mediaRecorder.start();
-
-                isRecording = true;
-
-
-                voiceBtn.textContent = "⏹️";
+            // اسم الملف
+            const fileName =
+                `rooms/${realRoomId}/audio/${Date.now()}.webm`;
 
 
-            } catch (error) {
-
-                console.error(
-                    "Recording error:",
-                    error
+            // مكان الملف في Firebase Storage
+            const audioRef =
+                ref(
+                    storage,
+                    fileName
                 );
 
 
-                alert(
-                    isTurkish
-                        ? "❌ Mikrofon açılamadı."
-                        : "❌ لم يتم تشغيل الميكروفون."
+            // رفع التسجيل
+            await uploadBytes(
+                audioRef,
+                audioBlob,
+                {
+                    contentType: "audio/webm"
+                }
+            );
+
+
+            // الحصول على رابط التسجيل
+            const audioUrl =
+                await getDownloadURL(
+                    audioRef
                 );
 
-            }
+
+            // معلومات المستخدم
+            const userName =
+                localStorage.getItem("userName") ||
+                "مستخدم";
+
+
+            const userPhoto =
+                localStorage.getItem("userPhoto") ||
+                "default.png";
+
+
+            // حفظ التسجيل كرسالة في Firestore
+            await addDoc(
+                messagesRef,
+                {
+                    type: "audio",
+
+                    audioUrl: audioUrl,
+
+                    user: userName,
+
+                    photo: userPhoto,
+
+                    time: serverTimestamp()
+                }
+            );
+
+
+            console.log(
+                "✅ تم حفظ التسجيل"
+            );
+
+
+        } catch (error) {
+
+            console.error(
+                "❌ Audio upload error:",
+                error
+            );
+
+
+            alert(
+                "❌ لم يتم إرسال التسجيل:\n\n" +
+                (error?.message || error)
+            );
 
         }
 
+
+        // إيقاف الميكروفون
+        stream
+            .getTracks()
+            .forEach(
+                track => track.stop()
+            );
+
+
+        audioChunks = [];
+
+        mediaRecorder = null;
+
+    }
+);
         // ===============================
         // إيقاف التسجيل
         // ===============================
