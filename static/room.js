@@ -1,3 +1,10 @@
+import { storage } from "./app.js";
+
+import {
+    ref,
+    uploadBytes,
+    getDownloadURL
+} from "https://www.gstatic.com/firebasejs/10.12.2/firebase-storage.js";
 import { db } from "./app.js";
 
 import {
