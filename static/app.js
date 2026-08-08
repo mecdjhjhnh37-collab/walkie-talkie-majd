@@ -10,6 +10,14 @@ import {
     signInWithPopup
 } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-auth.js";
 
+import {
+    getStorage
+} from "https://www.gstatic.com/firebasejs/10.12.2/firebase-storage.js";
+
+
+// =====================================
+// 🔥 Firebase Configuration
+// =====================================
 
 const firebaseConfig = {
     apiKey: "AIzaSyBrxgm0VQTfRv0ixXh9uQ81HBJ8SmD8c1E",
@@ -21,73 +29,149 @@ const firebaseConfig = {
     databaseURL: "https://mecd-voice-ap-default-rtdb.firebaseio.com"
 };
 
-import { getStorage } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-storage.js";
-export const app = initializeApp(firebaseConfig);
 
-export const db = getFirestore(app);
-import { getStorage } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-storage.js";
+// =====================================
+// 🔥 تشغيل Firebase
+// =====================================
 
-export const storage = getStorage(app);
-
-const auth = getAuth(app);
-export { app, db, storage };
-
-const provider = new GoogleAuthProvider();
+export const app =
+    initializeApp(firebaseConfig);
 
 
-document.addEventListener("DOMContentLoaded", () => {
+// =====================================
+// 🗄️ Firestore
+// =====================================
 
-    const loginBtn =
-        document.getElementById("loginBtn");
-
-
-    if (!loginBtn) return;
-
-
-    loginBtn.addEventListener("click", async () => {
-
-        try {
-
-            const result =
-                await signInWithPopup(auth, provider);
+export const db =
+    getFirestore(app);
 
 
-            // حفظ UID المستخدم
-            localStorage.setItem(
-                "userUid",
-                result.user.uid
-            );
+// =====================================
+// 📦 Firebase Storage
+// =====================================
+
+export const storage =
+    getStorage(app);
 
 
-            // حفظ اسم المستخدم
-            localStorage.setItem(
-                "userName",
-                result.user.displayName || "مستخدم"
-            );
+// =====================================
+// 🔐 Firebase Authentication
+// =====================================
+
+const auth =
+    getAuth(app);
 
 
-            // حفظ صورة المستخدم
-            localStorage.setItem(
-                "userPhoto",
-                result.user.photoURL || "default.png"
-            );
+// =====================================
+// 🔵 Google Provider
+// =====================================
+
+const provider =
+    new GoogleAuthProvider();
 
 
-            // الذهاب للصفحة الرئيسية
-            window.location.href = "/home";
+// =====================================
+// 🔄 عند تحميل الصفحة
+// =====================================
+
+document.addEventListener(
+    "DOMContentLoaded",
+    () => {
+
+        const loginBtn =
+            document.getElementById("loginBtn");
 
 
-        } catch (error) {
+        if (!loginBtn) {
 
-            console.error(error);
-
-            alert(
-                "حدث خطأ أثناء تسجيل الدخول: " +
-                error.message
-            );
+            return;
 
         }
 
-    });
 
-});
+        // =================================
+        // 🔐 تسجيل الدخول بجوجل
+        // =================================
+
+        loginBtn.addEventListener(
+            "click",
+            async () => {
+
+                try {
+
+                    const result =
+                        await signInWithPopup(
+                            auth,
+                            provider
+                        );
+
+
+                    // =============================
+                    // 👤 بيانات المستخدم
+                    // =============================
+
+                    const user =
+                        result.user;
+
+
+                    // =============================
+                    // 🆔 UID
+                    // =============================
+
+                    localStorage.setItem(
+                        "userUid",
+                        user.uid
+                    );
+
+
+                    // =============================
+                    // 👤 الاسم
+                    // =============================
+
+                    localStorage.setItem(
+                        "userName",
+                        user.displayName ||
+                        "مستخدم"
+                    );
+
+
+                    // =============================
+                    // 🖼️ الصورة
+                    // =============================
+
+                    localStorage.setItem(
+                        "userPhoto",
+                        user.photoURL ||
+                        "default.png"
+                    );
+
+
+                    // =============================
+                    // 🏠 الانتقال للرئيسية
+                    // =============================
+
+                    window.location.href =
+                        "/home";
+
+
+                } catch (error) {
+
+                    console.error(
+                        "❌ Login error:",
+                        error
+                    );
+
+
+                    alert(
+                        "حدث خطأ أثناء تسجيل الدخول:\n\n" +
+                        (error.message ||
+                            error)
+                    );
+
+                }
+
+            }
+        );
+
+    }
+);
