@@ -165,14 +165,265 @@ export async function startVoiceRecording(
         // =====================================
 
         mediaRecorder.addEventListener(
-            "stop",
-            async () => {
+    "stop",
+    async () => {
 
-                try {
+        console.log("🟡 STOP EVENT اشتغل");
 
-                    console.log(
-                        "⏹️ التسجيل توقف"
+        try {
+
+            if (audioChunks.length === 0) {
+                throw new Error("❌ audioChunks فارغة");
+            }
+
+            console.log(
+                "✅ عدد أجزاء الصوت:",
+                audioChunks.length
+            );
+
+
+            // ===============================
+            // إنشاء ملف الصوت
+            // ===============================
+
+            const finalType =
+                mediaRecorder.mimeType ||
+                mimeType ||
+                "audio/webm";
+
+
+            const audioBlob =
+                new Blob(
+                    audioChunks,
+                    {
+                        type: finalType
+                    }
+                );
+
+
+            console.log(
+                "🎤 حجم التسجيل:",
+                audioBlob.size
+            );
+
+
+            if (audioBlob.size === 0) {
+                throw new Error("❌ التسجيل فارغ");
+            }
+
+
+            // ===============================
+            // إظهار التسجيل فورًا
+            // ===============================
+
+            const localUrl =
+                URL.createObjectURL(audioBlob);
+
+
+            const messagesBox =
+                document.getElementById("messages");
+
+
+            if (messagesBox) {
+
+                const testMessage =
+                    document.createElement("div");
+
+
+                testMessage.className =
+                    "message";
+
+
+                testMessage.innerHTML = `
+
+                    <div class="message-text">
+                        🎤 تسجيل صوتي
+                    </div>
+
+                    <audio
+                        controls
+                        src="${localUrl}"
+                        style="
+                            width:100%;
+                            margin-top:10px;
+                        "
+                    ></audio>
+
+                `;
+
+
+                messagesBox.appendChild(
+                    testMessage
+                );
+
+
+                messagesBox.scrollTop =
+                    messagesBox.scrollHeight;
+
+
+                console.log(
+                    "✅ ظهر التسجيل محليًا في الدردشة"
+                );
+
+            } else {
+
+                console.error(
+                    "❌ عنصر messages غير موجود"
+                );
+
+            }
+
+
+            // ===============================
+            // بيانات المستخدم
+            // ===============================
+
+            const userName =
+                localStorage.getItem("userName") ||
+                "مستخدم";
+
+
+            const userPhoto =
+                localStorage.getItem("userPhoto") ||
+                "default.png";
+
+
+            // ===============================
+            // Firebase Storage
+            // ===============================
+
+            const extension =
+                finalType.includes("ogg")
+                    ? "ogg"
+                    : "webm";
+
+
+            const fileName =
+                `rooms/${currentRoomId}/audio/${Date.now()}.${extension}`;
+
+
+            console.log(
+                "📁 Storage path:",
+                fileName
+            );
+
+
+            const audioRef =
+                ref(
+                    storage,
+                    fileName
+                );
+
+
+            console.log(
+                "⬆️ جاري رفع الصوت..."
+            );
+
+
+            await uploadBytes(
+                audioRef,
+                audioBlob,
+                {
+                    contentType: finalType
+                }
+            );
+
+
+            console.log(
+                "✅ تم رفع الصوت إلى Storage"
+            );
+
+
+            // ===============================
+            // رابط الصوت
+            // ===============================
+
+            const audioUrl =
+                await getDownloadURL(
+                    audioRef
+                );
+
+
+            console.log(
+                "🔗 Audio URL:",
+                audioUrl
+            );
+
+
+            // ===============================
+            // Firestore
+            // ===============================
+
+            const messageData = {
+
+                type: "audio",
+
+                audioUrl: audioUrl,
+
+                user: userName,
+
+                photo: userPhoto,
+
+                time: serverTimestamp()
+
+            };
+
+
+            console.log(
+                "📤 جاري حفظ الرسالة في Firestore..."
+            );
+
+
+            const messageDoc =
+                await addDoc(
+                    currentMessagesRef,
+                    messageData
+                );
+
+
+            console.log(
+                "✅ تم حفظ التسجيل في Firestore:",
+                messageDoc.id
+            );
+
+
+        } catch (error) {
+
+            console.error(
+                "❌ Voice Recorder Error:",
+                error
+            );
+
+
+            alert(
+                "❌ خطأ التسجيل:\n" +
+                error.message
+            );
+
+
+        } finally {
+
+            if (currentStream) {
+
+                currentStream
+                    .getTracks()
+                    .forEach(
+                        track => track.stop()
                     );
+
+            }
+
+
+            currentStream = null;
+
+            mediaRecorder = null;
+
+            audioChunks = [];
+
+        }
+
+    }
+);
 
 
                     // =================================
