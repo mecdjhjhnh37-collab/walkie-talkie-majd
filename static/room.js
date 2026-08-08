@@ -530,18 +530,17 @@ if (voiceBtn) {
 
                         } catch (error) {
 
-                            console.error(
-                                "❌ Firebase audio error:",
-                                error
-                            );
+    console.error("❌ Firebase audio error:", error);
 
+    console.error("Error code:", error?.code);
+    console.error("Error message:", error?.message);
 
-                            alert(
-                                isTurkish
-                                    ? "❌ Ses gönderilemedi."
-                                    : "❌ تعذر إرسال التسجيل الصوتي."
-                            );
-
+    alert(
+        "❌ خطأ Firebase:\n\n" +
+        (error?.code || "unknown") +
+        "\n\n" +
+        (error?.message || error)
+    );
                         }
 
 
