@@ -24,29 +24,14 @@ document.addEventListener("DOMContentLoaded", async () => {
     // عناصر الغرفة
     // =====================================
 
-    const roomTitle =
-        document.getElementById("roomName");
-
-    const roomIdText =
-        document.getElementById("roomId");
-
-    const messagesBox =
-        document.getElementById("messages");
-
-    const input =
-        document.getElementById("messageInput");
-
-    const sendBtn =
-        document.getElementById("sendMessage");
-
-    const voiceBtn =
-        document.getElementById("voiceBtn");
-
-    const callBtn =
-        document.getElementById("callBtn");
-
-    const videoBtn =
-        document.getElementById("videoBtn");
+    const roomTitle = document.getElementById("roomName");
+    const roomIdText = document.getElementById("roomId");
+    const messagesBox = document.getElementById("messages");
+    const input = document.getElementById("messageInput");
+    const sendBtn = document.getElementById("sendMessage");
+    const voiceBtn = document.getElementById("voiceBtn");
+    const callBtn = document.getElementById("callBtn");
+    const videoBtn = document.getElementById("videoBtn");
 
 
     // =====================================
@@ -76,19 +61,14 @@ document.addEventListener("DOMContentLoaded", async () => {
     if (!roomId) {
 
         if (roomTitle) {
-
             roomTitle.textContent =
                 isTurkish
                     ? "Oda bulunamadı"
                     : "لم يتم العثور على الغرفة";
-
         }
 
         if (roomIdText) {
-
-            roomIdText.textContent =
-                "ID: ------";
-
+            roomIdText.textContent = "ID: ------";
         }
 
         return;
@@ -100,7 +80,6 @@ document.addEventListener("DOMContentLoaded", async () => {
 
     // =====================================
     // إصلاح ID القديم
-    // room-000001 → MC-000001
     // =====================================
 
     if (roomId.toLowerCase().startsWith("room-")) {
@@ -127,44 +106,38 @@ document.addEventListener("DOMContentLoaded", async () => {
         if (!roomDoc.exists()) {
 
             if (roomTitle) {
-
                 roomTitle.textContent =
                     isTurkish
                         ? "Oda bulunamadı"
                         : "الغرفة غير موجودة";
-
             }
 
             if (roomIdText) {
-
                 roomIdText.textContent =
                     "ID: " + roomId;
-
             }
 
             return;
         }
 
 
-        // =================================
+        // =====================================
         // بيانات الغرفة
-        // =================================
+        // =====================================
 
         const room =
             roomDoc.data();
 
-
         const realRoomName =
             room.name || "Mecd Voice";
-
 
         const realRoomId =
             room.id || roomId;
 
 
-        // =================================
-        // حفظها محلياً
-        // =================================
+        // =====================================
+        // حفظ بيانات الغرفة
+        // =====================================
 
         localStorage.setItem(
             "roomName",
@@ -177,9 +150,9 @@ document.addEventListener("DOMContentLoaded", async () => {
         );
 
 
-        // =================================
+        // =====================================
         // عرض اسم الغرفة
-        // =================================
+        // =====================================
 
         if (roomTitle) {
 
@@ -189,9 +162,9 @@ document.addEventListener("DOMContentLoaded", async () => {
         }
 
 
-        // =================================
+        // =====================================
         // عرض ID
-        // =================================
+        // =====================================
 
         if (roomIdText) {
 
@@ -335,10 +308,14 @@ document.addEventListener("DOMContentLoaded", async () => {
 
 
         // =====================================
-        // إرسال الرسائل
+        // إرسال الرسائل النصية
         // =====================================
 
-        if (sendBtn && input && messagesRef) {
+        if (
+            sendBtn &&
+            input &&
+            messagesRef
+        ) {
 
             sendBtn.addEventListener(
                 "click",
@@ -349,9 +326,7 @@ document.addEventListener("DOMContentLoaded", async () => {
 
 
                     if (!text) {
-
                         return;
-
                     }
 
 
@@ -370,23 +345,16 @@ document.addEventListener("DOMContentLoaded", async () => {
                         await addDoc(
                             messagesRef,
                             {
-
                                 type: "text",
-
                                 text: text,
-
                                 user: userName,
-
                                 photo: userPhoto,
-
                                 time: serverTimestamp()
-
                             }
                         );
 
 
                         input.value = "";
-
 
                     } catch (error) {
 
@@ -422,9 +390,7 @@ document.addEventListener("DOMContentLoaded", async () => {
         // =====================================
 
         let mediaRecorder = null;
-
         let audioChunks = [];
-
         let isRecording = false;
 
 
@@ -434,18 +400,20 @@ document.addEventListener("DOMContentLoaded", async () => {
                 "click",
                 async () => {
 
-                    // ===============================
+
+                    // =================================
                     // بدء التسجيل
-                    // ===============================
+                    // =================================
 
                     if (!isRecording) {
 
                         try {
 
                             const stream =
-                                await navigator.mediaDevices.getUserMedia({
-                                    audio: true
-                                });
+                                await navigator.mediaDevices
+                                    .getUserMedia({
+                                        audio: true
+                                    });
 
 
                             audioChunks = [];
@@ -455,6 +423,7 @@ document.addEventListener("DOMContentLoaded", async () => {
                                 new MediaRecorder(stream);
 
 
+                            // استقبال بيانات الصوت
                             mediaRecorder.addEventListener(
                                 "dataavailable",
                                 (event) => {
@@ -474,9 +443,9 @@ document.addEventListener("DOMContentLoaded", async () => {
                             );
 
 
-                            // ===============================
+                            // =================================
                             // عند إيقاف التسجيل
-                            // ===============================
+                            // =================================
 
                             mediaRecorder.addEventListener(
                                 "stop",
@@ -484,26 +453,39 @@ document.addEventListener("DOMContentLoaded", async () => {
 
                                     try {
 
+                                        if (
+                                            audioChunks.length === 0
+                                        ) {
+
+                                            throw new Error(
+                                                "No audio data"
+                                            );
+
+                                        }
+
+
+                                        // إنشاء ملف الصوت
                                         const audioBlob =
                                             new Blob(
                                                 audioChunks,
                                                 {
-                                                    type: "audio/webm"
+                                                    type:
+                                                        "audio/webm"
                                                 }
                                             );
 
 
-                                        // =========================
-                                        // اسم الملف
-                                        // =========================
+                                        // =================================
+                                        // اسم ملف فريد
+                                        // =================================
 
                                         const fileName =
-                                            `rooms/${realRoomId}/audio/${Date.now()}.webm`;
+                                            `rooms/${realRoomId}/audio/${Date.now()}-${Math.random().toString(36).slice(2)}.webm`;
 
 
-                                        // =========================
-                                        // مكان الملف في Storage
-                                        // =========================
+                                        // =================================
+                                        // Firebase Storage
+                                        // =================================
 
                                         const audioRef =
                                             ref(
@@ -512,19 +494,19 @@ document.addEventListener("DOMContentLoaded", async () => {
                                             );
 
 
-                                        // =========================
-                                        // رفع التسجيل
-                                        // =========================
-
                                         await uploadBytes(
                                             audioRef,
-                                            audioBlob
+                                            audioBlob,
+                                            {
+                                                contentType:
+                                                    "audio/webm"
+                                            }
                                         );
 
 
-                                        // =========================
-                                        // الحصول على الرابط
-                                        // =========================
+                                        // =================================
+                                        // رابط الصوت
+                                        // =================================
 
                                         const audioUrl =
                                             await getDownloadURL(
@@ -532,9 +514,9 @@ document.addEventListener("DOMContentLoaded", async () => {
                                             );
 
 
-                                        // =========================
-                                        // معلومات المستخدم
-                                        // =========================
+                                        // =================================
+                                        // المستخدم
+                                        // =================================
 
                                         const userName =
                                             localStorage.getItem(
@@ -550,32 +532,36 @@ document.addEventListener("DOMContentLoaded", async () => {
                                             "default.png";
 
 
-                                        // =========================
-                                        // حفظ الرسالة في Firestore
-                                        // =========================
+                                        // =================================
+                                        // حفظ الصوت في Firestore
+                                        // =================================
 
-                                        if (
-                                            messagesRef
-                                        ) {
+                                        await addDoc(
+                                            messagesRef,
+                                            {
 
-                                            const audioMessage = await addDoc(
-    messagesRef,
-    {
-        type: "audio",
-        audioUrl: audioUrl,
-        user: userName,
-        photo: userPhoto,
-        time: serverTimestamp()
-    }
-);
+                                                type:
+                                                    "audio",
 
-console.log(
-    "✅ Audio message saved:",
-    audioMessage.id,
-    audioUrl
-);
+                                                audioUrl:
+                                                    audioUrl,
 
-                                        }
+                                                user:
+                                                    userName,
+
+                                                photo:
+                                                    userPhoto,
+
+                                                time:
+                                                    serverTimestamp()
+
+                                            }
+                                        );
+
+
+                                        console.log(
+                                            "✅ تم حفظ التسجيل الصوتي"
+                                        );
 
 
                                     } catch (error) {
@@ -595,28 +581,45 @@ console.log(
                                     }
 
 
-                                    // =========================
+                                    // =================================
                                     // إيقاف الميكروفون
-                                    // =========================
+                                    // =================================
 
                                     stream
                                         .getTracks()
                                         .forEach(
-                                            track =>
-                                                track.stop()
+                                            (track) => {
+                                                track.stop();
+                                            }
                                         );
+
+
+                                    mediaRecorder =
+                                        null;
+
+                                    audioChunks = [];
 
                                 }
                             );
 
 
+                            // =================================
+                            // تشغيل التسجيل
+                            // =================================
+
                             mediaRecorder.start();
+
 
                             isRecording = true;
 
 
                             voiceBtn.textContent =
                                 "⏹️";
+
+
+                            console.log(
+                                "🎤 Recording started"
+                            );
 
 
                         } catch (error) {
@@ -638,9 +641,9 @@ console.log(
                     }
 
 
-                    // ===============================
+                    // =================================
                     // إيقاف التسجيل
-                    // ===============================
+                    // =================================
 
                     else {
 
@@ -659,6 +662,11 @@ console.log(
 
                         voiceBtn.textContent =
                             "🎤";
+
+
+                        console.log(
+                            "⏹️ Recording stopped"
+                        );
 
                     }
 
