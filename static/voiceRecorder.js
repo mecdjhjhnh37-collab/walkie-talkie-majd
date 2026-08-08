@@ -746,3 +746,4 @@ export async function startVoiceRecording(
 
         console.error(
             "❌ خطأ في بدء
+            mediaRecorder.state
