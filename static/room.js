@@ -260,7 +260,6 @@ document.addEventListener("DOMContentLoaded", async () => {
 
                             }
 
-
                             // =================================
                             // رسالة نصية
                             // =================================
@@ -400,14 +399,25 @@ document.addEventListener("DOMContentLoaded", async () => {
 
         let mediaRecorder = null;
         let audioChunks = [];
+        let audioStream = null;
         let isRecording = false;
 
 
         if (voiceBtn) {
 
+            // نحافظ على شكل الزر كما هو
+            voiceBtn.style.transform = "none";
+            voiceBtn.style.scale = "1";
+
+
             voiceBtn.addEventListener(
                 "click",
-                async () => {
+                async (event) => {
+
+                    // منع أي سلوك افتراضي للزر
+                    event.preventDefault();
+                    event.stopPropagation();
+
 
                     // =================================
                     // بدء التسجيل
@@ -429,13 +439,10 @@ document.addEventListener("DOMContentLoaded", async () => {
                             }
 
 
-                            console.log("🎤 عم نطلب صلاحية الميكروفون...");
-
-const stream = await navigator.mediaDevices.getUserMedia({
-    audio: true
-});
-
-console.log("✅ الميكروفون اشتغل فعلاً", stream);
+                            // طلب الميكروفون
+                            audioStream =
+                                await navigator.mediaDevices.getUserMedia({
+                                    audio: true
                                 });
 
 
@@ -443,11 +450,10 @@ console.log("✅ الميكروفون اشتغل فعلاً", stream);
 
 
                             // =================================
-                            // اختيار صيغة مدعومة
+                            // اختيار صيغة التسجيل
                             // =================================
 
-                            let mimeType =
-                                "audio/webm";
+                            let mimeType = "";
 
 
                             if (
@@ -494,6 +500,14 @@ console.log("✅ الميكروفون اشتغل فعلاً", stream);
 
                             }
 
+                            else {
+
+                                throw new Error(
+                                    "No supported audio format"
+                                );
+
+                            }
+
 
                             console.log(
                                 "🎤 Audio format:",
@@ -501,9 +515,13 @@ console.log("✅ الميكروفون اشتغل فعلاً", stream);
                             );
 
 
+                            // =================================
+                            // إنشاء MediaRecorder
+                            // =================================
+
                             mediaRecorder =
                                 new MediaRecorder(
-                                    stream,
+                                    audioStream,
                                     {
                                         mimeType:
                                             mimeType
@@ -512,7 +530,7 @@ console.log("✅ الميكروفون اشتغل فعلاً", stream);
 
 
                             // =================================
-                            // استقبال بيانات الصوت
+                            // استقبال الصوت
                             // =================================
 
                             mediaRecorder.addEventListener(
@@ -561,335 +579,9 @@ console.log("✅ الميكروفون اشتغل فعلاً", stream);
                                         }
 
 
-                                        // =================================
                                         // إنشاء ملف الصوت
-                                        // =================================
-
                                         const audioBlob =
                                             new Blob(
                                                 audioChunks,
                                                 {
-                                                    type:
-                                                        mimeType
-                                                }
-                                            );
-
-
-                                        console.log(
-                                            "🎤 Audio size:",
-                                            audioBlob.size
-                                        );
-
-
-                                        if (
-                                            audioBlob.size === 0
-                                        ) {
-
-                                            throw new Error(
-                                                "Audio blob is empty"
-                                            );
-
-                                        }
-
-
-                                        // =================================
-                                        // امتداد الملف
-                                        // =================================
-
-                                        let extension =
-                                            "webm";
-
-
-                                        if (
-                                            mimeType.includes(
-                                                "mp4"
-                                            )
-                                        ) {
-
-                                            extension =
-                                                "mp4";
-
-                                        }
-
-                                        else if (
-                                            mimeType.includes(
-                                                "ogg"
-                                            )
-                                        ) {
-
-                                            extension =
-                                                "ogg";
-
-                                        }
-
-
-                                        // =================================
-                                        // اسم الملف
-                                        // =================================
-
-                                        const fileName =
-                                            `rooms/${realRoomId}/audio/${Date.now()}-${Math.random().toString(36).slice(2)}.${extension}`;
-
-
-                                        // =================================
-                                        // Firebase Storage
-                                        // =================================
-
-                                        const audioRef =
-                                            ref(
-                                                storage,
-                                                fileName
-                                            );
-
-
-                                        await uploadBytes(
-                                            audioRef,
-                                            audioBlob,
-                                            {
-                                                contentType:
-                                                    mimeType
-                                            }
-                                        );
-
-
-                                        console.log(
-                                            "✅ Audio uploaded"
-                                        );
-
-
-                                        // =================================
-                                        // رابط الصوت
-                                        // =================================
-
-                                        const audioUrl =
-                                            await getDownloadURL(
-                                                audioRef
-                                            );
-
-
-                                        console.log(
-                                            "✅ Audio URL:",
-                                            audioUrl
-                                        );
-
-
-                                        // =================================
-                                        // المستخدم
-                                        // =================================
-
-                                        const userName =
-                                            localStorage.getItem(
-                                                "userName"
-                                            ) ||
-                                            "مستخدم";
-
-
-                                        const userPhoto =
-                                            localStorage.getItem(
-                                                "userPhoto"
-                                            ) ||
-                                            "default.png";
-
-
-                                        // =================================
-                                        // حفظ الصوت في Firestore
-                                        // =================================
-
-                                        const audioMessage =
-                                            await addDoc(
-                                                messagesRef,
-                                                {
-                                                    type:
-                                                        "audio",
-
-                                                    audioUrl:
-                                                        audioUrl,
-
-                                                    user:
-                                                        userName,
-
-                                                    photo:
-                                                        userPhoto,
-
-                                                    time:
-                                                        serverTimestamp()
-                                                }
-                                            );
-
-
-                                        console.log(
-                                            "✅ Audio message saved:",
-                                            audioMessage.id
-                                        );
-
-
-                                    } catch (error) {
-
-                                        console.error(
-                                            "❌ Audio error:",
-                                            error
-                                        );
-
-
-                                        alert(
-                                            isTurkish
-                                                ? "❌ Ses gönderilemedi."
-                                                : "❌ تعذر إرسال التسجيل الصوتي."
-                                        );
-
-                                    }
-
-
-                                    // =================================
-                                    // إيقاف الميكروفون
-                                    // =================================
-
-                                    stream
-                                        .getTracks()
-                                        .forEach(
-                                            (track) => {
-                                                track.stop();
-                                            }
-                                        );
-
-
-                                    mediaRecorder =
-                                        null;
-
-                                    audioChunks = [];
-
-                                }
-                            );
-
-
-                            // =================================
-                            // تشغيل التسجيل
-                            // =================================
-
-                            mediaRecorder.start(
-                                1000
-                            );
-
-
-                            isRecording = true;
-
-
-                            console.log(
-                                "🎤 Recording started"
-                            );
-
-
-                        } catch (error) {
-
-                            console.error(
-                                "❌ Recording error:",
-                                error
-                            );
-
-
-                            alert(
-                                isTurkish
-                                    ? "❌ Mikrofon açılamadı."
-                                    : "❌ لم يتم تشغيل الميكروفون."
-                            );
-
-                        }
-
-                    }
-
-
-                    // =================================
-                    // إيقاف التسجيل
-                    // =================================
-
-                    else {
-
-                        if (
-                            mediaRecorder &&
-                            mediaRecorder.state !== "inactive"
-                        ) {
-
-                            mediaRecorder.stop();
-
-                        }
-
-
-                        isRecording = false;
-
-
-                        console.log(
-                            "⏹️ Recording stopped"
-                        );
-
-                    }
-
-                }
-            );
-
-        }
-
-
-        // =====================================
-        // 📞 الاتصال
-        // =====================================
-
-        if (callBtn) {
-
-            callBtn.addEventListener(
-                "click",
-                () => {
-
-                    alert(
-                        isTurkish
-                            ? "📞 Arama yakında."
-                            : "📞 الاتصال قيد التطوير"
-                    );
-
-                }
-            );
-
-        }
-
-
-        // =====================================
-        // 📹 الفيديو
-        // =====================================
-
-        if (videoBtn) {
-
-            videoBtn.addEventListener(
-                "click",
-                () => {
-
-                    alert(
-                        isTurkish
-                            ? "📹 Görüntülü arama yakında."
-                            : "📹 الفيديو قيد التطوير"
-                    );
-
-                }
-            );
-
-        }
-
-
-    } catch (error) {
-
-        console.error(
-            "Room loading error:",
-            error
-        );
-
-
-        if (roomTitle) {
-
-            roomTitle.textContent =
-                isTurkish
-                    ? "Oda yüklenemedi"
-                    : "تعذر تحميل الغرفة";
-
-        }
-
-    }
-
-});
+                                                   
