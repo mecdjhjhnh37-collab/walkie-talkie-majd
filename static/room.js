@@ -248,26 +248,56 @@ document.addEventListener("DOMContentLoaded", async () => {
                                 "message";
 
 
-                            messageDiv.innerHTML = `
+                            if (data.type === "audio" && data.audioUrl) {
 
-                                <div class="message-head">
+    messageDiv.innerHTML = `
 
-                                    <img
-                                        src="${data.photo || "https://i.imgur.com/6VBx3io.png"}"
-                                        class="message-photo"
-                                    >
+        <div class="message-head">
 
-                                    <span class="message-user">
-                                        ${data.user || "مستخدم"}
-                                    </span>
+            <img
+                src="${data.photo || "https://i.imgur.com/6VBx3io.png"}"
+                class="message-photo"
+            >
 
-                                </div>
+            <span class="message-user">
+                ${data.user || "مستخدم"}
+            </span>
 
-                                <div class="message-text">
-                                    ${data.text || ""}
-                                </div>
+        </div>
 
-                            `;
+        <audio
+            controls
+            preload="metadata"
+            src="${data.audioUrl}"
+            style="width:100%; margin-top:10px;"
+        ></audio>
+
+    `;
+
+} else {
+
+    messageDiv.innerHTML = `
+
+        <div class="message-head">
+
+            <img
+                src="${data.photo || "https://i.imgur.com/6VBx3io.png"}"
+                class="message-photo"
+            >
+
+            <span class="message-user">
+                ${data.user || "مستخدم"}
+            </span>
+
+        </div>
+
+        <div class="message-text">
+            ${data.text || ""}
+        </div>
+
+    `;
+
+}
 
 
                             messagesBox.appendChild(
