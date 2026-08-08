@@ -1,898 +1,680 @@
-import { storage, db } from "./app.js";
+import { db } from "./app.js";
 
 import {
-ref,
-uploadBytes,
-getDownloadURL
-} from "https://www.gstatic.com/firebasejs/10.12.2/firebase-storage.js";
-
-import {
-doc,
-getDoc,
-collection,
-addDoc,
-onSnapshot,
-serverTimestamp,
-orderBy,
-query
+    doc,
+    getDoc,
+    collection,
+    addDoc,
+    onSnapshot,
+    serverTimestamp,
+    orderBy,
+    query
 } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
+
 
 document.addEventListener("DOMContentLoaded", async () => {
 
-// =====================================  
-// عناصر الغرفة  
-// =====================================  
+    // =====================================
+    // عناصر الغرفة
+    // =====================================
 
-const roomTitle = document.getElementById("roomName");  
-const roomIdText = document.getElementById("roomId");  
-const messagesBox = document.getElementById("messages");  
-const input = document.getElementById("messageInput");  
-const sendBtn = document.getElementById("sendMessage");  
-const voiceBtn = document.getElementById("voiceBtn");  
-const callBtn = document.getElementById("callBtn");  
-const videoBtn = document.getElementById("videoBtn");  
+    const roomTitle =
+        document.getElementById("roomName");
 
+    const roomIdText =
+        document.getElementById("roomId");
 
-// =====================================  
-// اللغة  
-// =====================================  
+    const messagesBox =
+        document.getElementById("messages");
 
-const language =  
-    localStorage.getItem("language") || "ar";  
+    const input =
+        document.getElementById("messageInput");
 
-const isTurkish =  
-    language === "tr" ||  
-    language === "turkish";  
+    const sendBtn =
+        document.getElementById("sendMessage");
 
+    const voiceBtn =
+        document.getElementById("voiceBtn");
 
-// =====================================  
-// الحصول على ID الغرفة  
-// =====================================  
+    const callBtn =
+        document.getElementById("callBtn");
 
-const urlParams =  
-    new URLSearchParams(window.location.search);  
+    const videoBtn =
+        document.getElementById("videoBtn");
 
-let roomId =  
-    urlParams.get("roomId") ||  
-    localStorage.getItem("roomId");  
 
+    // =====================================
+    // اللغة
+    // =====================================
 
-if (!roomId) {  
+    const language =
+        localStorage.getItem("language") || "ar";
 
-    if (roomTitle) {  
-        roomTitle.textContent =  
-            isTurkish  
-                ? "Oda bulunamadı"  
-                : "لم يتم العثور على الغرفة";  
-    }  
+    const isTurkish =
+        language === "tr" ||
+        language === "turkish";
 
-    if (roomIdText) {  
-        roomIdText.textContent =  
-            "ID: ------";  
-    }  
 
-    return;  
-}  
+    // =====================================
+    // الحصول على ID الغرفة
+    // =====================================
 
+    const urlParams =
+        new URLSearchParams(window.location.search);
 
-roomId = roomId.trim();  
+    let roomId =
+        urlParams.get("roomId") ||
+        localStorage.getItem("roomId");
 
 
-// =====================================  
-// إصلاح ID القديم  
-// =====================================  
+    if (!roomId) {
 
-if (roomId.toLowerCase().startsWith("room-")) {  
+        if (roomTitle) {
 
-    roomId =  
-        "MC-" + roomId.substring(5);  
+            roomTitle.textContent =
+                isTurkish
+                    ? "Oda bulunamadı"
+                    : "لم يتم العثور على الغرفة";
 
-}  
+        }
 
+        if (roomIdText) {
 
-// =====================================  
-// جلب بيانات الغرفة  
-// =====================================  
+            roomIdText.textContent =
+                "ID: ------";
 
-try {  
+        }
 
-    const roomRef =  
-        doc(db, "rooms", roomId);  
+        return;
+    }
 
-    const roomDoc =  
-        await getDoc(roomRef);  
 
+    roomId = roomId.trim();
 
-    if (!roomDoc.exists()) {  
 
-        if (roomTitle) {  
-            roomTitle.textContent =  
-                isTurkish  
-                    ? "Oda bulunamadı"  
-                    : "الغرفة غير موجودة";  
-        }  
+    // =====================================
+    // إصلاح ID القديم
+    // room-000001  →  MC-000001
+    // =====================================
 
-        if (roomIdText) {  
-            roomIdText.textContent =  
-                "ID: " + roomId;  
-        }  
+    if (roomId.toLowerCase().startsWith("room-")) {
 
-        return;  
-    }  
+        roomId =
+            "MC-" + roomId.substring(5);
 
+    }
 
-    // =====================================  
-    // بيانات الغرفة  
-    // =====================================  
 
-    const room =  
-        roomDoc.data();  
+    // =====================================
+    // جلب بيانات الغرفة
+    // =====================================
 
-    const realRoomName =  
-        room.name || "Mecd Voice";  
+    try {
 
-    const realRoomId =  
-        room.id || roomId;  
+        const roomRef =
+            doc(db, "rooms", roomId);
 
+        const roomDoc =
+            await getDoc(roomRef);
 
-    // =====================================  
-    // حفظ بيانات الغرفة  
-    // =====================================  
 
-    localStorage.setItem(  
-        "roomName",  
-        realRoomName  
-    );  
+        if (!roomDoc.exists()) {
 
-    localStorage.setItem(  
-        "roomId",  
-        realRoomId  
-    );  
+            if (roomTitle) {
 
+                roomTitle.textContent =
+                    isTurkish
+                        ? "Oda bulunamadı"
+                        : "الغرفة غير موجودة";
 
-    // =====================================  
-    // عرض اسم الغرفة  
-    // =====================================  
+            }
 
-    if (roomTitle) {  
+            if (roomIdText) {
 
-        roomTitle.textContent =  
-            "🎙️ " + realRoomName;  
+                roomIdText.textContent =
+                    "ID: " + roomId;
 
-    }  
+            }
 
+            return;
+        }
 
-    // =====================================  
-    // عرض ID  
-    // =====================================  
 
-    if (roomIdText) {  
+        // =================================
+        // بيانات الغرفة
+        // =================================
 
-        roomIdText.textContent =  
-            "ID: " + realRoomId;  
+        const room =
+            roomDoc.data();
 
-    }  
 
+        const realRoomName =
+            room.name || "Mecd Voice";
 
-    // =====================================  
-    // الرسائل  
-    // =====================================  
 
-    let messagesRef = null;  
+        const realRoomId =
+            room.id || roomId;
 
 
-    if (messagesBox) {  
+        // =================================
+        // حفظها
+        // =================================
 
-        messagesRef =  
-            collection(  
-                db,  
-                "rooms",  
-                realRoomId,  
-                "messages"  
-            );  
+        localStorage.setItem(
+            "roomName",
+            realRoomName
+        );
 
+        localStorage.setItem(
+            "roomId",
+            realRoomId
+        );
 
-        const messagesQuery =  
-            query(  
-                messagesRef,  
-                orderBy("time")  
-            );  
 
+        // =================================
+        // عرض اسم الغرفة
+        // =================================
 
-        onSnapshot(  
-            messagesQuery,  
-            (snapshot) => {  
+        if (roomTitle) {
 
-                messagesBox.innerHTML = "";  
+            roomTitle.textContent =
+                "🎙️ " + realRoomName;
 
+        }
 
-                snapshot.forEach(  
-                    (messageDoc) => {  
 
-                        const data =  
-                            messageDoc.data();  
+        // =================================
+        // عرض ID
+        // =================================
 
+        if (roomIdText) {
 
-                        const messageDiv =  
-                            document.createElement("div");  
+            roomIdText.textContent =
+                "ID: " + realRoomId;
 
+        }
 
-                        messageDiv.className =  
-                            "message";  
 
+        // =====================================
+        // الرسائل
+        // =====================================
 
-                        // =================================  
-                        // رسالة صوتية  
-                        // =================================  
+        let messagesRef = null;
 
-                        if (  
-                            data.type === "audio" &&  
-                            data.audioUrl  
-                        ) {  
 
-                            messageDiv.innerHTML = `  
+        if (messagesBox) {
 
-                                <div class="message-head">  
+            messagesRef =
+                collection(
+                    db,
+                    "rooms",
+                    realRoomId,
+                    "messages"
+                );
 
-                                    <img  
-                                        src="${data.photo || "https://i.imgur.com/6VBx3io.png"}"  
-                                        class="message-photo"  
-                                    >  
 
-                                    <span class="message-user">  
-                                        ${data.user || "مستخدم"}  
-                                    </span>  
+            const messagesQuery =
+                query(
+                    messagesRef,
+                    orderBy("time")
+                );
 
-                                </div>  
 
-                                <audio  
-                                    controls  
-                                    preload="metadata"  
-                                    src="${data.audioUrl}"  
-                                    style="  
-                                        width:100%;  
-                                        margin-top:10px;  
-                                    "  
-                                ></audio>  
+            onSnapshot(
+                messagesQuery,
+                (snapshot) => {
 
-                            `;  
+                    messagesBox.innerHTML = "";
 
-                        }  
 
+                    snapshot.forEach(
+                        (messageDoc) => {
 
-                        // =================================  
-                        // رسالة نصية  
-                        // =================================  
+                            const data =
+                                messageDoc.data();
 
-                        else {  
 
-                            messageDiv.innerHTML = `  
+                            const messageDiv =
+                                document.createElement("div");
 
-                                <div class="message-head">  
 
-                                    <img  
-                                        src="${data.photo || "https://i.imgur.com/6VBx3io.png"}"  
-                                        class="message-photo"  
-                                    >  
+                            messageDiv.className =
+                                "message";
 
-                                    <span class="message-user">  
-                                        ${data.user || "مستخدم"}  
-                                    </span>  
 
-                                </div>  
+                            messageDiv.innerHTML = `
 
-                                <div class="message-text">  
-                                    ${data.text || ""}  
-                                </div>  
+                                <div class="message-head">
 
-                            `;  
+                                    <img
+                                        src="${data.photo || "https://i.imgur.com/6VBx3io.png"}"
+                                        class="message-photo"
+                                    >
 
-                        }  
+                                    <span class="message-user">
+                                        ${data.user || "مستخدم"}
+                                    </span>
 
+                                </div>
 
-                        messagesBox.appendChild(  
-                            messageDiv  
-                        );  
+                                <div class="message-text">
+                                    ${data.text || ""}
+                                </div>
 
-                    }  
-                );  
+                            `;
 
 
-                messagesBox.scrollTop =  
-                    messagesBox.scrollHeight;  
+                            messagesBox.appendChild(
+                                messageDiv
+                            );
 
-            },  
-            (error) => {  
+                        }
+                    );
 
-                console.error(  
-                    "Messages listener error:",  
-                    error  
-                );  
 
-            }  
-        );  
+                    messagesBox.scrollTop =
+                        messagesBox.scrollHeight;
 
-    }  
+                }
+            );
 
+        }
 
-    // =====================================  
-    // إرسال الرسائل النصية  
-    // =====================================  
 
-    if (  
-        sendBtn &&  
-        input &&  
-        messagesRef  
-    ) {  
+        // =====================================
+        // إرسال الرسائل
+        // =====================================
 
-        sendBtn.addEventListener(  
-            "click",  
-            async () => {  
+        if (sendBtn && input && messagesRef) {
 
-                const text =  
-                    input.value.trim();  
+            sendBtn.addEventListener(
+                "click",
+                async () => {
 
+                    const text =
+                        input.value.trim();
 
-                if (!text) {  
-                    return;  
-                }  
 
+                    if (!text) {
 
-                const userName =  
-                    localStorage.getItem("userName") ||  
-                    "مستخدم";  
+                        return;
 
+                    }
 
-                const userPhoto =  
-                    localStorage.getItem("userPhoto") ||  
-                    "default.png";  
 
+                    const userName =
+                        localStorage.getItem("userName") ||
+                        "مستخدم";
 
-                try {  
 
-                    await addDoc(  
-                        messagesRef,  
-                        {  
-                            type: "text",  
-                            text: text,  
-                            user: userName,  
-                            photo: userPhoto,  
-                            time: serverTimestamp()  
-                        }  
-                    );  
+                    const userPhoto =
+                        localStorage.getItem("userPhoto") ||
+                        "default.png";
 
 
-                    input.value = "";  
+                    try {
 
-                } catch (error) {  
+                        await addDoc(
+                            messagesRef,
+                            {
 
-                    console.error(  
-                        "Send message error:",  
-                        error  
-                    );  
+                                text: text,
 
-                }  
+                                user: userName,
 
-            }  
-        );  
+                                photo: userPhoto,
 
+                                time: serverTimestamp()
 
-        input.addEventListener(  
-            "keydown",  
-            (event) => {  
+                            }
+                        );
 
-                if (event.key === "Enter") {  
 
-                    sendBtn.click();  
+                        input.value = "";
 
-                }  
 
-            }  
-        );  
+                    } catch (error) {
 
-    }  
+                        console.error(
+                            "Send message error:",
+                            error
+                        );
 
+                    }
 
-    // =====================================  
-    // 🎤 تسجيل الصوت  
-    // =====================================  
+                }
+            );
 
-    let mediaRecorder = null;  
-    let audioChunks = [];  
-    let isRecording = false;  
 
+            input.addEventListener(
+                "keydown",
+                (event) => {
 
-    if (voiceBtn) {  
+                    if (event.key === "Enter") {
 
-        voiceBtn.addEventListener(  
-            "click",  
-            async () => {  
+                        sendBtn.click();
 
-                // =================================  
-                // بدء التسجيل  
-                // =================================  
+                    }
 
-                if (!isRecording) {  
+                }
+            );
 
-                    try {  
+        }
 
-                        if (  
-                            !navigator.mediaDevices ||  
-                            !navigator.mediaDevices.getUserMedia  
-                        ) {  
 
-                            throw new Error(  
-                                "getUserMedia is not supported"  
-                            );  
+        
+// =====================================
+// 🎤 تسجيل الصوت + Firebase
+// =====================================
 
-                        }  
+let mediaRecorder = null;
+let audioChunks = [];
+let isRecording = false;
 
 
-                        const stream =  
-                            await navigator.mediaDevices.getUserMedia({  
-                                audio: true  
-                            });  
+if (voiceBtn) {
 
+    voiceBtn.addEventListener("click", async () => {
 
-                        audioChunks = [];  
+        // ===============================
+        // بدء التسجيل
+        // ===============================
 
+        if (!isRecording) {
 
-                        // =================================  
-                        // اختيار صيغة مدعومة  
-                        // =================================  
+            try {
 
-                        let mimeType =  
-                            "audio/webm";  
+                const stream =
+                    await navigator.mediaDevices.getUserMedia({
+                        audio: true
+                    });
 
 
-                        if (  
-                            MediaRecorder.isTypeSupported(  
-                                "audio/webm;codecs=opus"  
-                            )  
-                        ) {  
+                audioChunks = [];
 
-                            mimeType =  
-                                "audio/webm;codecs=opus";  
 
-                        }  
+                mediaRecorder =
+                    new MediaRecorder(stream);
 
-                        else if (  
-                            MediaRecorder.isTypeSupported(  
-                                "audio/webm"  
-                            )  
-                        ) {  
 
-                            mimeType =  
-                                "audio/webm";  
+                mediaRecorder.addEventListener(
+                    "dataavailable",
+                    (event) => {
 
-                        }  
+                        if (event.data.size > 0) {
 
-                        else if (  
-                            MediaRecorder.isTypeSupported(  
-                                "audio/mp4"  
-                            )  
-                        ) {  
+                            audioChunks.push(
+                                event.data
+                            );
 
-                            mimeType =  
-                                "audio/mp4";  
+                        }
 
-                        }  
+                    }
+                );
 
-                        else if (  
-                            MediaRecorder.isTypeSupported(  
-                                "audio/ogg;codecs=opus"  
-                            )  
-                        ) {  
 
-                            mimeType =  
-                                "audio/ogg;codecs=opus";  
+                mediaRecorder.addEventListener(
+                    "stop",
+                    async () => {
 
-                        }  
+                        try {
 
+                            // إنشاء ملف الصوت
+                            const audioBlob =
+                                new Blob(
+                                    audioChunks,
+                                    {
+                                        type: "audio/webm"
+                                    }
+                                );
 
-                        console.log(  
-                            "🎤 Audio format:",  
-                            mimeType  
-                        );  
 
+                            // ===============================
+                            // رفع الصوت إلى Firebase Storage
+                            // ===============================
 
-                        mediaRecorder =  
-                            new MediaRecorder(  
-                                stream,  
-                                {  
-                                    mimeType:  
-                                        mimeType  
-                                }  
-                            );  
+                            const fileName =
+                                `rooms/${realRoomId}/audio/${Date.now()}.webm`;
 
 
-                        // =================================  
-                        // استقبال بيانات الصوت  
-                        // =================================  
+                            const audioRef =
+                                ref(
+                                    storage,
+                                    fileName
+                                );
 
-                        mediaRecorder.addEventListener(  
-                            "dataavailable",  
-                            (event) => {  
 
-                                if (  
-                                    event.data &&  
-                                    event.data.size > 0  
-                                ) {  
+                            await uploadBytes(
+                                audioRef,
+                                audioBlob,
+                                {
+                                    contentType:
+                                        "audio/webm"
+                                }
+                            );
 
-                                    audioChunks.push(  
-                                        event.data  
-                                    );  
 
-                                }  
+                            // الحصول على رابط الصوت
+                            const audioUrl =
+                                await getDownloadURL(
+                                    audioRef
+                                );
 
-                            }  
-                        );  
 
+                            // ===============================
+                            // معلومات المستخدم
+                            // ===============================
 
-                        // =================================  
-                        // عند إيقاف التسجيل  
-                        // =================================  
+                            const userName =
+                                localStorage.getItem(
+                                    "userName"
+                                ) || "مستخدم";
 
-                        mediaRecorder.addEventListener(  
-                            "stop",  
-                            async () => {  
 
-                                try {  
+                            const userPhoto =
+                                localStorage.getItem(
+                                    "userPhoto"
+                                ) || "default.png";
 
-                                    console.log(  
-                                        "🎤 Audio chunks:",  
-                                        audioChunks.length  
-                                    );  
 
+                            // ===============================
+                            // حفظ الرسالة في Firestore
+                            // ===============================
 
-                                    if (  
-                                        audioChunks.length === 0  
-                                    ) {  
+                            await addDoc(
+                                messagesRef,
+                                {
+                                    type: "audio",
 
-                                        throw new Error(  
-                                            "No audio data recorded"  
-                                        );  
+                                    audioUrl: audioUrl,
 
-                                    }  
+                                    user: userName,
 
+                                    photo: userPhoto,
 
-                                    // =================================  
-                                    // إنشاء ملف الصوت  
-                                    // =================================  
+                                    time: serverTimestamp()
+                                }
+                            );
 
-                                    const audioBlob =  
-                                        new Blob(  
-                                            audioChunks,  
-                                            {  
-                                                type:  
-                                                    mimeType  
-                                            }  
-                                        );  
 
+                            console.log(
+                                "✅ تم حفظ التسجيل في Firebase"
+                            );
 
-                                    console.log(  
-                                        "🎤 Audio size:",  
-                                        audioBlob.size  
-                                    );  
 
+                            // ===============================
+                            // عرض التسجيل مباشرة
+                            // ===============================
 
-                                    if (  
-                                        audioBlob.size === 0  
-                                    ) {  
+                            const audio =
+                                document.createElement("audio");
 
-                                        throw new Error(  
-                                            "Audio blob is empty"  
-                                        );  
 
-                                    }  
+                            audio.controls = true;
 
+                            audio.src = audioUrl;
 
-                                    // =================================  
-                                    // امتداد الملف  
-                                    // =================================  
+                            audio.style.width = "100%";
 
-                                    let extension =  
-                                        "webm";  
+                            audio.style.marginTop = "10px";
 
 
-                                    if (  
-                                        mimeType.includes(  
-                                            "mp4"  
-                                        )  
-                                    ) {  
+                            messagesBox.appendChild(
+                                audio
+                            );
 
-                                        extension =  
-                                            "mp4";  
 
-                                    }  
+                            messagesBox.scrollTop =
+                                messagesBox.scrollHeight;
 
-                                    else if (  
-                                        mimeType.includes(  
-                                            "ogg"  
-                                        )  
-                                    ) {  
 
-                                        extension =  
-                                            "ogg";  
+                        } catch (error) {
 
-                                    }  
+                            console.error(
+                                "❌ Firebase audio error:",
+                                error
+                            );
 
 
-                                    // =================================  
-                                    // اسم الملف  
-                                    // =================================  
+                            alert(
+                                isTurkish
+                                    ? "❌ Ses gönderilemedi."
+                                    : "❌ تعذر إرسال التسجيل الصوتي."
+                            );
 
-                                    const fileName =  
-                                        `rooms/${realRoomId}/audio/${Date.now()}-${Math.random().toString(36).slice(2)}.${extension}`;  
+                        }
 
 
-                                    // =================================  
-                                    // Firebase Storage  
-                                    // =================================  
+                        // إيقاف الميكروفون
+                        stream
+                            .getTracks()
+                            .forEach(
+                                track => track.stop()
+                            );
 
-                                    const audioRef =  
-                                        ref(  
-                                            storage,  
-                                            fileName  
-                                        );  
 
+                        audioChunks = [];
 
-                                    await uploadBytes(  
-                                        audioRef,  
-                                        audioBlob,  
-                                        {  
-                                            contentType:  
-                                                mimeType  
-                                        }  
-                                    );  
+                        mediaRecorder = null;
 
+                    }
+                );
 
-                                    console.log(  
-                                        "✅ Audio uploaded"  
-                                    );  
 
+                mediaRecorder.start();
 
-                                    // =================================  
-                                    // رابط الصوت  
-                                    // =================================  
+                isRecording = true;
 
-                                    const audioUrl =  
-                                        await getDownloadURL(  
-                                            audioRef  
-                                        );  
 
+                voiceBtn.textContent = "⏹️";
 
-                                    console.log(  
-                                        "✅ Audio URL:",  
-                                        audioUrl  
-                                    );  
 
+            } catch (error) {
 
-                                    // =================================  
-                                    // المستخدم  
-                                    // =================================  
+                console.error(
+                    "Recording error:",
+                    error
+                );
 
-                                    const userName =  
-                                        localStorage.getItem(  
-                                            "userName"  
-                                        ) ||  
-                                        "مستخدم";  
 
+                alert(
+                    isTurkish
+                        ? "❌ Mikrofon açılamadı."
+                        : "❌ لم يتم تشغيل الميكروفون."
+                );
 
-                                    const userPhoto =  
-                                        localStorage.getItem(  
-                                            "userPhoto"  
-                                        ) ||  
-                                        "default.png";  
+            }
 
+        }
 
-                                    // =================================  
-                                    // حفظ الصوت في Firestore  
-                                    // =================================  
+        // ===============================
+        // إيقاف التسجيل
+        // ===============================
 
-                                    const audioMessage =  
-                                        await addDoc(  
-                                            messagesRef,  
-                                            {  
-                                                type:  
-                                                    "audio",  
+        else {
 
-                                                audioUrl:  
-                                                    audioUrl,  
+            if (
+                mediaRecorder &&
+                mediaRecorder.state !== "inactive"
+            ) {
 
-                                                user:  
-                                                    userName,  
+                mediaRecorder.stop();
 
-                                                photo:  
-                                                    userPhoto,  
+            }
 
-                                                time:  
-                                                    serverTimestamp()  
-                                            }  
-                                        );  
 
+            isRecording = false;
 
-                                    console.log(  
-                                        "✅ Audio message saved:",  
-                                        audioMessage.id  
-                                    );  
 
+            voiceBtn.textContent = "🎤";
 
-                                } catch (error) {  
+        }
 
-                                    console.error(  
-                                        "❌ Audio error:",  
-                                        error  
-                                    );  
-
-
-                                    alert(  
-                                        isTurkish  
-                                            ? "❌ Ses gönderilemedi."  
-                                            : "❌ تعذر إرسال التسجيل الصوتي."  
-                                    );  
-
-                                }  
-
-
-                                // =================================  
-                                // إيقاف الميكروفون  
-                                // =================================  
-
-                                stream  
-                                    .getTracks()  
-                                    .forEach(  
-                                        (track) => {  
-                                            track.stop();  
-                                        }  
-                                    );  
-
-
-                                mediaRecorder =  
-                                    null;  
-
-                                audioChunks = [];  
-
-                            }  
-                        );  
-
-
-                        // =================================  
-                        // تشغيل التسجيل  
-                        // =================================  
-
-                        mediaRecorder.start(  
-                            1000  
-                        );  
-
-
-                        isRecording = true;  
-
-
-                        voiceBtn.textContent =  
-                            "⏹️";  
-
-
-                        console.log(  
-                            "🎤 Recording started"  
-                        );  
-
-
-                    } catch (error) {  
-
-                        console.error(  
-                            "❌ Recording error:",  
-                            error  
-                        );  
-
-
-                        alert(  
-                            isTurkish  
-                                ? "❌ Mikrofon açılamadı."  
-                                : "❌ لم يتم تشغيل الميكروفون."  
-                        );  
-
-                    }  
-
-                }  
-
-
-                // =================================  
-                // إيقاف التسجيل  
-                // =================================  
-
-                else {  
-
-                    if (  
-                        mediaRecorder &&  
-                        mediaRecorder.state !== "inactive"  
-                    ) {  
-
-                        mediaRecorder.stop();  
-
-                    }  
-
-
-                    isRecording = false;  
-
-
-                    voiceBtn.textContent =  
-                        "🎤";  
-
-
-                    console.log(  
-                        "⏹️ Recording stopped"  
-                    );  
-
-                }  
-
-            }  
-        );  
-
-    }  
-
-
-    // =====================================  
-    // 📞 الاتصال  
-    // =====================================  
-
-    if (callBtn) {  
-
-        callBtn.addEventListener(  
-            "click",  
-            () => {  
-
-                alert(  
-                    isTurkish  
-                        ? "📞 Arama yakında."  
-                        : "📞 الاتصال قيد التطوير"  
-                );  
-
-            }  
-        );  
-
-    }  
-
-
-    // =====================================  
-    // 📹 الفيديو  
-    // =====================================  
-
-    if (videoBtn) {  
-
-        videoBtn.addEventListener(  
-            "click",  
-            () => {  
-
-                alert(  
-                    isTurkish  
-                        ? "📹 Görüntülü arama yakında."  
-                        : "📹 الفيديو قيد التطوير"  
-                );  
-
-            }  
-        );  
-
-    }  
-
-
-} catch (error) {  
-
-    console.error(  
-        "Room loading error:",  
-        error  
-    );  
-
-
-    if (roomTitle) {  
-
-        roomTitle.textContent =  
-            isTurkish  
-                ? "Oda yüklenemedi"  
-                : "تعذر تحميل الغرفة";  
-
-    }  
+    });
 
 }
+
+        // =====================================
+        // 📞 الاتصال
+        // =====================================
+
+        if (callBtn) {
+
+            callBtn.addEventListener(
+                "click",
+                () => {
+
+                    alert(
+                        isTurkish
+                            ? "📞 Arama yakında."
+                            : "📞 الاتصال قيد التطوير"
+                    );
+
+                }
+            );
+
+        }
+
+
+        // =====================================
+        // 📹 الفيديو
+        // =====================================
+
+        if (videoBtn) {
+
+            videoBtn.addEventListener(
+                "click",
+                () => {
+
+                    alert(
+                        isTurkish
+                            ? "📹 Görüntülü arama yakında."
+                            : "📹 الفيديو قيد التطوير"
+                    );
+
+                }
+            );
+
+        }
+
+
+    } catch (error) {
+
+        console.error(
+            "Room loading error:",
+            error
+        );
+
+
+        if (roomTitle) {
+
+            roomTitle.textContent =
+                isTurkish
+                    ? "Oda yüklenemedi"
+                    : "تعذر تحميل الغرفة";
+
+        }
+
+    }
 
 });
