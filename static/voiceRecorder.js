@@ -1,20 +1,20 @@
 // =====================================
 // 🎤 voiceRecorder.js
-// تسجيل الصوت + Firebase Storage + Firestore
+// تسجيل الصوت + Cloudinary + Firestore
 // =====================================
-
-import { storage } from "./app.js";
-
-import {
-    ref,
-    uploadBytes,
-    getDownloadURL
-} from "https://www.gstatic.com/firebasejs/10.12.2/firebase-storage.js";
 
 import {
     addDoc,
     serverTimestamp
 } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
+
+
+// =====================================
+// ☁️ Cloudinary
+// =====================================
+
+const CLOUDINARY_CLOUD_NAME = "slm8tluf";
+const CLOUDINARY_UPLOAD_PRESET = "voice_upload";
 
 
 // =====================================
@@ -53,6 +53,7 @@ export async function startVoiceRecording(
     try {
 
         console.log("🎤 Room ID:", currentRoomId);
+
 
         // =====================================
         // 🎙️ تشغيل الميكروفون
@@ -114,7 +115,7 @@ export async function startVoiceRecording(
 
 
         // =====================================
-        // 🎧 استقبال الصوت
+        // 🎧 استقبال أجزاء الصوت
         // =====================================
 
         mediaRecorder.addEventListener(
@@ -232,42 +233,70 @@ export async function startVoiceRecording(
 
 
                     // =================================
-                    // 📁 Firebase Storage
+                    // ☁️ رفع الصوت إلى Cloudinary
                     // =================================
 
-                    const extension =
-                        finalType.includes("ogg")
-                            ? "ogg"
-                            : "webm";
+                    console.log(
+                        "☁️ جاري رفع التسجيل إلى Cloudinary..."
+                    );
 
 
-                    const fileName =
-                        `rooms/${currentRoomId}/audio/${Date.now()}.${extension}`;
+                    const uploadUrl =
+                        `https://api.cloudinary.com/v1_1/${CLOUDINARY_CLOUD_NAME}/video/upload`;
 
 
-                    const audioRef =
-                        ref(
-                            storage,
-                            fileName
+                    const formData =
+                        new FormData();
+
+
+                    formData.append(
+                        "file",
+                        audioBlob,
+                        `voice_${Date.now()}.webm`
+                    );
+
+
+                    formData.append(
+                        "upload_preset",
+                        CLOUDINARY_UPLOAD_PRESET
+                    );
+
+
+                    const cloudinaryResponse =
+                        await fetch(
+                            uploadUrl,
+                            {
+                                method: "POST",
+                                body: formData
+                            }
                         );
 
 
+                    if (
+                        !cloudinaryResponse.ok
+                    ) {
+
+                        const errorText =
+                            await cloudinaryResponse.text();
+
+                        console.error(
+                            "Cloudinary Error:",
+                            errorText
+                        );
+
+                        throw new Error(
+                            "فشل رفع الصوت إلى Cloudinary"
+                        );
+
+                    }
+
+
+                    const cloudinaryData =
+                        await cloudinaryResponse.json();
+
+
                     console.log(
-                        "⬆️ جاري رفع التسجيل إلى Firebase..."
-                    );
-
-
-                    await uploadBytes(
-                        audioRef,
-                        audioBlob,
-                        {
-                            contentType: finalType
-                        }
-                    );
-
-
-                    console.log(
-                        "✅ تم رفع التسجيل إلى Storage"
+                        "✅ تم رفع الصوت إلى Cloudinary"
                     );
 
 
@@ -276,9 +305,16 @@ export async function startVoiceRecording(
                     // =================================
 
                     const audioUrl =
-                        await getDownloadURL(
-                            audioRef
+                        cloudinaryData.secure_url;
+
+
+                    if (!audioUrl) {
+
+                        throw new Error(
+                            "Cloudinary لم يرجع رابط الصوت"
                         );
+
+                    }
 
 
                     console.log(
@@ -330,10 +366,6 @@ export async function startVoiceRecording(
 
                     // =================================
                     // 🎧 إظهار التسجيل في الدردشة
-                    // =================================
-                    //
-                    // نعرضه بعد الحفظ في Firebase
-                    // حتى لا يختفي عند تحديث Snapshot.
                     // =================================
 
                     const messagesBox =
@@ -388,9 +420,6 @@ export async function startVoiceRecording(
                         `;
 
 
-                        // منع التكرار إذا كانت
-                        // room.js قد عرضتها مسبقًا
-
                         const alreadyExists =
                             messagesBox.querySelector(
                                 `[data-message-id="${messageDoc.id}"]`
@@ -427,7 +456,10 @@ export async function startVoiceRecording(
 
                     alert(
                         "❌ خطأ التسجيل:\n\n" +
-                        error.message
+                        (
+                            error.message ||
+                            error
+                        )
                     );
 
                 }
