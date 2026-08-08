@@ -370,7 +370,7 @@ document.addEventListener("DOMContentLoaded", async () => {
 
         
 // =====================================
-// 🎤 تسجيل الصوت + Firebase
+// 🎤 تسجيل الصوت
 // =====================================
 
 let mediaRecorder = null;
@@ -421,146 +421,50 @@ if (voiceBtn) {
 
                 mediaRecorder.addEventListener(
                     "stop",
-                    async () => {
+                    () => {
 
-                        try {
-
-                            // إنشاء ملف الصوت
-                            const audioBlob =
-                                new Blob(
-                                    audioChunks,
-                                    {
-                                        type: "audio/webm"
-                                    }
-                                );
-
-
-                            // ===============================
-                            // رفع الصوت إلى Firebase Storage
-                            // ===============================
-
-                            const fileName =
-                                `rooms/${realRoomId}/audio/${Date.now()}.webm`;
-
-
-                            const audioRef =
-                                ref(
-                                    storage,
-                                    fileName
-                                );
-
-
-                            await uploadBytes(
-                                audioRef,
-                                audioBlob,
+                        const audioBlob =
+                            new Blob(
+                                audioChunks,
                                 {
-                                    contentType:
-                                        "audio/webm"
+                                    type: "audio/webm"
                                 }
                             );
 
 
-                            // الحصول على رابط الصوت
-                            const audioUrl =
-                                await getDownloadURL(
-                                    audioRef
-                                );
-
-
-                            // ===============================
-                            // معلومات المستخدم
-                            // ===============================
-
-                            const userName =
-                                localStorage.getItem(
-                                    "userName"
-                                ) || "مستخدم";
-
-
-                            const userPhoto =
-                                localStorage.getItem(
-                                    "userPhoto"
-                                ) || "default.png";
-
-
-                            // ===============================
-                            // حفظ الرسالة في Firestore
-                            // ===============================
-
-                            await addDoc(
-                                messagesRef,
-                                {
-                                    type: "audio",
-
-                                    audioUrl: audioUrl,
-
-                                    user: userName,
-
-                                    photo: userPhoto,
-
-                                    time: serverTimestamp()
-                                }
+                        const audioUrl =
+                            URL.createObjectURL(
+                                audioBlob
                             );
 
 
-                            console.log(
-                                "✅ تم حفظ التسجيل في Firebase"
-                            );
+                        const audio =
+                            document.createElement("audio");
 
 
-                            // ===============================
-                            // عرض التسجيل مباشرة
-                            // ===============================
+                        audio.controls = true;
 
-                            const audio =
-                                document.createElement("audio");
+                        audio.src = audioUrl;
 
+                        audio.style.width = "100%";
 
-                            audio.controls = true;
-
-                            audio.src = audioUrl;
-
-                            audio.style.width = "100%";
-
-                            audio.style.marginTop = "10px";
+                        audio.style.marginTop = "10px";
 
 
-                            messagesBox.appendChild(
-                                audio
-                            );
+                        messagesBox.appendChild(
+                            audio
+                        );
 
 
-                            messagesBox.scrollTop =
-                                messagesBox.scrollHeight;
+                        messagesBox.scrollTop =
+                            messagesBox.scrollHeight;
 
 
-                        } catch (error) {
-
-    console.error("❌ Firebase audio error:", error);
-
-    console.error("Error code:", error?.code);
-    console.error("Error message:", error?.message);
-
-    alert(
-        "❌ خطأ Firebase:\n\n" +
-        (error?.code || "unknown") +
-        "\n\n" +
-        (error?.message || error)
-    );
-                        }
-
-
-                        // إيقاف الميكروفون
                         stream
                             .getTracks()
                             .forEach(
                                 track => track.stop()
                             );
-
-
-                        audioChunks = [];
-
-                        mediaRecorder = null;
 
                     }
                 );
