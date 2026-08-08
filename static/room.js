@@ -21,7 +21,10 @@ import {
 document.addEventListener("DOMContentLoaded", async () => {
 
     // =====================================
-    // عناصر الغرفة
+    // عناصر الغرفةimport {
+    startVoiceRecording,
+    stopVoiceRecording
+} from "./voiceRecorder.js";
     // =====================================
 
     const roomTitle =
