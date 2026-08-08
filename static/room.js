@@ -449,9 +449,9 @@ if (voiceBtn) {
                 );
 
 
-                mediaRecorder.addEventListener(
-"stop",
-() => {
+             mediaRecorder.addEventListener(
+    "stop",
+    async () => {
 
 const audioBlob =  
                         new Blob(  
