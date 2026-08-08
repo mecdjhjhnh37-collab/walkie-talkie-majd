@@ -501,8 +501,17 @@ const firebaseAudioUrl =
                         audio  
                     );  
 
-
-                    messagesBox.scrollTop =  
+             await addDoc(
+    messagesRef,
+    {
+        type: "audio",
+        audioUrl: firebaseAudioUrl,
+        user: localStorage.getItem("userName") || "مستخدم",
+        photo: localStorage.getItem("userPhoto") || "default.png",
+        time: serverTimestamp()
+    }
+);     
+       messagesBox.scrollTop =  
                         messagesBox.scrollHeight;  
 
 
