@@ -429,9 +429,13 @@ document.addEventListener("DOMContentLoaded", async () => {
                             }
 
 
-                            const stream =
-                                await navigator.mediaDevices.getUserMedia({
-                                    audio: true
+                            console.log("🎤 عم نطلب صلاحية الميكروفون...");
+
+const stream = await navigator.mediaDevices.getUserMedia({
+    audio: true
+});
+
+console.log("✅ الميكروفون اشتغل فعلاً", stream);
                                 });
 
 
