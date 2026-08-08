@@ -32,8 +32,10 @@ document.addEventListener("DOMContentLoaded", async () => {
     const voiceBtn = document.getElementById("voiceBtn");
     const callBtn = document.getElementById("callBtn");
     const videoBtn = document.getElementById("videoBtn");
-
-
+navigator.permissions.query({ name: "microphone" }).then(p => console.log("🎤 Microphone:", p.state));
+    
+navigator.permissions.query({ name: "microphone" }).then(p => p.onchange = () => console.log("🎤 Microphone changed:", p.state));
+    console.log("🎤 getUserMedia:", !!navigator.mediaDevices?.getUserMedia);
     // =====================================
     // اللغة
     // =====================================
