@@ -558,26 +558,22 @@ document.addEventListener("DOMContentLoaded", async () => {
                                             messagesRef
                                         ) {
 
-                                            await addDoc(
-                                                messagesRef,
-                                                {
+                                            const audioMessage = await addDoc(
+    messagesRef,
+    {
+        type: "audio",
+        audioUrl: audioUrl,
+        user: userName,
+        photo: userPhoto,
+        time: serverTimestamp()
+    }
+);
 
-                                                    type: "audio",
-
-                                                    audioUrl:
-                                                        audioUrl,
-
-                                                    user:
-                                                        userName,
-
-                                                    photo:
-                                                        userPhoto,
-
-                                                    time:
-                                                        serverTimestamp()
-
-                                                }
-                                            );
+console.log(
+    "✅ Audio message saved:",
+    audioMessage.id,
+    audioUrl
+);
 
                                         }
 
