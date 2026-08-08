@@ -1,11 +1,10 @@
-import { storage } from "./app.js";
+import { storage, db } from "./app.js";
 
 import {
     ref,
     uploadBytes,
     getDownloadURL
 } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-storage.js";
-import { db } from "./app.js";
 
 import {
     doc,
@@ -101,7 +100,7 @@ document.addEventListener("DOMContentLoaded", async () => {
 
     // =====================================
     // إصلاح ID القديم
-    // room-000001  →  MC-000001
+    // room-000001 → MC-000001
     // =====================================
 
     if (roomId.toLowerCase().startsWith("room-")) {
@@ -164,7 +163,7 @@ document.addEventListener("DOMContentLoaded", async () => {
 
 
         // =================================
-        // حفظها
+        // حفظها محلياً
         // =================================
 
         localStorage.setItem(
@@ -249,26 +248,73 @@ document.addEventListener("DOMContentLoaded", async () => {
                                 "message";
 
 
-                            messageDiv.innerHTML = `
+                            // =================================
+                            // رسالة صوتية
+                            // =================================
 
-                                <div class="message-head">
+                            if (
+                                data.type === "audio" &&
+                                data.audioUrl
+                            ) {
 
-                                    <img
-                                        src="${data.photo || "https://i.imgur.com/6VBx3io.png"}"
-                                        class="message-photo"
-                                    >
+                                messageDiv.innerHTML = `
 
-                                    <span class="message-user">
-                                        ${data.user || "مستخدم"}
-                                    </span>
+                                    <div class="message-head">
 
-                                </div>
+                                        <img
+                                            src="${data.photo || "https://i.imgur.com/6VBx3io.png"}"
+                                            class="message-photo"
+                                        >
 
-                                <div class="message-text">
-                                    ${data.text || ""}
-                                </div>
+                                        <span class="message-user">
+                                            ${data.user || "مستخدم"}
+                                        </span>
 
-                            `;
+                                    </div>
+
+                                    <audio
+                                        controls
+                                        preload="metadata"
+                                        src="${data.audioUrl}"
+                                        style="
+                                            width:100%;
+                                            margin-top:10px;
+                                        "
+                                    ></audio>
+
+                                `;
+
+                            }
+
+
+                            // =================================
+                            // رسالة نصية
+                            // =================================
+
+                            else {
+
+                                messageDiv.innerHTML = `
+
+                                    <div class="message-head">
+
+                                        <img
+                                            src="${data.photo || "https://i.imgur.com/6VBx3io.png"}"
+                                            class="message-photo"
+                                        >
+
+                                        <span class="message-user">
+                                            ${data.user || "مستخدم"}
+                                        </span>
+
+                                    </div>
+
+                                    <div class="message-text">
+                                        ${data.text || ""}
+                                    </div>
+
+                                `;
+
+                            }
 
 
                             messagesBox.appendChild(
@@ -325,6 +371,8 @@ document.addEventListener("DOMContentLoaded", async () => {
                             messagesRef,
                             {
 
+                                type: "text",
+
                                 text: text,
 
                                 user: userName,
@@ -370,158 +418,258 @@ document.addEventListener("DOMContentLoaded", async () => {
 
 
         // =====================================
-// 🎤 تسجيل الصوت
-// =====================================
+        // 🎤 تسجيل الصوت
+        // =====================================
 
-let mediaRecorder = null;
-let audioChunks = [];
-let isRecording = false;
+        let mediaRecorder = null;
 
+        let audioChunks = [];
 
-if (voiceBtn) {
-
-    voiceBtn.addEventListener("click", async () => {
-
-        // ===============================
-        // بدء التسجيل
-        // ===============================
-
-        if (!isRecording) {
-
-            try {
-
-                const stream =
-                    await navigator.mediaDevices.getUserMedia({
-                        audio: true
-                    });
+        let isRecording = false;
 
 
-                audioChunks = [];
+        if (voiceBtn) {
+
+            voiceBtn.addEventListener(
+                "click",
+                async () => {
+
+                    // ===============================
+                    // بدء التسجيل
+                    // ===============================
+
+                    if (!isRecording) {
+
+                        try {
+
+                            const stream =
+                                await navigator.mediaDevices.getUserMedia({
+                                    audio: true
+                                });
 
 
-                mediaRecorder =
-                    new MediaRecorder(stream);
+                            audioChunks = [];
 
 
-                mediaRecorder.addEventListener(
-                    "dataavailable",
-                    (event) => {
+                            mediaRecorder =
+                                new MediaRecorder(stream);
 
-                        if (event.data.size > 0) {
 
-                            audioChunks.push(
-                                event.data
+                            mediaRecorder.addEventListener(
+                                "dataavailable",
+                                (event) => {
+
+                                    if (
+                                        event.data &&
+                                        event.data.size > 0
+                                    ) {
+
+                                        audioChunks.push(
+                                            event.data
+                                        );
+
+                                    }
+
+                                }
+                            );
+
+
+                            // ===============================
+                            // عند إيقاف التسجيل
+                            // ===============================
+
+                            mediaRecorder.addEventListener(
+                                "stop",
+                                async () => {
+
+                                    try {
+
+                                        const audioBlob =
+                                            new Blob(
+                                                audioChunks,
+                                                {
+                                                    type: "audio/webm"
+                                                }
+                                            );
+
+
+                                        // =========================
+                                        // اسم الملف
+                                        // =========================
+
+                                        const fileName =
+                                            `rooms/${realRoomId}/audio/${Date.now()}.webm`;
+
+
+                                        // =========================
+                                        // مكان الملف في Storage
+                                        // =========================
+
+                                        const audioRef =
+                                            ref(
+                                                storage,
+                                                fileName
+                                            );
+
+
+                                        // =========================
+                                        // رفع التسجيل
+                                        // =========================
+
+                                        await uploadBytes(
+                                            audioRef,
+                                            audioBlob
+                                        );
+
+
+                                        // =========================
+                                        // الحصول على الرابط
+                                        // =========================
+
+                                        const audioUrl =
+                                            await getDownloadURL(
+                                                audioRef
+                                            );
+
+
+                                        // =========================
+                                        // معلومات المستخدم
+                                        // =========================
+
+                                        const userName =
+                                            localStorage.getItem(
+                                                "userName"
+                                            ) ||
+                                            "مستخدم";
+
+
+                                        const userPhoto =
+                                            localStorage.getItem(
+                                                "userPhoto"
+                                            ) ||
+                                            "default.png";
+
+
+                                        // =========================
+                                        // حفظ الرسالة في Firestore
+                                        // =========================
+
+                                        if (
+                                            messagesRef
+                                        ) {
+
+                                            await addDoc(
+                                                messagesRef,
+                                                {
+
+                                                    type: "audio",
+
+                                                    audioUrl:
+                                                        audioUrl,
+
+                                                    user:
+                                                        userName,
+
+                                                    photo:
+                                                        userPhoto,
+
+                                                    time:
+                                                        serverTimestamp()
+
+                                                }
+                                            );
+
+                                        }
+
+
+                                    } catch (error) {
+
+                                        console.error(
+                                            "Audio upload error:",
+                                            error
+                                        );
+
+
+                                        alert(
+                                            isTurkish
+                                                ? "❌ Ses gönderilemedi."
+                                                : "❌ تعذر إرسال التسجيل الصوتي."
+                                        );
+
+                                    }
+
+
+                                    // =========================
+                                    // إيقاف الميكروفون
+                                    // =========================
+
+                                    stream
+                                        .getTracks()
+                                        .forEach(
+                                            track =>
+                                                track.stop()
+                                        );
+
+                                }
+                            );
+
+
+                            mediaRecorder.start();
+
+                            isRecording = true;
+
+
+                            voiceBtn.textContent =
+                                "⏹️";
+
+
+                        } catch (error) {
+
+                            console.error(
+                                "Recording error:",
+                                error
+                            );
+
+
+                            alert(
+                                isTurkish
+                                    ? "❌ Mikrofon açılamadı."
+                                    : "❌ لم يتم تشغيل الميكروفون."
                             );
 
                         }
 
                     }
-                );
 
 
-                mediaRecorder.addEventListener(
-                    "stop",
-                    () => {
+                    // ===============================
+                    // إيقاف التسجيل
+                    // ===============================
 
-                        const audioBlob =
-                            new Blob(
-                                audioChunks,
-                                {
-                                    type: "audio/webm"
-                                }
-                            );
+                    else {
 
+                        if (
+                            mediaRecorder &&
+                            mediaRecorder.state !== "inactive"
+                        ) {
 
-                        const audioUrl =
-                            URL.createObjectURL(
-                                audioBlob
-                            );
+                            mediaRecorder.stop();
+
+                        }
 
 
-                        const audio =
-                            document.createElement("audio");
+                        isRecording = false;
 
 
-                        audio.controls = true;
-
-                        audio.src = audioUrl;
-
-                        audio.style.width = "100%";
-
-                        audio.style.marginTop = "10px";
-
-
-                        messagesBox.appendChild(
-                            audio
-                        );
-
-
-                        messagesBox.scrollTop =
-                            messagesBox.scrollHeight;
-
-
-                        stream
-                            .getTracks()
-                            .forEach(
-                                track => track.stop()
-                            );
+                        voiceBtn.textContent =
+                            "🎤";
 
                     }
-                );
 
-
-                mediaRecorder.start();
-
-                isRecording = true;
-
-
-                voiceBtn.textContent = "⏹️";
-
-
-            } catch (error) {
-
-                console.error(
-                    "Recording error:",
-                    error
-                );
-
-
-                alert(
-                    isTurkish
-                        ? "❌ Mikrofon açılamadı."
-                        : "❌ لم يتم تشغيل الميكروفون."
-                );
-
-            }
+                }
+            );
 
         }
-
-        // ===============================
-        // إيقاف التسجيل
-        // ===============================
-
-        else {
-
-            if (
-                mediaRecorder &&
-                mediaRecorder.state !== "inactive"
-            ) {
-
-                mediaRecorder.stop();
-
-            }
-
-
-            isRecording = false;
-
-
-            voiceBtn.textContent = "🎤";
-
-        }
-
-    });
-
-}
 
 
         // =====================================
