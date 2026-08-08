@@ -534,28 +534,27 @@ document.addEventListener("DOMContentLoaded", async () => {
                             // عند إيقاف التسجيل
                             // =================================
 
-                              mediaRecorder.addEventListener("stop", () => {
+                            mediaRecorder.addEventListener(
+                                "stop",
+                                async () => {
 
-    const audioBlob = new Blob(audioChunks, {
-        type: mediaRecorder.mimeType
-    });
+                                    try {
 
-    console.log("🎤 chunks:", audioChunks.length);
-    console.log("🎤 size:", audioBlob.size);
+                                        console.log(
+                                            "🎤 Audio chunks:",
+                                            audioChunks.length
+                                        );
 
-    const audioUrl = URL.createObjectURL(audioBlob);
 
-    const audio = document.createElement("audio");
-    audio.controls = true;
-    audio.src = audioUrl;
-    audio.style.width = "100%";
-    audio.style.marginTop = "10px";
+                                        if (
+                                            audioChunks.length === 0
+                                        ) {
 
-    messagesBox.appendChild(audio);
+                                            throw new Error(
+                                                "No audio data recorded"
+                                            );
 
-    stream.getTracks().forEach(track => track.stop());
-
-});
+                                        }
 
 
                                         // =================================
