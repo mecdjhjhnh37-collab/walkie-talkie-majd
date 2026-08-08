@@ -285,8 +285,9 @@ export async function startVoiceRecording(
                         );
 
                         throw new Error(
-                            "فشل رفع الصوت إلى Cloudinary"
-                        );
+    `Cloudinary Error:\n${errorText}`
+);
+                        
 
                     }
 
