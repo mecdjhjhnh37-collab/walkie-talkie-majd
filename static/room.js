@@ -466,6 +466,22 @@ const audioBlob =
                         URL.createObjectURL(  
                             audioBlob  
                         );  
+        const fileName =
+    `rooms/${realRoomId}/audio/${Date.now()}.webm`;
+
+const audioRef =
+    ref(storage, fileName);
+
+await uploadBytes(
+    audioRef,
+    audioBlob,
+    {
+        contentType: "audio/webm"
+    }
+);
+
+const firebaseAudioUrl =
+    await getDownloadURL(audioRef);
 
 
                     const audio =  
