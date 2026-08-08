@@ -338,7 +338,7 @@ document.addEventListener("DOMContentLoaded", async () => {
             }
 
 
-            messagesBox.innerHTML = "";
+            
 
 
             // الرسائل الموجودة في Firestore
@@ -415,30 +415,123 @@ document.addEventListener("DOMContentLoaded", async () => {
             );
 
 
-        onSnapshot(
-            messagesQuery,
+          onSnapshot(
+    messagesQuery,
+    (snapshot) => {
 
-            (snapshot) => {
+        if (!messagesBox) {
+            return;
+        }
 
-                console.log(
-                    "📨 تم تحديث الرسائل:",
-                    snapshot.size
+        snapshot.forEach((messageDoc) => {
+
+            const data = messageDoc.data();
+
+            // نبحث إذا الرسالة موجودة مسبقًا
+            let messageDiv =
+                messagesBox.querySelector(
+                    `[data-message-id="${messageDoc.id}"]`
                 );
 
+            // إذا الرسالة غير موجودة، ننشئها
+            if (!messageDiv) {
 
-                renderMessages(snapshot);
+                messageDiv =
+                    document.createElement("div");
 
-            },
+                messageDiv.className = "message";
 
-            (error) => {
+                messageDiv.dataset.messageId =
+                    messageDoc.id;
 
-                console.error(
-                    "❌ Messages error:",
-                    error
+                messagesBox.appendChild(
+                    messageDiv
                 );
+            }
+
+            // =====================================
+            // 🎤 رسالة صوتية
+            // =====================================
+
+            if (
+                data.type === "audio" &&
+                data.audioUrl
+            ) {
+
+                messageDiv.innerHTML = `
+
+                    <div class="message-head">
+
+                        <img
+                            src="${data.photo || "default.png"}"
+                            class="message-photo"
+                        >
+
+                        <span class="message-user">
+                            ${data.user || "مستخدم"}
+                        </span>
+
+                    </div>
+
+                    <audio
+                        controls
+                        preload="metadata"
+                        src="${data.audioUrl}"
+                        style="
+                            width:100%;
+                            margin-top:10px;
+                        "
+                    ></audio>
+
+                `;
 
             }
+
+            // =====================================
+            // 💬 رسالة نصية
+            // =====================================
+
+            else {
+
+                messageDiv.innerHTML = `
+
+                    <div class="message-head">
+
+                        <img
+                            src="${data.photo || "default.png"}"
+                            class="message-photo"
+                        >
+
+                        <span class="message-user">
+                            ${data.user || "مستخدم"}
+                        </span>
+
+                    </div>
+
+                    <div class="message-text">
+                        ${data.text || ""}
+                    </div>
+
+                `;
+
+            }
+
+        });
+
+        messagesBox.scrollTop =
+            messagesBox.scrollHeight;
+
+    },
+
+    (error) => {
+
+        console.error(
+            "❌ Messages error:",
+            error
         );
+
+    }
+);
 
 
         // =====================================
